@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "win32",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/crobots++.exe",
+            "cwd": "${workspaceFolder}/build/bin",
+            "preLaunchTask": "CMake: build",
+        },
+        {
+            "name": "linux",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/crobots++",
+            "cwd": "${workspaceFolder}/build/bin",
+            "preLaunchTask": "CMake: build",
+        },
+    ]
+}
