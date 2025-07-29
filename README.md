@@ -15,7 +15,8 @@ We started this project with the following goals in mind:
 - It should be fun to implement, and fun to use
 - We can do better than ASCII graphics, even though I still kind of like them
   myself
-- The robots should be object-oriented, implementing a pre-defined interface.
+- The robots should be object-oriented, implementing a pre-defined interface
+- Improved debugging capabilities for troubleshooting one's robot
 
 # Design
 Implementing a robot is as simple as including
