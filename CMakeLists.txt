@@ -25,36 +25,48 @@ endforeach()
 
 add_subdirectory(lib/SDL)
 add_subdirectory(lib/glm)
-add_subdirectory(lib/tinyobjloader)
 add_subdirectory(lib/json)
+add_subdirectory(lib/stb)
+add_subdirectory(lib/tinyobjloader)
 add_executable(crobots WIN32
     src/DebugGroup.cpp
     src/Main.cpp
+    src/Model.cpp
+    src/ModelVoxObj.cpp
     src/Renderer.cpp
     src/Shader.cpp
+    src/Texture.cpp
     src/Window.cpp
 )
 set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
 set_target_properties(crobots PROPERTIES CXX_STANDARD 23)
 target_link_libraries(crobots PRIVATE
-    crobots_api
     SDL3::SDL3
+    crobots_api
     glm-header-only
     nlohmann_json
+    stb
     tinyobjloader
 )
 target_precompile_headers(crobots PRIVATE
     <algorithm>
+    <cmath>
     <cstdint>
+    <cstring>
     <exception>
     <format>
     <fstream>
+    <functional>
     <glm/glm.hpp>
+    <glm/gtc/matrix_transform.hpp>
     <iterator>
+    <limits>
+    <memory>
     <nlohmann/json.hpp>
     <string>
     <string_view>
     <tiny_obj_loader.h>
+    <unordered_map>
     <vector>
 )
 

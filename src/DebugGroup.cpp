@@ -6,8 +6,7 @@
 namespace Crobots
 {
 
-DebugGroup::DebugGroup(SDL_GPUCommandBuffer* commandBuffer, const char* name)
-    : commandBuffer{commandBuffer}
+DebugGroup::DebugGroup(SDL_GPUCommandBuffer* commandBuffer, const char* name) : commandBuffer{commandBuffer}
 {
     SDL_PushGPUDebugGroup(commandBuffer, name);
 }

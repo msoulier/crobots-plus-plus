@@ -3,9 +3,9 @@
 #include <SDL3/SDL.h>
 
 #ifndef NDEBUG
-#define CROBOTS_DEBUG_GROUP(commandBuffer) Crobots::DebugGroup debugGroup(commandBuffer, __func__)
+#define CROBOTS_DEBUG_GROUP(...) ::Crobots::DebugGroup debugGroup(__VA_ARGS__, __func__)
 #else
-#define CROBOTS_DEBUG_GROUP(commandBuffer)
+#define CROBOTS_DEBUG_GROUP(...)
 #endif
 
 #ifndef NDEBUG
