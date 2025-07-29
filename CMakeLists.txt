@@ -14,41 +14,9 @@ configure_file(LICENSE ${BINARY_DIR} COPYONLY)
 configure_file(README.md ${BINARY_DIR} COPYONLY)
 
 add_library(crobots_api src/IRobot.cpp)
+set_target_properties(crobots_api PROPERTIES CXX_STANDARD 20)
 target_include_directories(crobots_api PUBLIC include)
-
-file(GLOB ROBOTS robots/*.cpp)
-foreach(PATH ${ROBOTS})
-    get_filename_component(NAME ${PATH} NAME_WE)
-    add_library(${NAME} MODULE ${PATH})
-    target_link_libraries(${NAME} PRIVATE crobots_api)
-endforeach()
-
-add_subdirectory(lib/SDL)
-add_subdirectory(lib/glm)
-add_subdirectory(lib/json)
-add_subdirectory(lib/stb)
-add_subdirectory(lib/tinyobjloader)
-add_executable(crobots WIN32
-    src/DebugGroup.cpp
-    src/Main.cpp
-    src/Model.cpp
-    src/ModelVoxObj.cpp
-    src/Renderer.cpp
-    src/Shader.cpp
-    src/Texture.cpp
-    src/Window.cpp
-)
-set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
-set_target_properties(crobots PROPERTIES CXX_STANDARD 23)
-target_link_libraries(crobots PRIVATE
-    SDL3::SDL3
-    crobots_api
-    glm-header-only
-    nlohmann_json
-    stb
-    tinyobjloader
-)
-target_precompile_headers(crobots PRIVATE
+target_precompile_headers(crobots_api PUBLIC
     <algorithm>
     <cmath>
     <cstdint>
@@ -57,67 +25,38 @@ target_precompile_headers(crobots PRIVATE
     <format>
     <fstream>
     <functional>
-    <glm/glm.hpp>
-    <glm/gtc/matrix_transform.hpp>
     <iterator>
     <limits>
     <memory>
-    <nlohmann/json.hpp>
     <string>
     <string_view>
-    <tiny_obj_loader.h>
     <unordered_map>
     <vector>
 )
 
-function(add_shader FILE)
-    set(DEPENDS ${ARGN})
-    set(GLSL ${CMAKE_SOURCE_DIR}/shaders/${FILE})
-    set(SPV ${CMAKE_SOURCE_DIR}/shaders/bin/${FILE}.spv)
-    set(DXIL ${CMAKE_SOURCE_DIR}/shaders/bin/${FILE}.dxil)
-    set(MSL ${CMAKE_SOURCE_DIR}/shaders/bin/${FILE}.msl)
-    set(JSON ${CMAKE_SOURCE_DIR}/shaders/bin/${FILE}.json)
-    function(compile PROGRAM SOURCE OUTPUT)
-        add_custom_command(
-            OUTPUT ${OUTPUT}
-            COMMAND ${PROGRAM} ${SOURCE} -o ${OUTPUT} -I src
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            DEPENDS ${SOURCE} ${DEPENDS}
-            COMMENT ${OUTPUT}
-        )
-        get_filename_component(NAME ${OUTPUT} NAME)
-        string(REPLACE . _ NAME ${NAME})
-        set(NAME compile_${NAME})
-        add_custom_target(${NAME} DEPENDS ${OUTPUT})
-        add_dependencies(crobots ${NAME})
-    endfunction()
-    if (MSVC)
-        set(SHADERCROSS lib/SDL_shadercross/msvc/shadercross.exe)
-        compile(glslc ${GLSL} ${SPV})
-        compile(${SHADERCROSS} ${SPV} ${DXIL})
-        compile(${SHADERCROSS} ${SPV} ${MSL})
-        compile(${SHADERCROSS} ${SPV} ${JSON})
-    endif()
-    function(package OUTPUT)
-        get_filename_component(NAME ${OUTPUT} NAME)
-        set(BINARY ${BINARY_DIR}/${NAME})
-        add_custom_command(
-            OUTPUT ${BINARY}
-            COMMAND ${CMAKE_COMMAND} -E copy ${OUTPUT} ${BINARY}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            DEPENDS ${OUTPUT}
-            COMMENT ${BINARY}
-        )
-        string(REPLACE . _ NAME ${NAME})
-        set(NAME package_${NAME})
-        add_custom_target(${NAME} DEPENDS ${BINARY})
-        add_dependencies(crobots ${NAME})
-    endfunction()
-    package(${SPV})
-    if(WIN32)
-        package(${DXIL})
-    elseif(APPLE)
-        package(${MSL})
-    endif()
-    package(${JSON})
-endfunction()
+file(GLOB ROBOTS robots/*.cpp)
+foreach(PATH ${ROBOTS})
+    get_filename_component(NAME ${PATH} NAME_WE)
+    add_library(${NAME} MODULE ${PATH})
+    target_link_libraries(${NAME} PRIVATE crobots_api)
+endforeach()
+
+add_subdirectory(lib)
+add_executable(crobots WIN32
+    src/DebugGroup.cpp
+    src/Main.cpp
+    src/Model.cpp
+    src/ModelVoxObj.cpp
+    src/Pipeline.cpp
+    src/Renderer.cpp
+    src/Shader.cpp
+    src/Texture.cpp
+    src/Window.cpp
+)
+set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
+set_target_properties(crobots PROPERTIES CXX_STANDARD 23)
+target_link_libraries(crobots PRIVATE crobots_api crobots_lib)
+
+include(cmake/AddShader.cmake)
+add_shader(crobots ModelVoxObj.frag)
+add_shader(crobots ModelVoxObj.vert)
