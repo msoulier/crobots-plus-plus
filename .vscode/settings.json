@@ -1,4 +1,4 @@
 {
     "cmake.parallelJobs": 8,
-    "iis.configDir": ""
+    "iis.configDir": "",
 }

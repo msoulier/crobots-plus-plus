@@ -1,14 +1,18 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <cstdint>
 
 #include "Log.hpp"
 #include "Renderer.hpp"
 #include "Window.hpp"
+#include "Timer.hpp"
 
 using namespace Crobots;
 
 static Window window;
 static Renderer renderer;
+static Timer renderTimer;
+static Timer engineTimer;
 
 SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
 {
@@ -22,6 +26,8 @@ SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
         CROBOTS_LOG("Failed to create renderer");
         return SDL_APP_FAILURE;
     }
+    renderTimer = Timer{16.6f};
+    engineTimer = Timer{1000}; // FIXME: configurable
     return SDL_APP_CONTINUE;
 }
 
@@ -33,7 +39,15 @@ void SDLCALL SDL_AppQuit(void* appstate, SDL_AppResult result)
 
 SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
 {
+    // Keep track of the amount of time we spend processing
     renderer.Present(window);
+    engineTimer.Tick();
+    // Time to run the engine?
+    if (engineTimer.ShouldTick())
+    {
+        CROBOTS_LOG("Time to tick the engine");
+        // FIXME: tick the engine
+    }
     return SDL_APP_CONTINUE;
 }
 
