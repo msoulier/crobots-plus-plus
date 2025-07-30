@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <cstdint>
+#include <CLI/CLI.hpp>
 
 #include "Log.hpp"
 #include "Renderer.hpp"

@@ -1,4 +1,5 @@
 set(GLM_BUILD_LIBRARY OFF)
+add_subdirectory(CLI11)
 add_subdirectory(SDL)
 add_subdirectory(glm)
 add_subdirectory(json)
@@ -11,9 +12,11 @@ target_link_libraries(crobots_lib INTERFACE glm)
 target_link_libraries(crobots_lib INTERFACE nlohmann_json)
 target_link_libraries(crobots_lib INTERFACE stb)
 target_link_libraries(crobots_lib INTERFACE tinyobjloader)
+target_link_libraries(crobots_lib INTERFACE CLI11::CLI11)
 target_compile_definitions(crobots_lib INTERFACE GLM_FORCE_DEPTH_ZERO_TO_ONE)
 target_compile_definitions(crobots_lib INTERFACE SDL_MAIN_USE_CALLBACKS)
 target_precompile_headers(crobots_lib INTERFACE
+    <CLI/CLI.hpp>
     <SDL3/SDL.h>
     <glm/glm.hpp>
     <glm/gtc/matrix_transform.hpp>
