@@ -130,21 +130,21 @@ bool ModelVoxObj::Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const s
         return false;
     }
     uint32_t vertexCount = 0;
-    indexCount = 0;
+    m_indexCount = 0;
     std::unordered_map<Vertex, uint16_t> vertexToIndex;
     for (uint16_t i = 0; i < maxIndexCount; i++)
     {
         tinyobj::index_t index = shape.mesh.indices[i];
         Vertex vertex = CreateVertex(attrib, index);
-        auto [it, inserted] = vertexToIndex.try_emplace(vertex, indexCount);
+        auto [it, inserted] = vertexToIndex.try_emplace(vertex, m_indexCount);
         if (inserted)
         {
             vertexData[vertexCount] = vertex;
-            indexData[indexCount++] = vertexCount++;
+            indexData[m_indexCount++] = vertexCount++;
         }
         else
         {
-            indexData[indexCount++] = it->second;
+            indexData[m_indexCount++] = it->second;
         }
     }
     SDL_UnmapGPUTransferBuffer(device, vertexTransferBuffer);
@@ -153,11 +153,11 @@ bool ModelVoxObj::Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const s
         SDL_GPUBufferCreateInfo info{};
         info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
         info.size = vertexCount * sizeof(Vertex);
-        vertexBuffer = SDL_CreateGPUBuffer(device, &info);
+        m_vertexBuffer = SDL_CreateGPUBuffer(device, &info);
         info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
-        info.size = indexCount * sizeof(uint16_t);
-        indexBuffer = SDL_CreateGPUBuffer(device, &info);
-        if (!vertexBuffer || !indexBuffer)
+        info.size = m_indexCount * sizeof(uint16_t);
+        m_indexBuffer = SDL_CreateGPUBuffer(device, &info);
+        if (!m_vertexBuffer || !m_indexBuffer)
         {
             CROBOTS_LOG("Failed to create buffer(s): %s, %s", name.data(), SDL_GetError());
             return false;
@@ -167,18 +167,18 @@ bool ModelVoxObj::Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const s
         SDL_GPUTransferBufferLocation location{};
         SDL_GPUBufferRegion region{};
         location.transfer_buffer = vertexTransferBuffer;
-        region.buffer = vertexBuffer;
+        region.buffer = m_vertexBuffer;
         region.size = vertexCount * sizeof(Vertex);
         SDL_UploadToGPUBuffer(copyPass, &location, &region, false);
         location.transfer_buffer = indexTransferBuffer;
-        region.buffer = indexBuffer;
-        region.size = indexCount * sizeof(uint16_t);
+        region.buffer = m_indexBuffer;
+        region.size = m_indexCount * sizeof(uint16_t);
         SDL_UploadToGPUBuffer(copyPass, &location, &region, false);
     }
     SDL_ReleaseGPUTransferBuffer(device, vertexTransferBuffer);
     SDL_ReleaseGPUTransferBuffer(device, indexTransferBuffer);
-    paletteTexture = LoadTexture(device, copyPass, pngPath);
-    if (!paletteTexture)
+    m_paletteTexture = LoadTexture(device, copyPass, pngPath);
+    if (!m_paletteTexture)
     {
         CROBOTS_LOG("Failed to load texture: %s", name.data());
         return false;
@@ -188,12 +188,12 @@ bool ModelVoxObj::Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const s
 
 void ModelVoxObj::Destroy(SDL_GPUDevice* device)
 {
-    SDL_ReleaseGPUBuffer(device, vertexBuffer);
-    SDL_ReleaseGPUBuffer(device, indexBuffer);
-    SDL_ReleaseGPUTexture(device, paletteTexture);
-    vertexBuffer = nullptr;
-    indexBuffer = nullptr;
-    paletteTexture = nullptr;
+    SDL_ReleaseGPUBuffer(device, m_vertexBuffer);
+    SDL_ReleaseGPUBuffer(device, m_indexBuffer);
+    SDL_ReleaseGPUTexture(device, m_paletteTexture);
+    m_vertexBuffer = nullptr;
+    m_indexBuffer = nullptr;
+    m_paletteTexture = nullptr;
 }
 
 }

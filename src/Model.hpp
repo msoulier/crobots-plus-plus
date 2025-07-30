@@ -11,7 +11,7 @@ namespace Crobots
 enum class ModelType
 {
     /* A model exported from MagicaVoxel as an OBJ */
-    ModelVoxObj,
+    VoxObj,
 };
 
 class Model

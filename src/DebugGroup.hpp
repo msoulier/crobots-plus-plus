@@ -17,7 +17,7 @@ struct DebugGroup
     DebugGroup(SDL_GPUCommandBuffer* commandBuffer, const char* name);
     ~DebugGroup();
 
-    SDL_GPUCommandBuffer* commandBuffer;
+    SDL_GPUCommandBuffer* m_commandBuffer;
 };
 
 }

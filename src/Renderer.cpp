@@ -27,8 +27,8 @@ bool Renderer::CreateDevice()
 #else
     SDL_SetBooleanProperty(properties, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
 #endif
-    device = SDL_CreateGPUDeviceWithProperties(properties);
-    if (!device)
+    m_device = SDL_CreateGPUDeviceWithProperties(properties);
+    if (!m_device)
     {
         CROBOTS_LOG("Failed to create device: %s", SDL_GetError());
         return false;
@@ -43,7 +43,7 @@ bool Renderer::Create(Window& window)
         CROBOTS_LOG("Failed to create device");
         return false;
     }
-    if (!SDL_ClaimWindowForGPUDevice(device, window.GetHandle()))
+    if (!SDL_ClaimWindowForGPUDevice(m_device, window.GetHandle()))
     {
         CROBOTS_LOG("Failed to claim window: %s", SDL_GetError());
         return false;
@@ -53,8 +53,8 @@ bool Renderer::Create(Window& window)
 
 void Renderer::Destroy(Window& window)
 {
-    SDL_ReleaseWindowFromGPUDevice(device, window.GetHandle());
-    SDL_DestroyGPUDevice(device);
+    SDL_ReleaseWindowFromGPUDevice(m_device, window.GetHandle());
+    SDL_DestroyGPUDevice(m_device);
 }
 
 void Renderer::Present(Window& window)

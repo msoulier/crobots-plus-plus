@@ -15,25 +15,25 @@ bool Window::Create()
         CROBOTS_LOG("Failed to initialize SDL: %s", SDL_GetError());
         return false;
     }
-    window = SDL_CreateWindow("Crobots++", 960, 720, SDL_WINDOW_RESIZABLE);
-    if (!window)
+    m_window = SDL_CreateWindow("Crobots++", 960, 720, SDL_WINDOW_RESIZABLE);
+    if (!m_window)
     {
         CROBOTS_LOG("Failed to create window: %s", SDL_GetError());
         return false;
     }
-    SDL_FlashWindow(window, SDL_FLASH_BRIEFLY);
+    SDL_FlashWindow(m_window, SDL_FLASH_BRIEFLY);
     return true;
 }
 
 void Window::Destroy()
 {
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
 
 SDL_Window* Window::GetHandle() const
 {
-    return window;
+    return m_window;
 }
 
 }

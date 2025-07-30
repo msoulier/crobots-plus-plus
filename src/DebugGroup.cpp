@@ -6,14 +6,14 @@
 namespace Crobots
 {
 
-DebugGroup::DebugGroup(SDL_GPUCommandBuffer* commandBuffer, const char* name) : commandBuffer{commandBuffer}
+DebugGroup::DebugGroup(SDL_GPUCommandBuffer* commandBuffer, const char* name) : m_commandBuffer{commandBuffer}
 {
-    SDL_PushGPUDebugGroup(commandBuffer, name);
+    SDL_PushGPUDebugGroup(m_commandBuffer, name);
 }
 
 DebugGroup::~DebugGroup()
 {
-    SDL_PopGPUDebugGroup(commandBuffer);
+    SDL_PopGPUDebugGroup(m_commandBuffer);
 }
 
 }

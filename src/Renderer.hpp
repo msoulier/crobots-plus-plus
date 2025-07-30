@@ -20,7 +20,7 @@ private:
     bool CreateDevice();
 
 private:
-    SDL_GPUDevice* device;
+    SDL_GPUDevice* m_device;
 };
 
 }

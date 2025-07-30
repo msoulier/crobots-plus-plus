@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 
 namespace Crobots
@@ -21,7 +22,7 @@ private:
     uint64_t m_time1;
     uint64_t m_time2;
     float m_deltaTime;
-    float m_accumulatedTime;
+    float m_elapsedTime;
 };
 
 }

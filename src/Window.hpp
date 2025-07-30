@@ -13,7 +13,7 @@ public:
     SDL_Window* GetHandle() const;
 
 private:
-    SDL_Window* window;
+    SDL_Window* m_window;
 };
 
 }

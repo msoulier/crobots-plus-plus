@@ -15,13 +15,13 @@ class ModelVoxObj : public Model
 public:
     bool Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const std::string_view& name) override;
     void Destroy(SDL_GPUDevice* device) override;
-    ModelType GetType() const override { return ModelType::ModelVoxObj; }
+    ModelType GetType() const override { return ModelType::VoxObj; }
 
 private:
-    SDL_GPUBuffer* vertexBuffer;
-    SDL_GPUBuffer* indexBuffer;
-    SDL_GPUTexture* paletteTexture;
-    uint16_t indexCount;
+    SDL_GPUBuffer* m_vertexBuffer;
+    SDL_GPUBuffer* m_indexBuffer;
+    SDL_GPUTexture* m_paletteTexture;
+    uint16_t m_indexCount;
 };
 
 }
