@@ -51,6 +51,7 @@ add_executable(crobots WIN32
     src/Renderer.cpp
     src/Shader.cpp
     src/Texture.cpp
+    src/Timer.cpp
     src/Window.cpp
 )
 set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
