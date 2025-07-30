@@ -1,9 +1,98 @@
+#pragma clang diagnostic ignored "-Wmissing-prototypes"
+#pragma clang diagnostic ignored "-Wmissing-braces"
+
 #include <metal_stdlib>
 #include <simd/simd.h>
 
 using namespace metal;
 
-vertex void main0()
+template<typename T, size_t Num>
+struct spvUnsafeArray
 {
+    T elements[Num ? Num : 1];
+    
+    thread T& operator [] (size_t pos) thread
+    {
+        return elements[pos];
+    }
+    constexpr const thread T& operator [] (size_t pos) const thread
+    {
+        return elements[pos];
+    }
+    
+    device T& operator [] (size_t pos) device
+    {
+        return elements[pos];
+    }
+    constexpr const device T& operator [] (size_t pos) const device
+    {
+        return elements[pos];
+    }
+    
+    constexpr const constant T& operator [] (size_t pos) const constant
+    {
+        return elements[pos];
+    }
+    
+    threadgroup T& operator [] (size_t pos) threadgroup
+    {
+        return elements[pos];
+    }
+    constexpr const threadgroup T& operator [] (size_t pos) const threadgroup
+    {
+        return elements[pos];
+    }
+};
+
+constant spvUnsafeArray<float3, 6> _87 = spvUnsafeArray<float3, 6>({ float3(-1.0, 0.0, 0.0), float3(1.0, 0.0, 0.0), float3(0.0, -1.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, -1.0), float3(0.0, 0.0, 1.0) });
+
+struct main0_out
+{
+    float3 outNormal [[user(locn0)]];
+    float2 outTexcoord [[user(locn1)]];
+    float4 gl_Position [[position]];
+};
+
+struct main0_in
+{
+    uint inVertex [[attribute(0)]];
+};
+
+static inline __attribute__((always_inline))
+float3 getPosition(thread const uint& vertex0)
+{
+    float3 magnitude;
+    magnitude.x = float((vertex0 >> uint(0)) & 63u);
+    magnitude.y = float((vertex0 >> uint(6)) & 1u);
+    magnitude.z = float((vertex0 >> uint(7)) & 63u);
+    float3 direction;
+    direction.x = float((vertex0 >> uint(13)) & 1u);
+    direction.y = float((vertex0 >> uint(14)) & 63u);
+    direction.z = float((vertex0 >> uint(20)) & 1u);
+    return (float3(1.0) - (direction * 2.0)) * magnitude;
+}
+
+static inline __attribute__((always_inline))
+float3 getNormal(thread const uint& vertex0)
+{
+    return _87[(vertex0 >> uint(21)) & 7u];
+}
+
+static inline __attribute__((always_inline))
+float2 getTexcoord(thread const uint& vertex0)
+{
+    return float2(float((vertex0 >> uint(24)) & 255u) / 256.0, 0.5);
+}
+
+vertex main0_out main0(main0_in in [[stage_in]])
+{
+    main0_out out = {};
+    uint param = in.inVertex;
+    float3 position = getPosition(param);
+    uint param_1 = in.inVertex;
+    out.outNormal = getNormal(param_1);
+    uint param_2 = in.inVertex;
+    out.outTexcoord = getTexcoord(param_2);
+    return out;
 }
 
