@@ -6,6 +6,7 @@
 
 #include "Log.hpp"
 #include "Texture.hpp"
+#include "Window.hpp"
 
 namespace Crobots
 {
@@ -76,12 +77,12 @@ SDL_GPUTexture* LoadTexture(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, co
     return texture;
 }
 
-SDL_GPUTexture* CreateColorTexture(SDL_GPUDevice* device, SDL_Window* window, int width, int height, SDL_GPUTextureUsageFlags usage)
+SDL_GPUTexture* CreateColorTexture(SDL_GPUDevice* device, Window& window, int width, int height, SDL_GPUTextureUsageFlags usage)
 {
     SDL_GPUTextureCreateInfo info{};
     info.type = SDL_GPU_TEXTURETYPE_2D;
     info.usage = usage | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
-    info.format = SDL_GetGPUSwapchainTextureFormat(device, window);
+    info.format = SDL_GetGPUSwapchainTextureFormat(device, window.GetHandle());
     info.width = width;
     info.height = height;
     info.layer_count_or_depth = 1;

@@ -254,7 +254,7 @@ void Renderer::RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::share
 {
     /* TODO: remove */
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -100.0f);
-    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 rotation = glm::vec3(0.5f, 0.5f, 0.0f);
     glm::mat4 matrix = CreateModelMatrix(position, rotation);
     m_camera.SetViewport(glm::vec2(m_width, m_height));
     m_camera.Update();
