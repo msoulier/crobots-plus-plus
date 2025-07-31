@@ -6,7 +6,7 @@
 namespace Crobots
 {
 
-enum CannonState
+enum class CannonState
 {
     READY,
     FIRING,
