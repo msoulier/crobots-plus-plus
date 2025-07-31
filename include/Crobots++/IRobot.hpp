@@ -8,9 +8,9 @@ namespace Crobots
 
 enum class CannonState
 {
-    READY,
-    FIRING,
-    RELOADING
+    Ready,
+    Firing,
+    Reloading
 };
 
 class IRobot
@@ -27,6 +27,7 @@ private:
     // default to 65535 for now, so effectively unlimited, planning for the future
     uint16_t m_rounds;
 
+    /* FIXME: Functions start with upper character */
     CannonState cannonState();
 
 protected:

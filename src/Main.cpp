@@ -6,12 +6,13 @@
 #include "Log.hpp"
 
 // Verbose logging.
-bool verbose = false;
-uint32_t arenaX = 1000;
-uint32_t arenaY = 1000;
+static bool verbose = false;
+static uint32_t arenaX = 1000;
+static uint32_t arenaY = 1000;
 
 // https://github.com/CLIUtils/CLI11 for CLI
-int parseOptions(int argc, char **argv) {
+int ParseOptions(int argc, char** argv)
+{
     CLI::App parser{"Crobots++: <arguments>"};
     argv = parser.ensure_utf8(argv);
 
@@ -19,10 +20,13 @@ int parseOptions(int argc, char **argv) {
     parser.add_option("-x,--arena-x", arenaX, "Arena X dimension (default 1000)");
     parser.add_option("-y,--arena-y", arenaY, "Arena Y dimension (default 1000)");
 
-    try {
-        (parser).parse(argc, argv);
-    } catch(const CLI::ParseError &e) {
-        (parser).exit(e);
+    try
+    {
+        parser.parse(argc, argv);
+    }
+    catch (const CLI::ParseError& e)
+    {
+        parser.exit(e);
         return 1;
     }
 
@@ -33,8 +37,9 @@ int parseOptions(int argc, char **argv) {
 /* TODO: switch to callbacks when resize slowdowns on Vulkan get fixed */
 int main(int argc, char** argv)
 {
-    if (parseOptions(argc, argv) != 0) {
-        exit(1);
+    if (ParseOptions(argc, argv) != 0)
+    {
+        return 1;
     }
     Crobots::AppInfo info{};
     info.title = "Crobots++";
