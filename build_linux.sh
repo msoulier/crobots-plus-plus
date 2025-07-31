@@ -1,5 +1,4 @@
 #!/bin/sh
-# FIXME: should use cmake presets instead
 
 CXX=g++-14
 JOBS=8

@@ -3,6 +3,14 @@
 layout(location = 0) in uint inVertex;
 layout(location = 0) out flat vec3 outNormal;
 layout(location = 1) out vec2 outTexcoord;
+layout(set = 1, binding = 0) uniform uniformViewProjMatrix
+{
+    mat4 viewProjMatrix;
+};
+layout(set = 1, binding = 1) uniform uniformModelMatrix
+{
+    mat4 modelMatrix;
+};
 
 vec3 getPosition(uint vertex)
 {
@@ -42,4 +50,5 @@ void main()
     vec3 position = getPosition(inVertex);
     outNormal = getNormal(inVertex);
     outTexcoord = getTexcoord(inVertex);
+    gl_Position = viewProjMatrix * modelMatrix * vec4(position, 1.0f);
 }

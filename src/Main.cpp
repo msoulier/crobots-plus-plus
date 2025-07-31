@@ -41,10 +41,12 @@ void SDLCALL SDL_AppQuit(void* appstate, SDL_AppResult result)
 
 SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
 {
-    // Keep track of the amount of time we spend processing
-    renderer.Present(window);
+    renderTimer.Tick();
     engineTimer.Tick();
-    // Time to run the engine?
+    if (renderTimer.ShouldTick())
+    {
+        renderer.Present(window);
+    }
     if (engineTimer.ShouldTick())
     {
         CROBOTS_LOG("Time to tick the engine");

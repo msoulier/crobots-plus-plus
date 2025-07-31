@@ -44,6 +44,16 @@ struct spvUnsafeArray
     }
 };
 
+struct uniformViewProjMatrix
+{
+    float4x4 viewProjMatrix;
+};
+
+struct uniformModelMatrix
+{
+    float4x4 modelMatrix;
+};
+
 constant spvUnsafeArray<float3, 6> _87 = spvUnsafeArray<float3, 6>({ float3(-1.0, 0.0, 0.0), float3(1.0, 0.0, 0.0), float3(0.0, -1.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, -1.0), float3(0.0, 0.0, 1.0) });
 
 struct main0_out
@@ -84,7 +94,7 @@ float2 getTexcoord(thread const uint& vertex0)
     return float2(float((vertex0 >> uint(24)) & 255u) / 256.0, 0.5);
 }
 
-vertex main0_out main0(main0_in in [[stage_in]])
+vertex main0_out main0(main0_in in [[stage_in]], constant uniformViewProjMatrix& _135 [[buffer(0)]], constant uniformModelMatrix& _141 [[buffer(1)]])
 {
     main0_out out = {};
     uint param = in.inVertex;
@@ -93,6 +103,7 @@ vertex main0_out main0(main0_in in [[stage_in]])
     out.outNormal = getNormal(param_1);
     uint param_2 = in.inVertex;
     out.outTexcoord = getTexcoord(param_2);
+    out.gl_Position = (_135.viewProjMatrix * _141.modelMatrix) * float4(position, 1.0);
     return out;
 }
 
