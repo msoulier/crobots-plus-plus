@@ -1,72 +1,29 @@
-#define SDL_MAIN_USE_CALLBACKS
+#include <CLI/CLI.hpp>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include <cstdint>
-#include <CLI/CLI.hpp>
 
-#include "Log.hpp"
-#include "Renderer.hpp"
-#include "Window.hpp"
-#include "Timer.hpp"
+#include "App.hpp"
 
-using namespace Crobots;
-
-static Window window;
-static Renderer renderer;
-static Timer renderTimer;
-static Timer engineTimer;
-
-SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
+/* TODO: switch to callbacks when resize slowdowns on Vulkan get fixed */
+int main(int argc, char** argv)
 {
-    if (!window.Create())
+    Crobots::AppInfo info{};
+    info.title = "Crobots++";
+    /* TODO: add args to AppInfo */
+    Crobots::App app{};
+    if (!app.Init(info))
     {
-        CROBOTS_LOG("Failed to create window");
-        return SDL_APP_FAILURE;
+        return 1;
     }
-    if (!renderer.Create(window))
+    while (!app.ShouldQuit())
     {
-        CROBOTS_LOG("Failed to create renderer");
-        return SDL_APP_FAILURE;
-    }
-    renderTimer = Timer{16.6f};
-    engineTimer = Timer{1000}; // FIXME: configurable
-    return SDL_APP_CONTINUE;
-}
-
-void SDLCALL SDL_AppQuit(void* appstate, SDL_AppResult result)
-{
-    renderer.Destroy(window);
-    window.Destroy();
-}
-
-SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
-{
-    renderTimer.Tick();
-    engineTimer.Tick();
-    if (renderTimer.ShouldTick())
-    {
-        renderer.Present(window);
-    }
-    if (engineTimer.ShouldTick())
-    {
-        CROBOTS_LOG("Time to tick the engine");
-        // FIXME: tick the engine
-    }
-    return SDL_APP_CONTINUE;
-}
-
-SDL_AppResult SDLCALL SDL_AppEvent(void* appstate, SDL_Event* event)
-{
-    switch (event->type)
-    {
-    case SDL_EVENT_QUIT:
-        return SDL_APP_SUCCESS;
-    case SDL_EVENT_KEY_DOWN:
-        if (event->key.scancode == SDL_SCANCODE_ESCAPE)
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
         {
-            return SDL_APP_SUCCESS;
+            app.Event(&event);
         }
-        break;
+        app.Iterate();
     }
-    return SDL_APP_CONTINUE;
+    app.Quit();
+    return 0;
 }

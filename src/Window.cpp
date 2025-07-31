@@ -1,21 +1,21 @@
 #include <SDL3/SDL.h>
 
+#include <string_view>
+
 #include "Log.hpp"
 #include "Window.hpp"
 
 namespace Crobots
 {
 
-bool Window::Create()
+bool Window::Create(const std::string_view& title)
 {
-    SDL_SetAppMetadata("Crobots++", nullptr, nullptr);
-    SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         CROBOTS_LOG("Failed to initialize SDL: %s", SDL_GetError());
         return false;
     }
-    m_window = SDL_CreateWindow("Crobots++", 960, 720, SDL_WINDOW_RESIZABLE);
+    m_window = SDL_CreateWindow(title.data(), 960, 720, SDL_WINDOW_RESIZABLE);
     if (!m_window)
     {
         CROBOTS_LOG("Failed to create window: %s", SDL_GetError());

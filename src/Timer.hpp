@@ -17,6 +17,7 @@ public:
     void Tick();
     float GetDeltaTimeMS() const;
     bool ShouldTick() const;
+
 private:
     float m_delay;
     uint64_t m_time1;

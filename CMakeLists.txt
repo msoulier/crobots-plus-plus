@@ -43,6 +43,8 @@ endforeach()
 
 add_subdirectory(lib)
 add_executable(crobots WIN32
+    src/App.cpp
+    src/Camera.cpp
     src/DebugGroup.cpp
     src/Main.cpp
     src/Model.cpp
