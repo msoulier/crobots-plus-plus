@@ -20,7 +20,7 @@ App::App()
 
 bool App::Init(const AppInfo& info)
 {
-    SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
+    LogInit(info.logPath);
     SDL_SetAppMetadata(info.title.data(), nullptr, nullptr);
     if (!m_window.Create(info.title))
     {
@@ -34,6 +34,7 @@ bool App::Init(const AppInfo& info)
     }
     m_renderTimer = Timer{16.6f};
     m_engineTimer = Timer{1000.0f};
+    return true;
 }
 
 bool App::ShouldQuit()
@@ -45,6 +46,7 @@ void App::Quit()
 {
     m_renderer.Destroy(m_window);
     m_window.Destroy();
+    LogQuit();
 }
 
 void App::Iterate()

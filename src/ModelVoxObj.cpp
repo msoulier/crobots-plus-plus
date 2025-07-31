@@ -20,16 +20,18 @@ namespace Crobots
 
 /*
  * LSB to MSB
- * 00-05: x magnitude (6 bits)
- * 06-06: x direction (1 bits)
- * 07-12: y magnitude (6 bits)
- * 13-13: y direction (1 bits)
- * 14-19: z magnitude (6 bits)
- * 20-20: z direction (1 bits)
- * 21-23: normal (3 bits)
- * 24-31: x texcoord (8 bits)
+ * 00-07: x magnitude (8 bits)
+ * 08-08: x direction (1 bits)
+ * 09-16: y magnitude (8 bits)
+ * 17-17: y direction (1 bits)
+ * 18-25: z magnitude (8 bits)
+ * 26-26: z direction (1 bits)
+ * 27-31: unused (5 bits)
+ * 32-34: normal (3 bits)
+ * 35-42: x texcoord (8 bits)
+ * 43-63: unused (21 bits)
  */
-using Vertex = uint32_t;
+using Vertex = uint64_t;
 
 static Vertex CreateVertex(const tinyobj::attrib_t& attrib, const tinyobj::index_t& index)
 {
@@ -41,14 +43,14 @@ static Vertex CreateVertex(const tinyobj::attrib_t& attrib, const tinyobj::index
     int normalX = attrib.normals[index.normal_index * 3 + 0];
     int normalY = attrib.normals[index.normal_index * 3 + 1];
     int normalZ = attrib.normals[index.normal_index * 3 + 2];
-    int texcoordX = attrib.texcoords[index.texcoord_index * 2 + 0] * TexcoordScale;
-    uint32_t magnitudeX = std::abs(positionX);
-    uint32_t directionX = positionX < 0 ? 1 : 0;
-    uint32_t magnitudeY = std::abs(positionY);
-    uint32_t directionY = positionY < 0 ? 1 : 0;
-    uint32_t magnitudeZ = std::abs(positionZ);
-    uint32_t directionZ = positionZ < 0 ? 1 : 0;
-    uint32_t normal;
+    uint64_t texcoordX = attrib.texcoords[index.texcoord_index * 2 + 0] * TexcoordScale;
+    uint64_t magnitudeX = std::abs(positionX);
+    uint64_t directionX = positionX < 0 ? 1 : 0;
+    uint64_t magnitudeY = std::abs(positionY);
+    uint64_t directionY = positionY < 0 ? 1 : 0;
+    uint64_t magnitudeZ = std::abs(positionZ);
+    uint64_t directionZ = positionZ < 0 ? 1 : 0;
+    uint64_t normal;
     if (normalX < 0)
     {
         normal = 0;
@@ -77,19 +79,19 @@ static Vertex CreateVertex(const tinyobj::attrib_t& attrib, const tinyobj::index
     {
         CROBOTS_ASSERT(false);
     }
-    CROBOTS_ASSERT(magnitudeX < 64);
-    CROBOTS_ASSERT(magnitudeY < 64);
-    CROBOTS_ASSERT(magnitudeZ < 64);
+    CROBOTS_ASSERT(magnitudeX < 256);
+    CROBOTS_ASSERT(magnitudeY < 256);
+    CROBOTS_ASSERT(magnitudeZ < 256);
     CROBOTS_ASSERT(texcoordX < 256);
     Vertex vertex{};
-    vertex |= (magnitudeX & 0x3F) << 0;
-    vertex |= (directionX & 0x01) << 6;
-    vertex |= (magnitudeY & 0x3F) << 7;
-    vertex |= (directionY & 0x01) << 13;
-    vertex |= (magnitudeZ & 0x3F) << 14;
-    vertex |= (directionZ & 0x01) << 20;
-    vertex |= (normal & 0x07) << 21;
-    vertex |= (texcoordX & 0xFF) << 24;
+    vertex |= (magnitudeX & 0xFF) << 0;
+    vertex |= (directionX & 0x01) << 8;
+    vertex |= (magnitudeY & 0xFF) << 9;
+    vertex |= (directionY & 0x01) << 17;
+    vertex |= (magnitudeZ & 0xFF) << 18;
+    vertex |= (directionZ & 0x01) << 26;
+    vertex |= (normal & 0x07) << 32;
+    vertex |= (texcoordX & 0xFF) << 35;
     return vertex;
 }
 
@@ -194,6 +196,36 @@ void ModelVoxObj::Destroy(SDL_GPUDevice* device)
     m_vertexBuffer = nullptr;
     m_indexBuffer = nullptr;
     m_paletteTexture = nullptr;
+}
+
+ModelType ModelVoxObj::GetType() const
+{
+    return ModelType::VoxObj;
+}
+
+SDL_GPUBuffer* ModelVoxObj::GetVertexBuffer() const
+{
+    return m_vertexBuffer;
+}
+
+SDL_GPUBuffer* ModelVoxObj::GetIndexBuffer() const
+{
+    return m_indexBuffer;
+}
+
+SDL_GPUTexture* ModelVoxObj::GetPaletteTexture() const
+{
+    return m_paletteTexture;
+}
+
+uint16_t ModelVoxObj::GetIndexCount() const
+{
+    return m_indexCount;
+}
+
+SDL_GPUIndexElementSize ModelVoxObj::GetIndexElementSize()
+{
+    return SDL_GPU_INDEXELEMENTSIZE_16BIT;
 }
 
 }

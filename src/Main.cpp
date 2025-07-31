@@ -9,6 +9,7 @@ int main(int argc, char** argv)
 {
     Crobots::AppInfo info{};
     info.title = "Crobots++";
+    info.logPath = "crobots.log";
     /* TODO: add args to AppInfo */
     Crobots::App app{};
     if (!app.Init(info))

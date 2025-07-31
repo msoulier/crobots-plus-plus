@@ -14,6 +14,7 @@ namespace Crobots
 struct AppInfo
 {
     std::string_view title;
+    std::string_view logPath;
     /* TODO: args */
 };
 

@@ -36,6 +36,8 @@ void Camera::Update()
     case CameraType::Ortho:
         m_proj = glm::ortho(-w / 2.0f, w / 2.0f, h / 2.0f, -h / 2.0f);
         break;
+    default:
+        CROBOTS_ASSERT(false);
     }
     m_viewProj = m_proj * m_view;
 }

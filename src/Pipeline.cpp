@@ -24,8 +24,8 @@ SDL_GPUGraphicsPipeline* CreateModelVoxObjPipeline(SDL_GPUDevice* device, Window
     SDL_GPUVertexBufferDescription buffers[1]{};
     SDL_GPUVertexAttribute attribs[1]{};
     targets[0].format = SDL_GetGPUSwapchainTextureFormat(device, window.GetHandle());
-    buffers[0].pitch = sizeof(uint32_t);
-    attribs[0].format = SDL_GPU_VERTEXELEMENTFORMAT_UINT;
+    buffers[0].pitch = sizeof(uint64_t);
+    attribs[0].format = SDL_GPU_VERTEXELEMENTFORMAT_UINT2;
     SDL_GPUGraphicsPipelineCreateInfo info{};
     info.vertex_shader = vertShader;
     info.fragment_shader = fragShader;

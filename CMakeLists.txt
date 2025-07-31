@@ -46,7 +46,9 @@ add_executable(crobots WIN32
     src/App.cpp
     src/Camera.cpp
     src/DebugGroup.cpp
+    src/Log.cpp
     src/Main.cpp
+    src/Math.cpp
     src/Model.cpp
     src/ModelVoxObj.cpp
     src/Pipeline.cpp
@@ -63,3 +65,6 @@ target_link_libraries(crobots PRIVATE crobots_api crobots_lib)
 include(cmake/AddShader.cmake)
 add_shader(crobots ModelVoxObj.frag)
 add_shader(crobots ModelVoxObj.vert)
+
+include(cmake/AddModel.cmake)
+add_model(crobots default)

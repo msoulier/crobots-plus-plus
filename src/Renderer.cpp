@@ -1,8 +1,16 @@
 #include <SDL3/SDL.h>
 
 #include <cstdint>
+#include <memory>
+#include <vector>
 
+#include "Assert.hpp"
+#include "Camera.hpp"
+#include "DebugGroup.hpp"
 #include "Log.hpp"
+#include "Math.hpp"
+#include "Model.hpp"
+#include "ModelVoxObj.hpp"
 #include "Pipeline.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
@@ -18,6 +26,7 @@ Renderer::Renderer()
     , m_commandBuffer{nullptr}
     , m_width{0}
     , m_height{0}
+    , m_camera{}
 {
 }
 
@@ -38,6 +47,19 @@ bool Renderer::Create(Window& window)
         CROBOTS_LOG("Failed to create pipelines");
         return false;
     }
+    if (!CreateSamplers(window))
+    {
+        CROBOTS_LOG("Failed to create samplers");
+        return false;
+    }
+
+    /* TODO: remove */
+    SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(m_device);
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
+    m_models["default"] = Model::Create(m_device, copyPass, "default");
+    SDL_EndGPUCopyPass(copyPass);
+    SDL_SubmitGPUCommandBuffer(commandBuffer);
+
     return true;
 }
 
@@ -46,6 +68,14 @@ void Renderer::Destroy(Window& window)
     if (m_commandBuffer)
     {
         SDL_SubmitGPUCommandBuffer(m_commandBuffer);
+    }
+
+    /* TODO: remove */
+    m_models["default"]->Destroy(m_device);
+
+    for (int i = 0; i < SamplerCount; i++)
+    {
+        SDL_ReleaseGPUSampler(m_device, m_samplers[i]);
     }
     for (int i = 0; i < TextureCount; i++)
     {
@@ -90,6 +120,7 @@ void Renderer::Present(Window& window)
         m_commandBuffer = nullptr;
         return;
     }
+    RenderModels(swapchainTexture);
     SDL_SubmitGPUCommandBuffer(m_commandBuffer);
     m_commandBuffer = nullptr;
 }
@@ -137,6 +168,27 @@ bool Renderer::CreatePipelines(Window& window)
     return true;
 }
 
+bool Renderer::CreateSamplers(Window& window)
+{
+    SDL_GPUSamplerCreateInfo info{};
+    info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+    info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+    info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+    info.min_filter = SDL_GPU_FILTER_NEAREST;
+    info.mag_filter = SDL_GPU_FILTER_NEAREST;
+    info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_NEAREST;
+    m_samplers[SamplerNearest] = SDL_CreateGPUSampler(m_device, &info);
+    for (int i = SamplerCount - 1; i >= 0; i--)
+    {
+        if (!m_samplers[i])
+        {
+            SDL_Log("Failed to create sampler: %d, %s", i, SDL_GetError());
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Renderer::ResizeTextures(uint32_t width, uint32_t height)
 {
     for (int i = 0; i < TextureCount; i++)
@@ -156,6 +208,71 @@ bool Renderer::ResizeTextures(uint32_t width, uint32_t height)
     m_width = width;
     m_height = height;
     return true;
+}
+
+void Renderer::RenderModels(SDL_GPUTexture* colorTexture)
+{
+    CROBOTS_DEBUG_GROUP(m_commandBuffer);
+    SDL_GPUColorTargetInfo colorInfo{};
+    colorInfo.texture = colorTexture;
+    colorInfo.load_op = SDL_GPU_LOADOP_CLEAR;
+    colorInfo.store_op = SDL_GPU_STOREOP_STORE;
+    colorInfo.cycle = true;
+    SDL_GPUDepthStencilTargetInfo depthInfo{};
+    depthInfo.texture = m_textures[TextureDepth];
+    depthInfo.load_op = SDL_GPU_LOADOP_CLEAR;
+    depthInfo.stencil_load_op = SDL_GPU_LOADOP_CLEAR;
+    depthInfo.store_op = SDL_GPU_STOREOP_STORE;
+    depthInfo.clear_depth = 1.0f;
+    depthInfo.cycle = true;
+    SDL_GPURenderPass* renderPass = SDL_BeginGPURenderPass(m_commandBuffer, &colorInfo, 1, &depthInfo);
+    if (!renderPass)
+    {
+        CROBOTS_LOG("Failed to begin render pass: %s", SDL_GetError());
+        return;
+    }
+
+    /* TODO: remove */
+    std::vector<std::shared_ptr<Model>> models{m_models["default"]};
+
+    for (const std::shared_ptr<Model>& model : models)
+    {
+        switch (model->GetType())
+        {
+        case ModelType::VoxObj:
+            RenderModelVoxObj(renderPass, std::dynamic_pointer_cast<ModelVoxObj>(model));
+            break;
+        default:
+            CROBOTS_ASSERT(false);
+        }
+    }
+
+    SDL_EndGPURenderPass(renderPass);
+}
+
+void Renderer::RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::shared_ptr<ModelVoxObj>& model)
+{
+    /* TODO: remove */
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, -100.0f);
+    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::mat4 matrix = CreateModelMatrix(position, rotation);
+    m_camera.SetViewport(glm::vec2(m_width, m_height));
+    m_camera.Update();
+
+    SDL_BindGPUGraphicsPipeline(renderPass, m_graphicsPipelines[GraphicsPipelineModelVoxObj]);
+    SDL_PushGPUVertexUniformData(m_commandBuffer, 0, &m_camera.GetViewProj(), 64);
+    SDL_PushGPUVertexUniformData(m_commandBuffer, 1, &matrix, 64);
+    SDL_GPUBufferBinding vertexBufferBinding{};
+    SDL_GPUBufferBinding indexBufferBinding{};
+    SDL_GPUTextureSamplerBinding paletteTextureBinding{};
+    vertexBufferBinding.buffer = model->GetVertexBuffer();
+    indexBufferBinding.buffer = model->GetIndexBuffer();
+    paletteTextureBinding.sampler = m_samplers[SamplerNearest];
+    paletteTextureBinding.texture = model->GetPaletteTexture();
+    SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBufferBinding, 1);
+    SDL_BindGPUIndexBuffer(renderPass, &indexBufferBinding, model->GetIndexElementSize());
+    SDL_BindGPUFragmentSamplers(renderPass, 0, &paletteTextureBinding, 1);
+    SDL_DrawGPUIndexedPrimitives(renderPass, model->GetIndexCount(), 1, 0, 0, 0);
 }
 
 }

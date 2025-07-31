@@ -54,7 +54,7 @@ struct uniformModelMatrix
     float4x4 modelMatrix;
 };
 
-constant spvUnsafeArray<float3, 6> _87 = spvUnsafeArray<float3, 6>({ float3(-1.0, 0.0, 0.0), float3(1.0, 0.0, 0.0), float3(0.0, -1.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, -1.0), float3(0.0, 0.0, 1.0) });
+constant spvUnsafeArray<float3, 6> _95 = spvUnsafeArray<float3, 6>({ float3(-1.0, 0.0, 0.0), float3(1.0, 0.0, 0.0), float3(0.0, -1.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, -1.0), float3(0.0, 0.0, 1.0) });
 
 struct main0_out
 {
@@ -65,45 +65,45 @@ struct main0_out
 
 struct main0_in
 {
-    uint inVertex [[attribute(0)]];
+    uint2 inVertex [[attribute(0)]];
 };
 
 static inline __attribute__((always_inline))
-float3 getPosition(thread const uint& vertex0)
+float3 getPosition(thread const uint2& vertex0)
 {
     float3 magnitude;
-    magnitude.x = float((vertex0 >> uint(0)) & 63u);
-    magnitude.y = float((vertex0 >> uint(6)) & 1u);
-    magnitude.z = float((vertex0 >> uint(7)) & 63u);
+    magnitude.x = float((vertex0.x >> uint(0)) & 255u);
     float3 direction;
-    direction.x = float((vertex0 >> uint(13)) & 1u);
-    direction.y = float((vertex0 >> uint(14)) & 63u);
-    direction.z = float((vertex0 >> uint(20)) & 1u);
+    direction.x = float((vertex0.x >> uint(8)) & 1u);
+    magnitude.y = float((vertex0.x >> uint(9)) & 255u);
+    direction.y = float((vertex0.x >> uint(17)) & 1u);
+    magnitude.z = float((vertex0.x >> uint(18)) & 255u);
+    direction.z = float((vertex0.x >> uint(26)) & 1u);
     return (float3(1.0) - (direction * 2.0)) * magnitude;
 }
 
 static inline __attribute__((always_inline))
-float3 getNormal(thread const uint& vertex0)
+float3 getNormal(thread const uint2& vertex0)
 {
-    return _87[(vertex0 >> uint(21)) & 7u];
+    return _95[(vertex0.y >> uint(0)) & 7u];
 }
 
 static inline __attribute__((always_inline))
-float2 getTexcoord(thread const uint& vertex0)
+float2 getTexcoord(thread const uint2& vertex0)
 {
-    return float2(float((vertex0 >> uint(24)) & 255u) / 256.0, 0.5);
+    return float2(float((vertex0.y >> uint(3)) & 255u) / 256.0, 0.5);
 }
 
-vertex main0_out main0(main0_in in [[stage_in]], constant uniformViewProjMatrix& _135 [[buffer(0)]], constant uniformModelMatrix& _141 [[buffer(1)]])
+vertex main0_out main0(main0_in in [[stage_in]], constant uniformViewProjMatrix& _143 [[buffer(0)]], constant uniformModelMatrix& _149 [[buffer(1)]])
 {
     main0_out out = {};
-    uint param = in.inVertex;
+    uint2 param = in.inVertex;
     float3 position = getPosition(param);
-    uint param_1 = in.inVertex;
+    uint2 param_1 = in.inVertex;
     out.outNormal = getNormal(param_1);
-    uint param_2 = in.inVertex;
+    uint2 param_2 = in.inVertex;
     out.outTexcoord = getTexcoord(param_2);
-    out.gl_Position = (_135.viewProjMatrix * _141.modelMatrix) * float4(position, 1.0);
+    out.gl_Position = (_143.viewProjMatrix * _149.modelMatrix) * float4(position, 1.0);
     return out;
 }
 
