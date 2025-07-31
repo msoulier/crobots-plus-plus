@@ -138,7 +138,7 @@ bool ModelVoxObj::Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const s
     {
         tinyobj::index_t index = shape.mesh.indices[i];
         Vertex vertex = CreateVertex(attrib, index);
-        auto [it, inserted] = vertexToIndex.try_emplace(vertex, m_indexCount);
+        auto [it, inserted] = vertexToIndex.try_emplace(vertex, vertexCount);
         if (inserted)
         {
             vertexData[vertexCount] = vertex;

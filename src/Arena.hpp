@@ -2,7 +2,8 @@
 
 #include <cstdint>
 
-namespace Crobots {
+namespace Crobots
+{
 
 class Arena
 {

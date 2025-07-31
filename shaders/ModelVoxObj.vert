@@ -16,9 +16,9 @@ vec3 getPosition(uvec2 vertex)
 {
     vec3 magnitude;
     vec3 direction;
-    magnitude.x = float((vertex.x >>  0) & 0xFFu);
-    direction.x = float((vertex.x >>  8) & 0x1u);
-    magnitude.y = float((vertex.x >>  9) & 0xFFu);
+    magnitude.x = float((vertex.x >> 0) & 0xFFu);
+    direction.x = float((vertex.x >> 8) & 0x1u);
+    magnitude.y = float((vertex.x >> 9) & 0xFFu);
     direction.y = float((vertex.x >> 17) & 0x1u);
     magnitude.z = float((vertex.x >> 18) & 0xFFu);
     direction.z = float((vertex.x >> 26) & 0x1u);
