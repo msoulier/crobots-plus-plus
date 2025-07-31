@@ -10,7 +10,8 @@ namespace Crobots
 {
 
 App::App()
-    : m_window{}
+    : m_engine{}
+    , m_window{}
     , m_renderer{}
     , m_renderTimer{}
     , m_engineTimer{}
@@ -59,7 +60,7 @@ void App::Iterate()
     }
     if (m_engineTimer.ShouldTick())
     {
-        // FIXME: engine
+        m_engine.Tick();
     }
 }
 

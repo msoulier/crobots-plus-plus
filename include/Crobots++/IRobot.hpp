@@ -6,6 +6,13 @@
 namespace Crobots
 {
 
+enum CannonState
+{
+    READY,
+    FIRING,
+    RELOADING
+};
+
 class IRobot
 {
 public:
@@ -13,6 +20,16 @@ public:
     virtual std::string GetName() const = 0;
 
 private:
+    uint32_t m_locX;
+    uint32_t m_locY;
+    uint8_t m_speed;
+    uint16_t m_facing;
+    // default to 65535 for now, so effectively unlimited, planning for the future
+    uint16_t m_rounds;
+
+    CannonState cannonState();
+
+protected:
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
         resolution. Scan() returns 0 if no robots are within the scan range or a

@@ -4,6 +4,7 @@
 
 #include <string_view>
 
+#include "Engine.hpp"
 #include "Renderer.hpp"
 #include "Timer.hpp"
 #include "Window.hpp"
@@ -29,6 +30,7 @@ public:
     void Event(SDL_Event* event);
 
 private:
+    Engine m_engine;
     Window m_window;
     Renderer m_renderer;
     Timer m_renderTimer;

@@ -26,6 +26,12 @@ Implementing a robot is as simple as including
 
 and subclassing the IRobot class, and implementing its interface.
 
+## The Arena
+The original game uses an arena mapped-out in 2 dimensions with coordinates of 0-999. Speeds are from 0-100, presumably a percentage value. 
+We will map this to real world units, and attempt to apply a certain amount of physics. Initially our goals are to model the original gameplay, but after that, who knows?
+
+As a baseline, an arena that is 1kmx1km in size, with speeds representing kph, should work well. If we model that properly it should take 0.6minutes or 36s to cross the arena from one end to the other at top speed. Tanks with engines pushing up to that speed, especially small, unmanned tanks, are not unreasonable, and 1km gives us something reasonable to work with when it comes to tanks firing on one another, as in real life they can do so much farther away.
+
 ## The API
 The interface is based on the original API. I am using [this one](https://tpoindex.github.io/crobots/docs/crobots_manual.html#8-1).
 Here are the functions that we need to implement, at a minimum, in the API:
