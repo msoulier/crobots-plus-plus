@@ -48,7 +48,7 @@ vec2 getTexcoord(uvec2 vertex)
 void main()
 {
     vec3 position = getPosition(inVertex);
-    outNormal = getNormal(inVertex);
+    outNormal = normalize(transpose(inverse(mat3(modelMatrix))) * getNormal(inVertex));
     outTexcoord = getTexcoord(inVertex);
     gl_Position = viewProjMatrix * modelMatrix * vec4(position, 1.0f);
 }
