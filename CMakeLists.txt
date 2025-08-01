@@ -48,6 +48,7 @@ add_executable(crobots WIN32
     src/Camera.cpp
     src/DebugGroup.cpp
     src/Engine.cpp
+    src/Loader.cpp
     src/Log.cpp
     src/Main.cpp
     src/Math.cpp

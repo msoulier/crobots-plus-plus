@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 
 #include "App.hpp"
+#include "Loader.hpp"
 #include "Log.hpp"
 #include "Renderer.hpp"
 #include "Timer.hpp"
@@ -32,10 +33,13 @@ bool App::Init(const AppInfo& info)
     }
     m_renderTimer = Timer{16.6f};
     m_engineTimer = Timer{1000.0f};
+
     Arena arena(info.arenaX, info.arenaY);
-    // FIXME: Create a loader class to load the robots
+    Loader loader;
+    // FIXME: loop over command-line arguments and Load() each robot
     //std::vector<Crobots::IRobot> robots;
-    //m_engine.Load(robots, arena);
+    //m_engine.Load(std::move(robots), arena);
+    m_engine.Load(loader.GetRobots(), arena);
     return true;
 }
 

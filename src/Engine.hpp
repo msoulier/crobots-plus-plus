@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <Crobots++/IRobot.hpp>
 
 #include "Arena.hpp"
@@ -11,16 +12,15 @@ namespace Crobots
 class Engine
 {
 public:
-    Engine();
+    Engine() = default;
     Engine(const Engine&) = delete;
     const Engine& operator=(const Engine&) = delete;
-    ~Engine();
 
-    void Load(std::vector<Crobots::IRobot> robots, Arena arena);
+    void Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Arena arena);
     void Tick();
 
 private:
-    std::vector<Crobots::IRobot> m_robots;
+    std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
     Crobots::Arena m_arena;
 };
 
