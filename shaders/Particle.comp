@@ -1,0 +1,29 @@
+#version 450
+
+#include "ShaderConfig.h"
+
+struct Particle
+{
+    vec3 position;
+    uint color;
+    uint lifetime;
+};
+
+layout(local_size_x = CROBOTS_SHADERCONFIG_PARTICLE_THREADS_X) in;
+layout(set = 0, binding = 0) buffer bufferInParticles
+{
+    Particle inParticles[];
+};
+layout(set = 1, binding = 0) buffer bufferOutParticles
+{
+    Particle outParticles[];
+};
+layout(set = 1, binding = 1) buffer bufferSize
+{
+    uint size;
+};
+
+void main()
+{
+
+}

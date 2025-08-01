@@ -1,0 +1,31 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct uniformViewProjMatrix
+{
+    float4x4 viewProjMatrix;
+};
+
+struct main0_out
+{
+    uint outColor [[user(locn0)]];
+    float4 gl_Position [[position]];
+};
+
+struct main0_in
+{
+    float3 inLocalPosition [[attribute(0)]];
+    float3 inWorldPosition [[attribute(1)]];
+    uint inColor [[attribute(2)]];
+};
+
+vertex main0_out main0(main0_in in [[stage_in]], constant uniformViewProjMatrix& _24 [[buffer(0)]])
+{
+    main0_out out = {};
+    out.outColor = in.inColor;
+    out.gl_Position = _24.viewProjMatrix * float4(in.inWorldPosition + in.inLocalPosition, 1.0);
+    return out;
+}
+

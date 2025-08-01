@@ -1,5 +1,7 @@
 #include <SDL3/SDL.h>
 
+#include <string_view>
+
 #include "Log.hpp"
 
 static SDL_IOStream* logFile;
@@ -18,11 +20,11 @@ static void LogCallback(void* data, int category, SDL_LogPriority priority, cons
 namespace Crobots
 {
 
-void SetLogging(std::string logfilePath)
+void SetLogging(const std::string_view& logfilePath)
 {
     // FIXME: tie this into the verbose command-line argument?
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-    logFile = SDL_IOFromFile(logfilePath.c_str(), "w");
+    logFile = SDL_IOFromFile(logfilePath.data(), "w");
     if (!logFile)
     {
         CROBOTS_LOG("Failed to open log file: %s", SDL_GetError());
@@ -34,6 +36,7 @@ void SetLogging(std::string logfilePath)
 void ResetLogging()
 {
     SDL_ResetLogPriorities();
+    SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr);
     SDL_CloseIO(logFile);
     logFile = nullptr;
 }

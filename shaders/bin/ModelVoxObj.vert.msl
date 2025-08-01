@@ -44,14 +44,49 @@ struct spvUnsafeArray
     }
 };
 
-struct uniformViewProjMatrix
+// Returns the determinant of a 2x2 matrix.
+static inline __attribute__((always_inline))
+float spvDet2x2(float a1, float a2, float b1, float b2)
 {
-    float4x4 viewProjMatrix;
-};
+    return a1 * b2 - b1 * a2;
+}
+
+// Returns the inverse of a matrix, by using the algorithm of calculating the classical
+// adjoint and dividing by the determinant. The contents of the matrix are changed.
+static inline __attribute__((always_inline))
+float3x3 spvInverse3x3(float3x3 m)
+{
+    float3x3 adj;	// The adjoint matrix (inverse after dividing by determinant)
+
+    // Create the transpose of the cofactors, as the classical adjoint of the matrix.
+    adj[0][0] =  spvDet2x2(m[1][1], m[1][2], m[2][1], m[2][2]);
+    adj[0][1] = -spvDet2x2(m[0][1], m[0][2], m[2][1], m[2][2]);
+    adj[0][2] =  spvDet2x2(m[0][1], m[0][2], m[1][1], m[1][2]);
+
+    adj[1][0] = -spvDet2x2(m[1][0], m[1][2], m[2][0], m[2][2]);
+    adj[1][1] =  spvDet2x2(m[0][0], m[0][2], m[2][0], m[2][2]);
+    adj[1][2] = -spvDet2x2(m[0][0], m[0][2], m[1][0], m[1][2]);
+
+    adj[2][0] =  spvDet2x2(m[1][0], m[1][1], m[2][0], m[2][1]);
+    adj[2][1] = -spvDet2x2(m[0][0], m[0][1], m[2][0], m[2][1]);
+    adj[2][2] =  spvDet2x2(m[0][0], m[0][1], m[1][0], m[1][1]);
+
+    // Calculate the determinant as a combination of the cofactors of the first row.
+    float det = (adj[0][0] * m[0][0]) + (adj[0][1] * m[1][0]) + (adj[0][2] * m[2][0]);
+
+    // Divide the classical adjoint matrix by the determinant.
+    // If determinant is zero, matrix is not invertable, so leave it unchanged.
+    return (det != 0.0f) ? (adj * (1.0f / det)) : m;
+}
 
 struct uniformModelMatrix
 {
     float4x4 modelMatrix;
+};
+
+struct uniformViewProjMatrix
+{
+    float4x4 viewProjMatrix;
 };
 
 constant spvUnsafeArray<float3, 6> _95 = spvUnsafeArray<float3, 6>({ float3(-1.0, 0.0, 0.0), float3(1.0, 0.0, 0.0), float3(0.0, -1.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, -1.0), float3(0.0, 0.0, 1.0) });
@@ -94,16 +129,16 @@ float2 getTexcoord(thread const uint2& vertex0)
     return float2(float((vertex0.y >> uint(3)) & 255u) / 256.0, 0.5);
 }
 
-vertex main0_out main0(main0_in in [[stage_in]], constant uniformViewProjMatrix& _143 [[buffer(0)]], constant uniformModelMatrix& _149 [[buffer(1)]])
+vertex main0_out main0(main0_in in [[stage_in]], constant uniformViewProjMatrix& _161 [[buffer(0)]], constant uniformModelMatrix& _131 [[buffer(1)]])
 {
     main0_out out = {};
     uint2 param = in.inVertex;
     float3 position = getPosition(param);
     uint2 param_1 = in.inVertex;
-    out.outNormal = getNormal(param_1);
+    out.outNormal = fast::normalize(transpose(spvInverse3x3(float3x3(_131.modelMatrix[0].xyz, _131.modelMatrix[1].xyz, _131.modelMatrix[2].xyz))) * getNormal(param_1));
     uint2 param_2 = in.inVertex;
     out.outTexcoord = getTexcoord(param_2);
-    out.gl_Position = (_143.viewProjMatrix * _149.modelMatrix) * float4(position, 1.0);
+    out.gl_Position = (_161.viewProjMatrix * _131.modelMatrix) * float4(position, 1.0);
     return out;
 }
 

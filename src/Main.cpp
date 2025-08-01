@@ -2,6 +2,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <string>
+
 #include "App.hpp"
 #include "Log.hpp"
 

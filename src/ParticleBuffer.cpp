@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <span>
 
 #include "Assert.hpp"
 #include "Log.hpp"
@@ -15,19 +16,16 @@ ParticleBuffer::ParticleBuffer()
     , m_particleBuffer{nullptr}
     , m_indirectBuffer{nullptr}
     , m_particleTransferBuffer{nullptr}
-    , m_indirectTransferBuffer{nullptr}
+    , m_downloadTransferBuffer{nullptr}
     , m_fence{nullptr}
     , m_particleBufferSize{0}
     , m_particleBufferCapacity{0}
     , m_particleTransferBufferCapacity{0}
     , m_particleTransferBufferData{nullptr}
-    , m_bufferCapacity{0}
-    , m_stride{0} {}
+    , m_bufferCapacity{0} {}
 
-bool ParticleBuffer::Create(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, uint32_t stride, uint32_t indexCount)
+bool ParticleBuffer::Create(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, uint32_t indexCount)
 {
-    CROBOTS_ASSERT(stride);
-    m_stride = stride;
     {
         SDL_GPUBufferCreateInfo info{};
         info.usage = SDL_GPU_BUFFERUSAGE_INDIRECT;
@@ -40,12 +38,11 @@ bool ParticleBuffer::Create(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, ui
         }
     }
     {
-        /* only transfering num_instances */
         SDL_GPUTransferBufferCreateInfo info{};
         info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
         info.size = sizeof(uint32_t);
-        m_indirectTransferBuffer = SDL_CreateGPUTransferBuffer(device, &info);
-        if (!m_indirectTransferBuffer)
+        m_downloadTransferBuffer = SDL_CreateGPUTransferBuffer(device, &info);
+        if (!m_downloadTransferBuffer)
         {
             CROBOTS_LOG("Failed to create transfer buffer: %s", SDL_GetError());
             return false;
@@ -88,7 +85,7 @@ bool ParticleBuffer::Create(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, ui
         info.usage = SDL_GPU_BUFFERUSAGE_VERTEX |
             SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ |
             SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE;
-        info.size = m_bufferCapacity * m_stride;
+        info.size = m_bufferCapacity * sizeof(Particle);
         m_buffers[i] = SDL_CreateGPUBuffer(device, &info);
         if (!m_buffers[i])
         {
@@ -108,13 +105,13 @@ void ParticleBuffer::Destroy(SDL_GPUDevice* device)
     SDL_ReleaseGPUBuffer(device, m_particleBuffer);
     SDL_ReleaseGPUBuffer(device, m_indirectBuffer);
     SDL_ReleaseGPUTransferBuffer(device, m_particleTransferBuffer);
-    SDL_ReleaseGPUTransferBuffer(device, m_indirectTransferBuffer);
+    SDL_ReleaseGPUTransferBuffer(device, m_downloadTransferBuffer);
     SDL_ReleaseGPUFence(device, m_fence);
 }
 
-void ParticleBuffer::Upload(SDL_GPUDevice* device, void* data, uint32_t size)
+void ParticleBuffer::Upload(SDL_GPUDevice* device, const std::span<Particle>& particles)
 {
-    if (!size)
+    if (particles.empty())
     {
         return;
     }
@@ -127,12 +124,13 @@ void ParticleBuffer::Upload(SDL_GPUDevice* device, void* data, uint32_t size)
             return;
         }
     }
-    if (m_particleBufferSize + size > m_particleTransferBufferCapacity)
+    uint32_t size = m_particleBufferSize + particles.size();
+    if (size > m_particleTransferBufferCapacity)
     {
-        uint32_t capacity = std::max(10u, (m_particleBufferSize + size) * 2u);
+        uint32_t capacity = std::max(10u, size * 2u);
         SDL_GPUTransferBufferCreateInfo info{};
         info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-        info.size = capacity * m_stride;
+        info.size = capacity * sizeof(Particle);
         SDL_GPUTransferBuffer* transferBuffer = SDL_CreateGPUTransferBuffer(device, &info);
         if (!transferBuffer)
         {
@@ -148,7 +146,7 @@ void ParticleBuffer::Upload(SDL_GPUDevice* device, void* data, uint32_t size)
         }
         if (m_particleTransferBuffer)
         {
-            std::memcpy(data, m_particleTransferBufferData, m_particleBufferSize * m_stride); 
+            std::memcpy(data, m_particleTransferBufferData, m_particleBufferSize * sizeof(Particle)); 
             SDL_UnmapGPUTransferBuffer(device, transferBuffer);
             SDL_UnmapGPUTransferBuffer(device, m_particleTransferBuffer);
             SDL_ReleaseGPUTransferBuffer(device, m_particleTransferBuffer);
@@ -157,8 +155,8 @@ void ParticleBuffer::Upload(SDL_GPUDevice* device, void* data, uint32_t size)
         m_particleTransferBufferData = data;
         m_particleTransferBufferCapacity = capacity;
     }
-    std::memcpy(m_particleTransferBufferData + m_particleBufferSize, data, size * m_stride);
-    m_particleBufferSize += size;
+    std::memcpy(m_particleTransferBufferData + m_particleBufferSize, particles.data(), particles.size_bytes());
+    m_particleBufferSize += particles.size();
 }
 
 void ParticleBuffer::PreUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass)
@@ -169,7 +167,7 @@ void ParticleBuffer::PreUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass)
         m_particleBuffer = nullptr;
         SDL_GPUBufferCreateInfo info{};
         info.usage = SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ;
-        info.size = m_particleTransferBufferCapacity * m_stride;
+        info.size = m_particleTransferBufferCapacity * sizeof(Particle);
         m_particleBuffer = SDL_CreateGPUBuffer(device, &info);
         if (!m_particleBuffer)
         {
@@ -187,7 +185,7 @@ void ParticleBuffer::PreUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass)
     SDL_GPUBufferRegion region{};
     location.transfer_buffer = m_particleTransferBuffer;
     region.buffer = m_particleBuffer;
-    region.size = m_particleBufferSize * m_stride;
+    region.size = m_particleBufferSize * sizeof(Particle);
     SDL_UploadToGPUBuffer(copyPass, &location, &region, true);
 }
 
@@ -198,14 +196,14 @@ void ParticleBuffer::PostUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass
     {
         SDL_ReleaseGPUFence(device, m_fence);
         m_fence = nullptr;
-        uint32_t* data = static_cast<uint32_t*>(SDL_MapGPUTransferBuffer(device, m_indirectTransferBuffer, false));
+        uint32_t* data = static_cast<uint32_t*>(SDL_MapGPUTransferBuffer(device, m_downloadTransferBuffer, false));
         if (!data)
         {
             CROBOTS_LOG("Failed to map transfer buffer: %s", SDL_GetError());
             return;
         }
         uint32_t size = *data;
-        SDL_UnmapGPUTransferBuffer(device, m_indirectTransferBuffer);
+        SDL_UnmapGPUTransferBuffer(device, m_downloadTransferBuffer);
         CROBOTS_ASSERT(size <= m_particleBufferCapacity);
         if (size == m_particleBufferCapacity)
         {
@@ -216,7 +214,7 @@ void ParticleBuffer::PostUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass
                 info.usage = SDL_GPU_BUFFERUSAGE_VERTEX |
                     SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ |
                     SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE;
-                info.size = capacity * m_stride;
+                info.size = capacity * sizeof(Particle);
                 SDL_GPUBuffer* buffer = SDL_CreateGPUBuffer(device, &info);
                 if (!buffer)
                 {
@@ -229,7 +227,7 @@ void ParticleBuffer::PostUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass
                     SDL_GPUBufferLocation dst{};
                     src.buffer = m_buffers[i];
                     dst.buffer = buffer;
-                    SDL_CopyGPUBufferToBuffer(copyPass, &src, &dst, size * m_stride, false);
+                    SDL_CopyGPUBufferToBuffer(copyPass, &src, &dst, size * sizeof(Particle), false);
                     SDL_ReleaseGPUBuffer(device, m_buffers[i]);
                 }
                 m_buffers[i] = buffer;

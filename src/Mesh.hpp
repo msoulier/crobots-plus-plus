@@ -2,13 +2,19 @@
 
 #include <SDL3/SDL.h>
 
+#include <cstdint>
+#include <optional>
+#include <span>
+
 namespace Crobots
 {
 
 class Mesh
 {
 public:
-    static Mesh CreateCubeMesh(SDL_GPUDevice* device);
+    static std::optional<Mesh> CreateMesh(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const std::span<float>& vertices, const std::span<uint16_t>& indices);
+    static std::optional<Mesh> CreateCubeMesh(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass);
+    static std::optional<Mesh> CreateCubeWireframeMesh(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass);
     void Destroy(SDL_GPUDevice* device);
     SDL_GPUBuffer* GetVertexBuffer() const;
     SDL_GPUBuffer* GetIndexBuffer() const;

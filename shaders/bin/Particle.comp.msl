@@ -1,0 +1,33 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+constant uint3 gl_WorkGroupSize [[maybe_unused]] = uint3(64u, 1u, 1u);
+
+struct Particle
+{
+    float3 position;
+    uint color;
+    uint lifetime;
+};
+
+struct bufferInParticles
+{
+    Particle inParticles[1];
+};
+
+struct bufferOutParticles
+{
+    Particle outParticles[1];
+};
+
+struct bufferSize
+{
+    uint size;
+};
+
+kernel void main0()
+{
+}
+

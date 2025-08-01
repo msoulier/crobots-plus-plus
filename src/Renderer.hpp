@@ -54,7 +54,7 @@ private:
 
     enum ParticleBufferType
     {
-        ParticleBufferExplosion,
+        ParticleBufferDefault,
         ParticleBufferCount,
     };
 
@@ -62,13 +62,6 @@ private:
     {
         MeshCube,
         MeshCount,
-    };
-
-    struct ExplosionParticle
-    {
-        glm::vec3 position;
-        glm::u8vec4 color;
-        float lifetime;
     };
 
     SDL_GPUDevice* m_device;

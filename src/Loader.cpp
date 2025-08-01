@@ -2,7 +2,7 @@
 
 namespace Crobots {
 
-bool Loader::Load(std::string path)
+bool Loader::Load(const std::string_view& path)
 {
     // FIXME
     return true;
