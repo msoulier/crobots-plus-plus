@@ -18,9 +18,7 @@ Camera::Camera()
     , m_viewport{}
     , m_fov{glm::radians(60.0f)}
     , m_near{0.1f}
-    , m_far{1000.0f}
-{
-}
+    , m_far{1000.0f} {}
 
 void Camera::Update()
 {

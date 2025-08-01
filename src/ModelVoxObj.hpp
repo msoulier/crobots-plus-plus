@@ -13,6 +13,7 @@ namespace Crobots
 class ModelVoxObj : public Model
 {
 public:
+    ModelVoxObj();
     bool Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const std::string_view& name) override;
     void Destroy(SDL_GPUDevice* device) override;
     ModelType GetType() const override;

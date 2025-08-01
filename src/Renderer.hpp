@@ -2,11 +2,13 @@
 
 #include <SDL3/SDL.h>
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
 
 #include "Camera.hpp"
+#include "ParticleBuffer.hpp"
 
 namespace Crobots
 {
@@ -31,33 +33,40 @@ private:
     void RenderModels(SDL_GPUTexture* colorTexture);
     void RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::shared_ptr<ModelVoxObj>& model);
 
-    enum Texture
+    enum TextureType
     {
         TextureDepth,
         TextureCount,
     };
 
-    enum Sampler
+    enum SamplerType
     {
         SamplerNearest,
         SamplerCount,
     };
 
-    enum GraphicsPipeline
+    enum GraphicsPipelineType
     {
         GraphicsPipelineModelVoxObj,
         GraphicsPipelineCount,
+    };
+
+    enum ParticleBufferType
+    {
+        ParticleBufferDefault,
+        ParticleBufferCount,
     };
 
     SDL_GPUDevice* m_device;
     SDL_GPUGraphicsPipeline* m_graphicsPipelines[GraphicsPipelineCount];
     SDL_GPUTexture* m_textures[TextureCount];
     SDL_GPUSampler* m_samplers[SamplerCount];
+    std::unordered_map<std::string, std::shared_ptr<Model>> m_models;
+    std::array<ParticleBuffer, ParticleBufferCount> m_particleBuffers;
     SDL_GPUCommandBuffer* m_commandBuffer;
     uint32_t m_width;
     uint32_t m_height;
     Camera m_camera;
-    std::unordered_map<std::string, std::shared_ptr<Model>> m_models;
 };
 
 }

@@ -32,8 +32,8 @@ void LogInit(const std::string_view& path)
 
 void LogQuit()
 {
-    SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr);
     SDL_CloseIO(logFile);
+    logFile = nullptr;
 }
 
 }

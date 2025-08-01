@@ -15,9 +15,7 @@ App::App()
     , m_renderer{}
     , m_renderTimer{}
     , m_engineTimer{}
-    , m_shouldQuit{false}
-{
-}
+    , m_shouldQuit{false} {}
 
 bool App::Init(const AppInfo& info)
 {

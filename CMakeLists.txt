@@ -53,6 +53,7 @@ add_executable(crobots WIN32
     src/Math.cpp
     src/Model.cpp
     src/ModelVoxObj.cpp
+    src/ParticleBuffer.cpp
     src/Pipeline.cpp
     src/Renderer.cpp
     src/Shader.cpp

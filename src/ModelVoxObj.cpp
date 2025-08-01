@@ -95,6 +95,12 @@ static Vertex CreateVertex(const tinyobj::attrib_t& attrib, const tinyobj::index
     return vertex;
 }
 
+ModelVoxObj::ModelVoxObj()
+    : m_vertexBuffer{nullptr}
+    , m_indexBuffer{nullptr}
+    , m_paletteTexture{nullptr}
+    , m_indexCount{0} {}
+
 bool ModelVoxObj::Load(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, const std::string_view& name)
 {
     std::string objPath = std::format("{}.obj", name);

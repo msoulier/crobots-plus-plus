@@ -1,7 +1,8 @@
 #include "Engine.hpp"
 #include "Log.hpp"
 
-namespace Crobots {
+namespace Crobots
+{
 
 Engine::Engine()
 {

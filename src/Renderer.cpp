@@ -11,6 +11,7 @@
 #include "Math.hpp"
 #include "Model.hpp"
 #include "ModelVoxObj.hpp"
+#include "ParticleBuffer.hpp"
 #include "Pipeline.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
@@ -23,12 +24,13 @@ Renderer::Renderer()
     : m_device{nullptr}
     , m_graphicsPipelines{}
     , m_textures{}
+    , m_samplers{}
+    , m_models{}
+    , m_particleBuffers{}
     , m_commandBuffer{nullptr}
     , m_width{0}
     , m_height{0}
-    , m_camera{}
-{
-}
+    , m_camera{} {}
 
 bool Renderer::Create(Window& window)
 {
@@ -69,10 +71,14 @@ void Renderer::Destroy(Window& window)
     {
         SDL_SubmitGPUCommandBuffer(m_commandBuffer);
     }
-
-    /* TODO: remove */
-    m_models["default"]->Destroy(m_device);
-
+    for (ParticleBuffer& particleBuffer : m_particleBuffers)
+    {
+        particleBuffer.Destroy(m_device);
+    }
+    for (std::pair<const std::string, std::shared_ptr<Model>>& item : m_models)
+    {
+        item.second->Destroy(m_device);
+    }
     for (int i = 0; i < SamplerCount; i++)
     {
         SDL_ReleaseGPUSampler(m_device, m_samplers[i]);
