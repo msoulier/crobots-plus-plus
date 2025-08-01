@@ -32,6 +32,10 @@ bool App::Init(const AppInfo& info)
     }
     m_renderTimer = Timer{16.6f};
     m_engineTimer = Timer{1000.0f};
+    Arena arena(info.arenaX, info.arenaY);
+    // FIXME: Create a loader class to load the robots
+    //std::vector<Crobots::IRobot> robots;
+    //m_engine.Load(robots, arena);
     return true;
 }
 

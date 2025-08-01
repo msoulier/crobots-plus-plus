@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <SDL3/SDL.h>
 
 #include <string_view>
@@ -15,6 +16,8 @@ namespace Crobots
 struct AppInfo
 {
     std::string_view title;
+    uint32_t arenaX;
+    uint32_t arenaY;
     /* TODO: args */
 };
 
