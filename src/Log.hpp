@@ -7,7 +7,7 @@
 namespace Crobots
 {
 
-void SetLogging();
+void SetLogging(std::string logfilePath);
 void ResetLogging();
 
 }

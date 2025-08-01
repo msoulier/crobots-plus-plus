@@ -18,10 +18,11 @@ static void LogCallback(void* data, int category, SDL_LogPriority priority, cons
 namespace Crobots
 {
 
-void SetLogging()
+void SetLogging(std::string logfilePath)
 {
+    // FIXME: tie this into the verbose command-line argument?
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-    logFile = SDL_IOFromFile("crobots++.log", "w");
+    logFile = SDL_IOFromFile(logfilePath.c_str(), "w");
     if (!logFile)
     {
         CROBOTS_LOG("Failed to open log file: %s", SDL_GetError());

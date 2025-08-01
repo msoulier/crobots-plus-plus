@@ -9,6 +9,7 @@
 static bool verbose = false;
 static uint32_t arenaX = 1000;
 static uint32_t arenaY = 1000;
+static std::string logfile{"crobots++.log"};
 
 // https://github.com/CLIUtils/CLI11 for CLI
 static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
@@ -21,6 +22,7 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
     parser.add_flag("-v,--verbose", verbose, "Verbose logging");
     parser.add_option("-x,--arena-x", arenaX, "Arena X dimension (default 1000)");
     parser.add_option("-y,--arena-y", arenaY, "Arena Y dimension (default 1000)");
+    parser.add_option("-l,--logfile", logfile, "Path to logfile (default crobots++.log)");
 
     try
     {
@@ -39,13 +41,13 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
 /* TODO: switch to callbacks when resize slowdowns on Vulkan get fixed */
 int main(int argc, char** argv)
 {
-    Crobots::SetLogging();
     Crobots::AppInfo info{};
     info.title = "Crobots++";
     if (!ParseOptions(argc, argv, info))
     {
         return 1;
     }
+    Crobots::SetLogging(logfile);
     Crobots::App app{};
     if (!app.Init(info))
     {
