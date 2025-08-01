@@ -27,6 +27,7 @@ Renderer::Renderer()
     , m_samplers{}
     , m_models{}
     , m_particleBuffers{}
+    , m_meshes{}
     , m_commandBuffer{nullptr}
     , m_width{0}
     , m_height{0}
@@ -70,6 +71,10 @@ void Renderer::Destroy(Window& window)
     if (m_commandBuffer)
     {
         SDL_SubmitGPUCommandBuffer(m_commandBuffer);
+    }
+    for (Mesh& mesh : m_meshes)
+    {
+        mesh.Destroy(m_device);
     }
     for (ParticleBuffer& particleBuffer : m_particleBuffers)
     {

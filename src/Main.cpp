@@ -11,8 +11,10 @@ static uint32_t arenaX = 1000;
 static uint32_t arenaY = 1000;
 
 // https://github.com/CLIUtils/CLI11 for CLI
-int ParseOptions(int argc, char** argv)
+static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
 {
+    /* TODO: add args to AppInfo */
+
     CLI::App parser{"Crobots++: <arguments>"};
     argv = parser.ensure_utf8(argv);
 
@@ -27,24 +29,23 @@ int ParseOptions(int argc, char** argv)
     catch (const CLI::ParseError& e)
     {
         parser.exit(e);
-        return 1;
+        return false;
     }
 
     CROBOTS_LOG("argc is %d after parse", argc);
-    return 0;
+    return true;
 }
 
 /* TODO: switch to callbacks when resize slowdowns on Vulkan get fixed */
 int main(int argc, char** argv)
 {
-    if (ParseOptions(argc, argv) != 0)
+    Crobots::SetLogging();
+    Crobots::AppInfo info{};
+    info.title = "Crobots++";
+    if (!ParseOptions(argc, argv, info))
     {
         return 1;
     }
-    Crobots::AppInfo info{};
-    info.title = "Crobots++";
-    info.logPath = "crobots.log";
-    /* TODO: add args to AppInfo */
     Crobots::App app{};
     if (!app.Init(info))
     {
@@ -60,5 +61,6 @@ int main(int argc, char** argv)
         app.Iterate();
     }
     app.Quit();
+    Crobots::ResetLogging();
     return 0;
 }

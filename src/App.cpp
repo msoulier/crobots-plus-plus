@@ -19,7 +19,6 @@ App::App()
 
 bool App::Init(const AppInfo& info)
 {
-    LogInit(info.logPath);
     SDL_SetAppMetadata(info.title.data(), nullptr, nullptr);
     if (!m_window.Create(info.title))
     {
@@ -45,7 +44,6 @@ void App::Quit()
 {
     m_renderer.Destroy(m_window);
     m_window.Destroy();
-    LogQuit();
 }
 
 void App::Iterate()

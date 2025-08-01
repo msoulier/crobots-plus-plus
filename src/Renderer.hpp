@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "Camera.hpp"
+#include "Mesh.hpp"
 #include "ParticleBuffer.hpp"
 
 namespace Crobots
@@ -53,8 +54,21 @@ private:
 
     enum ParticleBufferType
     {
-        ParticleBufferDefault,
+        ParticleBufferExplosion,
         ParticleBufferCount,
+    };
+
+    enum MeshType
+    {
+        MeshCube,
+        MeshCount,
+    };
+
+    struct ExplosionParticle
+    {
+        glm::vec3 position;
+        glm::u8vec4 color;
+        float lifetime;
     };
 
     SDL_GPUDevice* m_device;
@@ -63,6 +77,7 @@ private:
     SDL_GPUSampler* m_samplers[SamplerCount];
     std::unordered_map<std::string, std::shared_ptr<Model>> m_models;
     std::array<ParticleBuffer, ParticleBufferCount> m_particleBuffers;
+    std::array<Mesh, MeshCount> m_meshes;
     SDL_GPUCommandBuffer* m_commandBuffer;
     uint32_t m_width;
     uint32_t m_height;

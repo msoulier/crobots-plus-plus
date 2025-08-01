@@ -199,9 +199,6 @@ void ModelVoxObj::Destroy(SDL_GPUDevice* device)
     SDL_ReleaseGPUBuffer(device, m_vertexBuffer);
     SDL_ReleaseGPUBuffer(device, m_indexBuffer);
     SDL_ReleaseGPUTexture(device, m_paletteTexture);
-    m_vertexBuffer = nullptr;
-    m_indexBuffer = nullptr;
-    m_paletteTexture = nullptr;
 }
 
 ModelType ModelVoxObj::GetType() const

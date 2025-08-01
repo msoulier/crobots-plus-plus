@@ -1,7 +1,5 @@
 #include <SDL3/SDL.h>
 
-#include <string_view>
-
 #include "Log.hpp"
 
 static SDL_IOStream* logFile;
@@ -11,17 +9,19 @@ static void LogCallback(void* data, int category, SDL_LogPriority priority, cons
     SDL_GetDefaultLogOutputFunction()(data, category, priority, string);
     if (logFile)
     {
-        SDL_IOprintf(logFile, "%s\n", string);
+        SDL_WriteIO(logFile, string, SDL_strlen(string));
+        SDL_WriteU8(logFile, '\n');
+        SDL_FlushIO(logFile);
     }
 }
 
 namespace Crobots
 {
 
-void LogInit(const std::string_view& path)
+void SetLogging()
 {
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-    logFile = SDL_IOFromFile(path.data(), "w");
+    logFile = SDL_IOFromFile("crobots++.log", "w");
     if (!logFile)
     {
         CROBOTS_LOG("Failed to open log file: %s", SDL_GetError());
@@ -30,8 +30,9 @@ void LogInit(const std::string_view& path)
     SDL_SetLogOutputFunction(LogCallback, logFile);
 }
 
-void LogQuit()
+void ResetLogging()
 {
+    SDL_ResetLogPriorities();
     SDL_CloseIO(logFile);
     logFile = nullptr;
 }

@@ -209,7 +209,7 @@ void ParticleBuffer::PostUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass
         CROBOTS_ASSERT(size <= m_particleBufferCapacity);
         if (size == m_particleBufferCapacity)
         {
-            uint32_t capacity = std::max(10u, size * 2);
+            uint32_t capacity = std::max(10u, size * 2u);
             for (int i = 0; i < BufferCount; i++)
             {
                 SDL_GPUBufferCreateInfo info{};
