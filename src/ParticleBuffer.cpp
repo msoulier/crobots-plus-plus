@@ -15,7 +15,7 @@ ParticleBuffer::ParticleBuffer()
     , m_particleBuffer{nullptr}
     , m_indirectBuffer{nullptr}
     , m_particleTransferBuffer{nullptr}
-    , m_indirectTransferBuffer{nullptr}
+    , m_downloadTransferBuffer{nullptr}
     , m_fence{nullptr}
     , m_particleBufferSize{0}
     , m_particleBufferCapacity{0}
@@ -40,12 +40,11 @@ bool ParticleBuffer::Create(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, ui
         }
     }
     {
-        /* only transfering num_instances */
         SDL_GPUTransferBufferCreateInfo info{};
         info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
         info.size = sizeof(uint32_t);
-        m_indirectTransferBuffer = SDL_CreateGPUTransferBuffer(device, &info);
-        if (!m_indirectTransferBuffer)
+        m_downloadTransferBuffer = SDL_CreateGPUTransferBuffer(device, &info);
+        if (!m_downloadTransferBuffer)
         {
             CROBOTS_LOG("Failed to create transfer buffer: %s", SDL_GetError());
             return false;
@@ -108,7 +107,7 @@ void ParticleBuffer::Destroy(SDL_GPUDevice* device)
     SDL_ReleaseGPUBuffer(device, m_particleBuffer);
     SDL_ReleaseGPUBuffer(device, m_indirectBuffer);
     SDL_ReleaseGPUTransferBuffer(device, m_particleTransferBuffer);
-    SDL_ReleaseGPUTransferBuffer(device, m_indirectTransferBuffer);
+    SDL_ReleaseGPUTransferBuffer(device, m_downloadTransferBuffer);
     SDL_ReleaseGPUFence(device, m_fence);
 }
 
@@ -198,14 +197,14 @@ void ParticleBuffer::PostUpdate(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass
     {
         SDL_ReleaseGPUFence(device, m_fence);
         m_fence = nullptr;
-        uint32_t* data = static_cast<uint32_t*>(SDL_MapGPUTransferBuffer(device, m_indirectTransferBuffer, false));
+        uint32_t* data = static_cast<uint32_t*>(SDL_MapGPUTransferBuffer(device, m_downloadTransferBuffer, false));
         if (!data)
         {
             CROBOTS_LOG("Failed to map transfer buffer: %s", SDL_GetError());
             return;
         }
         uint32_t size = *data;
-        SDL_UnmapGPUTransferBuffer(device, m_indirectTransferBuffer);
+        SDL_UnmapGPUTransferBuffer(device, m_downloadTransferBuffer);
         CROBOTS_ASSERT(size <= m_particleBufferCapacity);
         if (size == m_particleBufferCapacity)
         {

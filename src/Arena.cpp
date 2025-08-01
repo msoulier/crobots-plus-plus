@@ -1,6 +1,7 @@
 #include "Arena.hpp"
 
-namespace Crobots {
+namespace Crobots
+{
 
 Arena::Arena(uint32_t x, uint32_t y)
     : m_x{x}

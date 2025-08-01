@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <Crobots++/IRobot.hpp>
 
+#include <Crobots++/IRobot.hpp>
 #include "Arena.hpp"
 
 namespace Crobots

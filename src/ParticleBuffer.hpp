@@ -29,7 +29,7 @@ private:
     SDL_GPUBuffer* m_particleBuffer;
     SDL_GPUBuffer* m_indirectBuffer;
     SDL_GPUTransferBuffer* m_particleTransferBuffer;
-    SDL_GPUTransferBuffer* m_indirectTransferBuffer;
+    SDL_GPUTransferBuffer* m_downloadTransferBuffer;
     SDL_GPUFence* m_fence;
     uint32_t m_particleBufferSize;
     uint32_t m_particleBufferCapacity;
