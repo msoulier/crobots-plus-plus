@@ -16,6 +16,9 @@ public:
     void Tick() override
     {
         std::cout << "Doofus tick" << std::endl;
+        // What is my current position?
+        uint32_t currentX = LocX();
+        uint32_t currentY = LocY();
     }
 };
 

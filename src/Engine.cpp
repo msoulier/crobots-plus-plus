@@ -2,9 +2,10 @@
 #include <ctime>
 #include <vector>
 
+#include "Arena.hpp"
 #include "Engine.hpp"
 #include "Log.hpp"
-#include "Arena.hpp"
+#include "Utility.hpp"
 
 namespace Crobots
 {
@@ -41,20 +42,16 @@ void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobot
 
 void Engine::PlaceRobots()
 {
+    Utility utility;
     std::srand(std::time({}));
-    for (std::unique_ptr<Crobots::IRobot>& robot : m_robots) {
+    for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
+    {
         // Start each robot at a random spot in the arena.
-        robot->m_locX = BoundedRand(m_arena.GetX());
-        robot->m_locY = BoundedRand(m_arena.GetY());
+        robot->m_locX = utility.BoundedRand(m_arena.GetX());
+        robot->m_locY = utility.BoundedRand(m_arena.GetY());
     }
 }
 
-uint32_t Engine::BoundedRand(uint32_t range)
-{
-    for (uint32_t x, r;;)
-        if (x = rand(), r = x % range, x - r <= -range)
-            return r;
-}
 
 void Engine::MoveRobots()
 {
