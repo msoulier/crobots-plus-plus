@@ -65,7 +65,15 @@ uint32_t Engine::BoundedRand(uint32_t range)
     // name is the IRobot name or some reserved engine name
     RandomEngine(size_t seed, const std::string_view& name)
     {
-        uint64_t real_seed = seed ^ std::hash<std::string_view>{}(name);
+        size_t real_seed = seed ^ std::hash<std::string_view>{}(name);
+    }
+
+    or
+
+    RandomEngine(const std::unique_ptr<IRobot>& robot)
+    {
+        size_t some_global_seed = 0xD3ADB33F;
+        size_t real_seed = some_global_seed ^ std::hash<std::string>{}(robot->GetName());
     }
     
     */
