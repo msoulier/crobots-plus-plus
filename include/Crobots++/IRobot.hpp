@@ -15,9 +15,11 @@ enum class CannonState
 
 class IRobot
 {
+friend class Engine;
 public:
     virtual ~IRobot() = default;
     virtual std::string GetName() const = 0;
+    virtual void Tick() = 0;
 
 private:
     uint32_t m_locX;

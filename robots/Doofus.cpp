@@ -1,4 +1,5 @@
 #include <Crobots++/Crobots++.hpp>
+#include <iostream>
 
 using namespace Crobots;
 
@@ -10,6 +11,11 @@ public:
     std::string GetName() const override
     {
         return "Doofus";
+    }
+
+    void Tick() override
+    {
+        std::cout << "Doofus tick" << std::endl;
     }
 };
 

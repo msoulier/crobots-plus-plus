@@ -23,6 +23,14 @@ public:
 private:
     std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
     Crobots::Arena m_arena;
+
+    // Initial random placement of the robots after loading.
+    void PlaceRobots();
+    unsigned BoundedRand(unsigned range);
+    void MoveRobots();
+    void AccelRobots();
+    void MoveShotsInFlight();
+    void DetonateShots();
 };
 
 }
