@@ -39,7 +39,6 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
     info.arenaX = arenaX;
     info.arenaY = arenaY;
 
-    CROBOTS_LOG("argc is %d after parse", argc);
     return true;
 }
 
