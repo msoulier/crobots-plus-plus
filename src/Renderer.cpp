@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "Assert.hpp"
@@ -45,6 +46,18 @@ bool Renderer::Create(Window& window)
         CROBOTS_LOG("Failed to claim window: %s", SDL_GetError());
         return false;
     }
+    SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(m_device);
+    if (!commandBuffer)
+    {
+        CROBOTS_LOG("Failed to acquire command buffer: %s", SDL_GetError());
+        return false;
+    }
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
+    if (!copyPass)
+    {
+        CROBOTS_LOG("Failed to begin copy pass: %s", SDL_GetError());
+        return false;
+    }
     if (!CreatePipelines(window))
     {
         CROBOTS_LOG("Failed to create pipelines");
@@ -55,14 +68,22 @@ bool Renderer::Create(Window& window)
         CROBOTS_LOG("Failed to create samplers");
         return false;
     }
+    if (!CreateMeshes(window, copyPass))
+    {
+        CROBOTS_LOG("Failed to create meshes");
+        return false;
+    }
+    if (!CreateParticleBuffers(window, copyPass))
+    {
+        CROBOTS_LOG("Failed to create particle buffers");
+        return false;
+    }
 
     /* TODO: remove */
-    SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(m_device);
-    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
     m_models["default"] = Model::Create(m_device, copyPass, "default");
+
     SDL_EndGPUCopyPass(copyPass);
     SDL_SubmitGPUCommandBuffer(commandBuffer);
-
     return true;
 }
 
@@ -168,6 +189,7 @@ bool Renderer::CreateDevice(Window& window)
 bool Renderer::CreatePipelines(Window& window)
 {
     m_graphicsPipelines[GraphicsPipelineModelVoxObj] = CreateModelVoxObjPipeline(m_device, window);
+    m_graphicsPipelines[GraphicsPipelineParticle] = CreateParticlePipeline(m_device, window);
     for (int i = GraphicsPipelineCount - 1; i >= 0; i--)
     {
         if (!m_graphicsPipelines[i])
@@ -196,6 +218,35 @@ bool Renderer::CreateSamplers(Window& window)
             SDL_Log("Failed to create sampler: %d, %s", i, SDL_GetError());
             return false;
         }
+    }
+    return true;
+}
+
+bool Renderer::CreateMeshes(Window& window, SDL_GPUCopyPass* copyPass)
+{
+    std::optional<Mesh> cubeMesh = Mesh::CreateCubeMesh(m_device, copyPass);
+    if (!cubeMesh)
+    {
+        CROBOTS_LOG("Failed to create cube mesh");
+        return false;
+    }
+    std::optional<Mesh> cubeWireframeMesh = Mesh::CreateCubeWireframeMesh(m_device, copyPass);
+    if (!cubeWireframeMesh)
+    {
+        CROBOTS_LOG("Failed to create cube wireframe mesh");
+        return false;
+    }
+    m_meshes[MeshCube] = cubeMesh.value();
+    m_meshes[MeshCubeWireframe] = cubeWireframeMesh.value();
+    return true;
+}
+
+bool Renderer::CreateParticleBuffers(Window& window, SDL_GPUCopyPass* copyPass)
+{
+    if (!m_particleBuffers[ParticleBufferDefault].Create(m_device, copyPass, m_meshes[MeshCube].GetIndexCount()))
+    {
+        CROBOTS_LOG("Failed to create particle buffer: %s", SDL_GetError());
+        return false;
     }
     return true;
 }

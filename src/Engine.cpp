@@ -13,7 +13,8 @@ namespace Crobots
 void Engine::Tick()
 {
     CROBOTS_LOG("Crobots::Engine::Tick()");
-    for (std::unique_ptr<Crobots::IRobot>& robot : m_robots) {
+    for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
+    {
         // Run each robot through a tick.
         robot->Tick();
         // Update the position of each robot based on its velocity
@@ -50,7 +51,6 @@ void Engine::PlaceRobots()
         robot->m_locY = Utility::BoundedRand(m_arena.GetY());
     }
 }
-
 
 void Engine::MoveRobots()
 {

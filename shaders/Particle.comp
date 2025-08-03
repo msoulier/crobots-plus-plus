@@ -6,7 +6,17 @@ struct Particle
 {
     vec3 position;
     uint color;
+    vec3 velocity;
     uint lifetime;
+};
+
+struct Command
+{
+    uint unused1;
+    uint instanceCount;
+    uint unused2;
+    int unused3;
+    uint unused4;
 };
 
 layout(local_size_x = CROBOTS_SHADERCONFIG_PARTICLE_THREADS_X) in;
@@ -18,12 +28,13 @@ layout(set = 1, binding = 0) buffer bufferOutParticles
 {
     Particle outParticles[];
 };
-layout(set = 1, binding = 1) buffer bufferSize
+layout(set = 1, binding = 1) buffer bufferCommand
 {
-    uint size;
+    Command command;
 };
 
 void main()
 {
-
+    /* TODO: */
+    uint writeIndex = atomicAdd(command.instanceCount, 1);
 }

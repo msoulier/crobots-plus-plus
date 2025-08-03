@@ -30,6 +30,8 @@ private:
     bool CreateDevice(Window& window);
     bool CreatePipelines(Window& window);
     bool CreateSamplers(Window& window);
+    bool CreateMeshes(Window& window, SDL_GPUCopyPass* copyPass);
+    bool CreateParticleBuffers(Window& window, SDL_GPUCopyPass* copyPass);
     bool ResizeTextures(uint32_t width, uint32_t height);
     void RenderModels(SDL_GPUTexture* colorTexture);
     void RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::shared_ptr<ModelVoxObj>& model);
@@ -49,6 +51,7 @@ private:
     enum GraphicsPipelineType
     {
         GraphicsPipelineModelVoxObj,
+        GraphicsPipelineParticle,
         GraphicsPipelineCount,
     };
 
@@ -61,6 +64,7 @@ private:
     enum MeshType
     {
         MeshCube,
+        MeshCubeWireframe,
         MeshCount,
     };
 
