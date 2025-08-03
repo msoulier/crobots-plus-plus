@@ -16,8 +16,7 @@ uint32_t IRobot::LocY()
 
 uint32_t IRobot::Rand(uint32_t limit)
 {
-    Utility utility;
-    return utility.BoundedRand(limit);
+    return Utility::BoundedRand(limit);
 }
 
 }

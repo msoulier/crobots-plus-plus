@@ -42,13 +42,12 @@ void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobot
 
 void Engine::PlaceRobots()
 {
-    Utility utility;
     std::srand(std::time({}));
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
-        robot->m_locX = utility.BoundedRand(m_arena.GetX());
-        robot->m_locY = utility.BoundedRand(m_arena.GetY());
+        robot->m_locX = Utility::BoundedRand(m_arena.GetX());
+        robot->m_locY = Utility::BoundedRand(m_arena.GetY());
     }
 }
 
