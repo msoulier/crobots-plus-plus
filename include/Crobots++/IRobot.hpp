@@ -48,6 +48,8 @@ private:
 
     uint8_t damage;
 
+    /* FIXME: needs to be static. it's tied to an object instance. we therefore can't
+    refer to it from a static method since we have no instance. */
     Engine *m_engine;
 
     static void Init(IRobot *robot);
