@@ -64,7 +64,7 @@ bool ParticleBuffer::Create(SDL_GPUDevice* device, SDL_GPUCopyPass* copyPass, ui
             CROBOTS_LOG("Failed to map transfer buffer: %s", SDL_GetError());
             return false;
         }
-        data->num_indices = indexCount;
+        data->num_indices = 36;
         data->num_instances = 0;
         data->first_index = 0;
         data->vertex_offset = 0;

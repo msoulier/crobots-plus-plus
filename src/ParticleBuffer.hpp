@@ -7,10 +7,12 @@
 namespace Crobots
 {
 
+/* TODO: alpha should be lifetime so consider removing uint32_t lifetime */
 struct Particle
 {
     glm::vec3 position;
     uint32_t color;
+    glm::vec3 velocity;
     uint32_t lifetime;
 };
 

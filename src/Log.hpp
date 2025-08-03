@@ -1,3 +1,5 @@
+/* TODO: move into include/Crobots++ to provide an interface for robots to log from */
+
 #pragma once
 
 #include <SDL3/SDL.h>
