@@ -1,0 +1,60 @@
+#!/bin/sh
+
+CXX=g++-14
+JOBS=8
+
+action=$1
+
+if [ "x$action" = "x" ]; then
+    echo "Usage: $0 <action>" 1>&2
+    echo "  actions: debug release run clean" 1>&2
+    echo "  debug: build debug binary" 1>&2
+    echo "  release: build release binary" 1>&2
+    echo "  run: run build locally" 1>&2
+    echo "  clean: clean up build output" 1>&2
+    exit 1
+fi
+
+build()
+{
+    build_type=${1:-Debug}
+    if [ ! -d build ]; then
+        mkdir build
+    fi
+    (cd build && cmake .. -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=${build_type} && cmake --build . -j${JOBS})
+}
+
+run()
+{
+    (cd build/bin && ./crobots++ "$@")
+}
+
+clean()
+{
+    rm -rf build
+}
+
+case "$action" in
+    debug)
+        build Debug
+        ;;
+
+    release)
+        build Release
+        ;;
+
+    run)
+        shift
+        run $@
+        ;;
+
+    clean)
+        clean
+        ;;
+
+    *)
+        echo "Unknown action" 1>&2
+        exit 1
+        ;;
+
+esac
