@@ -26,7 +26,6 @@ private:
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();
-    unsigned BoundedRand(unsigned range);
     void MoveRobots();
     void AccelRobots();
     void MoveShotsInFlight();

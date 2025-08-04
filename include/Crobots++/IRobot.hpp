@@ -28,9 +28,7 @@ private:
     uint16_t m_facing;
     // default to 65535 for now, so effectively unlimited, planning for the future
     uint16_t m_rounds;
-
-    /* FIXME: Functions start with upper character */
-    CannonState cannonState();
+    CannonState m_cstate;
 
 protected:
     /*
@@ -87,7 +85,7 @@ protected:
     /*
         The Rand() method returns a random number between 0 and limit, up to 32767.
     */
-    uint16_t Rand(uint16_t limit);
+    uint32_t Rand(uint32_t limit);
 
     /*
         The Sqrt() returns the square root of a number. Number is made positive, if necessary.
