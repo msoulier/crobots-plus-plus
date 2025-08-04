@@ -17,22 +17,46 @@ class IRobot
 {
 friend class Engine;
 public:
-    virtual ~IRobot() = default;
+class Engine;
     virtual std::string GetName() const = 0;
     virtual void Tick() = 0;
+
+    template<typename T>
+    static T* Create()
+    {
+         T* robot = new T();
+         Init(robot);
+         return robot;
+    }
 
 private:
     uint32_t m_locX;
     uint32_t m_locY;
+
+    uint8_t m_desiredSpeed;
     uint8_t m_speed;
+
+    uint16_t m_desiredFacing;
     uint16_t m_facing;
+
     // default to 65535 for now, so effectively unlimited, planning for the future
     uint16_t m_rounds;
     CannonState m_cstate;
 
+    uint8_t acceleration;
+    uint8_t braking;
+    uint8_t turnRate;
+
+    uint8_t damage;
+
+    static Engine *m_engine;
+
+    static void Init(IRobot *robot);
+    static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
 
 protected:
+    virtual ~IRobot() = default;
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
         resolution. Scan() returns 0 if no robots are within the scan range or a
