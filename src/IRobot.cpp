@@ -42,6 +42,6 @@ void IRobot::SetEngine(Engine* handle)
     m_engine = handle;
 }
 
-Crobots::Engine* m_engine;
+IRobot::Engine* m_engine;
 
 }

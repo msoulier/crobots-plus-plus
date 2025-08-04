@@ -17,6 +17,7 @@ class IRobot
 {
 friend class Engine;
 public:
+class Engine;
     virtual std::string GetName() const = 0;
     virtual void Tick() = 0;
 
@@ -48,9 +49,7 @@ private:
 
     uint8_t damage;
 
-    /* FIXME: needs to be static. it's tied to an object instance. we therefore can't
-    refer to it from a static method since we have no instance. */
-    Engine *m_engine;
+    static Engine *m_engine;
 
     static void Init(IRobot *robot);
     static void SetEngine(Engine *engine);
