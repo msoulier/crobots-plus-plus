@@ -13,7 +13,7 @@ make_directory(${BINARY_DIR})
 configure_file(LICENSE ${BINARY_DIR} COPYONLY)
 configure_file(README.md ${BINARY_DIR} COPYONLY)
 
-add_library(crobots_api src/IRobot.cpp src/Utility.cpp)
+add_library(crobots_api src/IRobot.cpp)
 set_target_properties(crobots_api PROPERTIES CXX_STANDARD 23)
 target_include_directories(crobots_api PUBLIC include)
 target_precompile_headers(crobots_api PUBLIC
@@ -61,7 +61,6 @@ add_executable(crobots WIN32
     src/Shader.cpp
     src/Texture.cpp
     src/Timer.cpp
-    src/Utility.cpp
     src/Window.cpp
 )
 set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")

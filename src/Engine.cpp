@@ -5,7 +5,6 @@
 #include "Arena.hpp"
 #include "Engine.hpp"
 #include "Log.hpp"
-#include "Utility.hpp"
 
 namespace Crobots
 {
@@ -47,8 +46,8 @@ void Engine::PlaceRobots()
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
-        robot->m_locX = Utility::BoundedRand(m_arena.GetX());
-        robot->m_locY = Utility::BoundedRand(m_arena.GetY());
+        robot->m_locX = IRobot::BoundedRand(m_arena.GetX());
+        robot->m_locY = IRobot::BoundedRand(m_arena.GetY());
     }
 }
 

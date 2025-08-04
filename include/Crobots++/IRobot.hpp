@@ -30,6 +30,8 @@ private:
     uint16_t m_rounds;
     CannonState m_cstate;
 
+    static uint32_t BoundedRand(uint32_t range);
+
 protected:
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
