@@ -15,6 +15,7 @@ configure_file(README.md ${BINARY_DIR} COPYONLY)
 
 add_library(crobots_api src/IRobot.cpp)
 set_target_properties(crobots_api PROPERTIES CXX_STANDARD 23)
+set_target_properties(crobots_api PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(crobots_api PUBLIC include)
 target_precompile_headers(crobots_api PUBLIC
     <algorithm>

@@ -6,6 +6,9 @@
 namespace Crobots
 {
 
+// Forward declaration
+class Engine;
+
 enum class CannonState
 {
     Ready,
@@ -17,7 +20,7 @@ class IRobot
 {
 friend class Engine;
 public:
-class Engine;
+    virtual ~IRobot() = default;
     virtual std::string GetName() const = 0;
     virtual void Tick() = 0;
 
@@ -56,7 +59,6 @@ private:
     static uint32_t BoundedRand(uint32_t range);
 
 protected:
-    virtual ~IRobot() = default;
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
         resolution. Scan() returns 0 if no robots are within the scan range or a

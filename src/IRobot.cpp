@@ -2,6 +2,9 @@
 
 namespace Crobots {
 
+// Static member. Populated in SetEngine().
+Engine* IRobot::m_engine = nullptr;
+
 uint32_t IRobot::LocX()
 {
     return m_locX;
@@ -70,7 +73,5 @@ void IRobot::SetEngine(Engine* handle)
 {
     m_engine = handle;
 }
-
-IRobot::Engine* m_engine;
 
 }

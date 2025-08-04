@@ -37,12 +37,15 @@ void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobot
     m_robots = std::move(robots);
     m_arena = arena;
 
+    // Set this engine as the static engine for IRobot
+    IRobot::SetEngine(this);
+
     PlaceRobots();
 }
 
 void Engine::PlaceRobots()
 {
-    std::srand(std::time({}));
+    std::srand(std::time(nullptr));
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
