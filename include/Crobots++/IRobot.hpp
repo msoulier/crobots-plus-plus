@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace Crobots
@@ -18,10 +18,15 @@ enum class CannonState
 
 class IRobot
 {
-friend class Engine;
+private:
+    friend class Engine;
+
+protected:
+    IRobot();
+
 public:
     virtual ~IRobot() = default;
-    virtual std::string GetName() const = 0;
+    virtual std::string_view GetName() const = 0;
     // Tick is where the robot does all of its work. It is the replacement for the main loop
     // in the original game. To avoid abuse of the api in this call, most functions called
     // have a limit allowable of once per tick, like drive, cannon, scan, etc.
@@ -29,16 +34,11 @@ public:
     // them a time limit, as such implementations can be error prone.
     virtual void Tick() = 0;
 
-    // Create should be used by the Loader, once it is implemented.
-    template<typename T>
-    static T* Create()
-    {
-         T* robot = new T();
-         Init(robot);
-         return robot;
-    }
-
 private:
+
+    // TODO: I don't think we should use uint8_t or uint16_t here. we're not constrained on memory.
+    // should use uint32_t anywhere we want an unsigned type unless we think we need to save memory
+
     uint32_t m_locX;
     uint32_t m_locY;
 
@@ -60,7 +60,6 @@ private:
 
     static Engine *m_engine;
 
-    static void Init(IRobot *robot);
     static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
 

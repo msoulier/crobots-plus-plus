@@ -39,6 +39,7 @@ file(GLOB ROBOTS robots/*.cpp)
 foreach(PATH ${ROBOTS})
     get_filename_component(NAME ${PATH} NAME_WE)
     add_library(${NAME} MODULE ${PATH})
+    set_target_properties(${NAME} PROPERTIES CXX_STANDARD 23)
     target_link_libraries(${NAME} PRIVATE crobots_api)
 endforeach()
 

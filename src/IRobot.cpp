@@ -7,6 +7,25 @@ Engine* IRobot::m_engine = nullptr;
 
 // API methods - Usable by any Robot - ie. protected
 //--------------------------------------------------
+
+IRobot::IRobot()
+{
+    m_locX = 0;
+    m_locY = 0;
+    m_desiredSpeed = 0;
+    m_speed = 0;
+    m_desiredFacing = 0;
+    m_facing = 0;
+    m_damage = 0;
+    // This will need to eventually use a unique robot profile, but for now
+    // everyone gets the same attributes.
+    m_rounds = 65535; // TODO: use std::numeric_limits<uint16_t>::max() or UINT16_MAX
+    m_cstate = CannonState::Ready;
+    m_acceleration = 100;
+    m_braking = 100;
+    m_turnRate = 90;
+}
+
 uint32_t IRobot::LocX()
 {
     return m_locX;
@@ -35,6 +54,7 @@ uint8_t IRobot::Speed()
 void IRobot::Drive(uint16_t degree, uint8_t speed)
 {
     degree %= 360;
+    // TODO: use std::clamp
     if (speed < 0) {
         speed = 0;
     } else if (speed > 100) {
@@ -121,25 +141,6 @@ uint32_t IRobot::BoundedRand(uint32_t range)
             return r;
 }
 //----------------------------------------------------------------------------------
-
-// Static method
-void IRobot::Init(IRobot* robot)
-{
-    robot->m_locX = 0;
-    robot->m_locY = 0;
-    robot->m_desiredSpeed = 0;
-    robot->m_speed = 0;
-    robot->m_desiredFacing = 0;
-    robot->m_facing = 0;
-    robot->m_damage = 0;
-    // This will need to eventually use a unique robot profile, but for now
-    // everyone gets the same attributes.
-    robot->m_rounds = 65535;
-    robot->m_cstate = CannonState::Ready;
-    robot->m_acceleration = 100;
-    robot->m_braking = 100;
-    robot->m_turnRate = 90;
-}
 
 // Static method
 void IRobot::SetEngine(Engine* handle)

@@ -7,7 +7,7 @@ class Doofus : public IRobot
 public:
     Doofus() = default;
 
-    std::string GetName() const override
+    std::string_view GetName() const override
     {
         return "Doofus";
     }
