@@ -22,8 +22,14 @@ friend class Engine;
 public:
     virtual ~IRobot() = default;
     virtual std::string GetName() const = 0;
+    // Tick is where the robot does all of its work. It is the replacement for the main loop
+    // in the original game. To avoid abuse of the api in this call, most functions called
+    // have a limit allowable of once per tick, like drive, cannon, scan, etc.
+    // It has not yet been decided whether to run the robots in their own threads, or give
+    // them a time limit, as such implementations can be error prone.
     virtual void Tick() = 0;
 
+    // Create should be used by the Loader, once it is implemented.
     template<typename T>
     static T* Create()
     {
@@ -46,11 +52,11 @@ private:
     uint16_t m_rounds;
     CannonState m_cstate;
 
-    uint8_t acceleration;
-    uint8_t braking;
-    uint8_t turnRate;
+    uint8_t m_acceleration;
+    uint8_t m_braking;
+    uint8_t m_turnRate;
 
-    uint8_t damage;
+    uint8_t m_damage;
 
     static Engine *m_engine;
 
