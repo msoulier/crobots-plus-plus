@@ -9,11 +9,9 @@ namespace Crobots
 // Forward declaration
 class Engine;
 
-enum class CannonState
+enum class CannonType
 {
-    Ready,
-    Firing,
-    Reloading
+    Standard
 };
 
 class IRobot
@@ -50,13 +48,25 @@ private:
 
     // default to 65535 for now, so effectively unlimited, planning for the future
     uint16_t m_rounds;
-    CannonState m_cstate;
 
     uint8_t m_acceleration;
     uint8_t m_braking;
     uint8_t m_turnRate;
 
     uint8_t m_damage;
+
+    uint8_t m_scansDuringTick;
+    uint8_t m_scansPerTick;
+
+    CannonType m_cannonType;
+    bool m_cannotShotRegistered;
+    uint16_t m_cannonShotDegree;
+    uint32_t m_cannonShotRange;
+    uint8_t m_cannonReloadTime;
+    uint8_t m_cannonTimeUntilReload;
+
+    void UpdateTickCounters();
+    bool RegisterShot(CannonType weapon, uint16_t degree, uint32_t range);
 
     static Engine *m_engine;
 
@@ -71,14 +81,19 @@ protected:
         be within the range 0-359, otherwise degree is forced into 0-359 by a modulo
         360 operation, and made positive if necessary. Resolution controls the
         scanner's sensing resolution, up to +/- 10 degrees.
+
+        Scan() can only be called at the robot's scansPerTick rate, which is initially 1.
+        Any additional scans during the robot's Tick() method will return 0.
     */
     uint32_t Scan(uint16_t degree, uint16_t resolution);
 
     /*
-        The Cannon() method fires a missile heading a specified range and
+        The Cannon() method chooses to fire a missile heading a specified range and
         direction. Cannon() returns 1 (true) if a missile was fired, or 0 (false) if
         the cannon is reloading. Degree is forced into the range 0-359 as in scan().
         Range can be 0-700, with greater ranges truncated to 700.
+
+        Calling this multiple times in a Tick is pointless, only the last call matters.
     */
     bool Cannon(uint16_t degree, uint32_t range);
 
@@ -88,6 +103,8 @@ protected:
         is expressed as a percent, with 100 as maximum. A speed of 0 disengages the
         drive. Changes in direction can be negotiated at speeds of less than 50
         percent.
+
+        Calling this multiple times in a Tick is pointless, only the last call matters.
     */
     void Drive(uint16_t degree, uint8_t speed);
 
@@ -115,6 +132,7 @@ protected:
     uint32_t LocX();
     uint32_t LocY();
 
+    // FIXME: Should we yank these functions and just use the standard library? I suspect so.
     /*
         The Rand() method returns a random number between 0 and limit, up to 32767.
     */

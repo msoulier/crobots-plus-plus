@@ -17,13 +17,18 @@ IRobot::IRobot()
     m_desiredFacing = 0;
     m_facing = 0;
     m_damage = 0;
+    m_scansDuringTick = 0;
+    m_cannonTimeUntilReload = 0;
     // This will need to eventually use a unique robot profile, but for now
     // everyone gets the same attributes.
     m_rounds = 65535; // TODO: use std::numeric_limits<uint16_t>::max() or UINT16_MAX
-    m_cstate = CannonState::Ready;
     m_acceleration = 100;
     m_braking = 100;
     m_turnRate = 90;
+    m_cannonType = CannonType::Standard;
+    m_cannonReloadTime = 3;
+    // For now everyone has the same scanner.
+    m_scansPerTick = 1;
 }
 
 uint32_t IRobot::LocX()
@@ -66,14 +71,18 @@ void IRobot::Drive(uint16_t degree, uint8_t speed)
 
 uint32_t IRobot::Scan(uint16_t degree, uint16_t resolution)
 {
+    m_scansDuringTick++;
+    if (m_scansDuringTick > m_scansPerTick)
+    {
+        return 0;
+    }
     // FIXME
     return 0;
 }
 
 bool IRobot::Cannon(uint16_t degree, uint32_t range)
 {
-    // FIXME
-    return false;
+    return RegisterShot(m_cannonType, degree, range);
 }
 
 uint32_t IRobot::Sqrt(uint32_t number)
@@ -110,6 +119,14 @@ uint32_t IRobot::Atan(uint32_t ratio)
 
 // Private methods that we want accessible indirectly but no direct access by Robots
 //----------------------------------------------------------------------------------
+bool IRobot::RegisterShot(CannonType weapon, uint16_t degree, uint32_t range)
+{
+    // FIXME
+    // Note, we do not care if a robot calls Cannon(), which calls this method, multiple times
+    // in a Tick. Only the final shot registration will be acted upon.
+    return true;
+}
+
 uint32_t IRobot::BoundedRand(uint32_t range)
 {
     /* TODO: ideally we don't use rand() but instead rely on the random generators
@@ -139,6 +156,16 @@ uint32_t IRobot::BoundedRand(uint32_t range)
     for (uint32_t x, r;;)
         if (x = rand(), r = x % range, x - r <= -range)
             return r;
+}
+
+void IRobot::UpdateTickCounters()
+{
+    m_scansDuringTick = 0;
+    m_cannotShotRegistered = false;
+    // Manage cannon reload time.
+    if (m_cannonTimeUntilReload > 0) {
+        m_cannonTimeUntilReload--;
+    }
 }
 //----------------------------------------------------------------------------------
 

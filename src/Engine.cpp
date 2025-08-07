@@ -14,6 +14,8 @@ void Engine::Tick()
     CROBOTS_LOG("Crobots::Engine::Tick()");
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
+        // Reset any internal tick counters.
+        robot->UpdateTickCounters();
         // Run each robot through a tick.
         robot->Tick();
         // Update the position of each robot based on its velocity
