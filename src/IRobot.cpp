@@ -1,6 +1,8 @@
 #include <Crobots++/IRobot.hpp>
 #include <assert.h>
 
+#include "Engine.hpp"
+
 namespace Crobots {
 
 // Static member. Populated in SetEngine().
@@ -86,6 +88,7 @@ uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
     // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise
     // to complete the circle, we can determine if the scan will ping off of one or more of them.
     assert( m_engine != nullptr );
+    std::vector<uint32_t> hits = m_engine->ScanResult(degree, resolution);
     return 0;
 }
 

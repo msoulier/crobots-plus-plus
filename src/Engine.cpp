@@ -4,14 +4,13 @@
 
 #include "Arena.hpp"
 #include "Engine.hpp"
-#include "Log.hpp"
 
 namespace Crobots
 {
 
 void Engine::Tick()
 {
-    CROBOTS_LOG("Crobots::Engine::Tick()");
+    //CROBOTS_LOG("Crobots::Engine::Tick()");
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Reset any internal tick counters.
@@ -43,6 +42,13 @@ void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobot
     IRobot::SetEngine(this);
 
     PlaceRobots();
+}
+
+std::vector<uint32_t> Engine::ScanResult(uint32_t degree, uint32_t resolution) const
+{
+    std::vector<uint32_t> hits = {};
+
+    return hits;
 }
 
 void Engine::PlaceRobots()

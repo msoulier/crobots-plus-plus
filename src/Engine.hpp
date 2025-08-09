@@ -19,6 +19,7 @@ public:
 
     void Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Arena arena);
     void Tick();
+    std::vector<uint32_t> ScanResult(uint32_t degree, uint32_t resolution) const;
 
 private:
     std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
