@@ -31,42 +31,42 @@ public:
     // It has not yet been decided whether to run the robots in their own threads, or give
     // them a time limit, as such implementations can be error prone.
     virtual void Tick() = 0;
+    uint32_t GetId() const;
 
 private:
-
-    // TODO: I don't think we should use uint8_t or uint16_t here. we're not constrained on memory.
-    // should use uint32_t anywhere we want an unsigned type unless we think we need to save memory
+    // This id should be a simple integer uniquely identifying the robot based on the order
+    // in which it was loaded.
+    uint32_t m_id;
 
     uint32_t m_locX;
     uint32_t m_locY;
+    uint32_t m_desiredSpeed;
+    uint32_t m_speed;
 
-    uint8_t m_desiredSpeed;
-    uint8_t m_speed;
-
-    uint16_t m_desiredFacing;
-    uint16_t m_facing;
+    uint32_t m_desiredFacing;
+    uint32_t m_facing;
 
     // default to 65535 for now, so effectively unlimited, planning for the future
-    uint16_t m_rounds;
+    uint32_t m_rounds;
 
-    uint8_t m_acceleration;
-    uint8_t m_braking;
-    uint8_t m_turnRate;
+    uint32_t m_acceleration;
+    uint32_t m_braking;
+    uint32_t m_turnRate;
 
-    uint8_t m_damage;
+    uint32_t m_damage;
 
-    uint8_t m_scansDuringTick;
-    uint8_t m_scansPerTick;
+    uint32_t m_scansDuringTick;
+    uint32_t m_scansPerTick;
 
     CannonType m_cannonType;
     bool m_cannotShotRegistered;
-    uint16_t m_cannonShotDegree;
+    uint32_t m_cannonShotDegree;
     uint32_t m_cannonShotRange;
-    uint8_t m_cannonReloadTime;
-    uint8_t m_cannonTimeUntilReload;
+    uint32_t m_cannonReloadTime;
+    uint32_t m_cannonTimeUntilReload;
 
     void UpdateTickCounters();
-    bool RegisterShot(CannonType weapon, uint16_t degree, uint32_t range);
+    bool RegisterShot(CannonType weapon, uint32_t degree, uint32_t range);
 
     static Engine *m_engine;
 
@@ -85,7 +85,7 @@ protected:
         Scan() can only be called at the robot's scansPerTick rate, which is initially 1.
         Any additional scans during the robot's Tick() method will return 0.
     */
-    uint32_t Scan(uint16_t degree, uint16_t resolution);
+    uint32_t Scan(uint32_t degree, uint32_t resolution);
 
     /*
         The Cannon() method chooses to fire a missile heading a specified range and
@@ -95,7 +95,7 @@ protected:
 
         Calling this multiple times in a Tick is pointless, only the last call matters.
     */
-    bool Cannon(uint16_t degree, uint32_t range);
+    bool Cannon(uint32_t degree, uint32_t range);
 
     /*
         The Drive() method activates the robot's drive mechanism, on a specified
@@ -106,7 +106,7 @@ protected:
 
         Calling this multiple times in a Tick is pointless, only the last call matters.
     */
-    void Drive(uint16_t degree, uint8_t speed);
+    void Drive(uint32_t degree, uint32_t speed);
 
     /*
         The Damage() method returns the current amount of damage incurred.
@@ -114,7 +114,7 @@ protected:
         percent damage means the robot is completely disabled, thus no longer
         running!)
     */
-    uint8_t Damage();
+    uint32_t Damage();
 
     /*
         The Speed() method returns the current speed of the robot. Speed() takes
@@ -122,7 +122,7 @@ protected:
         not always be the same as the last drive(), because of acceleration and
         deceleration.
     */
-    uint8_t Speed();
+    uint32_t Speed();
 
     /*
         The LocX() method returns the robot's current x axis location. LocX()
@@ -132,31 +132,14 @@ protected:
     uint32_t LocX();
     uint32_t LocY();
 
+    // Note - The mathematical functions are not required due to the C++ standard library.
+    // https://cppreference.com/w/cpp/numeric/math.html
+
     // FIXME: Should we yank these functions and just use the standard library? I suspect so.
     /*
         The Rand() method returns a random number between 0 and limit, up to 32767.
     */
     uint32_t Rand(uint32_t limit);
-
-    /*
-        The Sqrt() returns the square root of a number. Number is made positive, if necessary.
-    */
-    uint32_t Sqrt(uint32_t number);
-
-    /*
-        These methods provide trigonometric values. Sin(), Cos(), and Tan(), take
-        a degree argument, 0-359, and returns the trigonometric value times 100,000.
-        The scaling is necessary since the CROBOT cpu is an integer only machine,
-        and trig values are between 0.0 and 1.0. Atan() takes a ratio argument that
-        has been scaled up by 100,000, and returns a degree value, between -90 and
-        +90. The resulting calculation should not be scaled to the actual value
-        until the final operation, as not to lose accuracy. See programming examples
-        for usage.
-    */
-    uint32_t Sin(uint32_t degree);
-    uint32_t Cos(uint32_t degree);
-    uint32_t Tan(uint32_t degree);
-    uint32_t Atan(uint32_t ratio);
 };
 
 }

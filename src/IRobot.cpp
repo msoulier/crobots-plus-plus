@@ -1,4 +1,5 @@
 #include <Crobots++/IRobot.hpp>
+#include <assert.h>
 
 namespace Crobots {
 
@@ -41,22 +42,27 @@ uint32_t IRobot::LocY()
     return m_locY;
 }
 
+uint32_t IRobot::GetId() const
+{
+    return m_id;
+}
+
 uint32_t IRobot::Rand(uint32_t limit)
 {
     return BoundedRand(limit);
 }
 
-uint8_t IRobot::Damage()
+uint32_t IRobot::Damage()
 {
     return m_damage;
 }
 
-uint8_t IRobot::Speed()
+uint32_t IRobot::Speed()
 {
     return m_speed;
 }
 
-void IRobot::Drive(uint16_t degree, uint8_t speed)
+void IRobot::Drive(uint32_t degree, uint32_t speed)
 {
     degree %= 360;
     // TODO: use std::clamp
@@ -69,57 +75,33 @@ void IRobot::Drive(uint16_t degree, uint8_t speed)
     m_desiredSpeed = speed;
 }
 
-uint32_t IRobot::Scan(uint16_t degree, uint16_t resolution)
+uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
 {
     m_scansDuringTick++;
     if (m_scansDuringTick > m_scansPerTick)
     {
         return 0;
     }
-    // FIXME
+    // We need to determine the bearing of each other robot to this one.
+    // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise
+    // to complete the circle, we can determine if the scan will ping off of one or more of them.
+    assert( m_engine != nullptr );
     return 0;
 }
 
-bool IRobot::Cannon(uint16_t degree, uint32_t range)
+bool IRobot::Cannon(uint32_t degree, uint32_t range)
 {
     return RegisterShot(m_cannonType, degree, range);
 }
 
-uint32_t IRobot::Sqrt(uint32_t number)
-{
-    // FIXME
-    return 0;
-}
-
-uint32_t IRobot::Sin(uint32_t degree)
-{
-    // FIXME
-    return 0;
-}
-
-uint32_t IRobot::Cos(uint32_t degree)
-{
-    // FIXME
-    return 0;
-}
-
-uint32_t IRobot::Tan(uint32_t degree)
-{
-    // FIXME
-    return 0;
-}
-
-uint32_t IRobot::Atan(uint32_t ratio)
-{
-    // FIXME
-    return 0;
-}
+// Note - The mathematical functions are not required due to the C++ standard library.
+// https://cppreference.com/w/cpp/numeric/math.html
 
 //--------------------------------------------------
 
 // Private methods that we want accessible indirectly but no direct access by Robots
 //----------------------------------------------------------------------------------
-bool IRobot::RegisterShot(CannonType weapon, uint16_t degree, uint32_t range)
+bool IRobot::RegisterShot(CannonType weapon, uint32_t degree, uint32_t range)
 {
     // FIXME
     // Note, we do not care if a robot calls Cannon(), which calls this method, multiple times
