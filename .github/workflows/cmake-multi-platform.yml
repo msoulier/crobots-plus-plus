@@ -48,7 +48,7 @@ jobs:
     - uses: actions/checkout@v4
     - run: |
         git submodule update --init --recursive
-    - uses: openrndr/setup-opengl@v1.1
+    - run: apt install -y libegl1-mesa-dev mesa-common-dev
     - run: xvfb-run glxinfo
 
     - name: Set reusable strings
