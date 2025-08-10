@@ -60,7 +60,7 @@ case "$action" in
 
     tags)
         rm -f tags
-        find . \( -name "*.cpp" -o -name "*.hpp" \) -print0 | xargs -0 ctags -a
+        find . \( -name "*.cpp" -o -name "*.hpp" \) -print0 | xargs -0 etags -a -o tags
         ;;
 
     *)

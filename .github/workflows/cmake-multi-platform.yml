@@ -45,11 +45,19 @@ jobs:
             c_compiler: cl
 
     steps:
+    - name: Setup
     - uses: actions/checkout@v4
     - run: |
         git submodule update --init --recursive
-    - run: sudo apt update && sudo apt install -y libegl1-mesa-dev mesa-common-dev
-    - run: xvfb-run glxinfo
+    - run: |
+            if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt update && sudo apt install -y libegl1-mesa-dev mesa-common-dev
+            elif [ "$RUNNER_OS" == "Windows" ]; then
+                echo "not sure what to do here"
+            else
+                echo "$RUNNER_OS not supported"
+            fi
+      shell: bash 
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
