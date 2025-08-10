@@ -45,7 +45,6 @@ jobs:
             c_compiler: cl
 
     steps:
-    - name: Setup
     - uses: actions/checkout@v4
     - run: git submodule update --init --recursive
     - if: runner.os == 'Linux'
