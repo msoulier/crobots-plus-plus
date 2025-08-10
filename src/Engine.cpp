@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+#include <cassert>
+#include <numbers>
 
 #include "Arena.hpp"
 #include "Engine.hpp"
@@ -44,11 +46,71 @@ void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobot
     PlaceRobots();
 }
 
-std::vector<uint32_t> Engine::ScanResult(uint32_t degree, uint32_t resolution) const
+uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t resolution) const
 {
-    std::vector<uint32_t> hits = {};
+    uint32_t result = 0;
 
-    return hits;
+    // Minimum resolution is 10.
+    if (resolution < 10) {
+        resolution = 10;
+    }
+
+    uint32_t fromX = m_robots[robot_id]->LocX();
+    uint32_t fromY = m_robots[robot_id]->LocY();
+
+    for (int i = 0; i < m_robots.size(); ++i) 
+    {
+        // Skip ourselves.
+        if (i == robot_id) {
+            continue;
+        }
+        uint32_t toX = m_robots[i]->LocX();
+        uint32_t toY = m_robots[i]->LocY();
+        // Simplify the math. Shift the grid until we are at the origin.
+        toX -= fromX;
+        toY -= fromY;
+        // Now convert the "to" robot to polar coordinates.
+        // https://www.mathsisfun.com/polar-cartesian-coordinates.html
+        uint32_t radius = sqrt( toX*toX + toY*toY );
+        uint32_t radians = atan( toY / toX );
+        uint32_t degrees = radians * ( 180 / std::numbers::pi_v<float> );
+        // Adjust for quadrant.
+        if ((toX >= 0) && (toY >= 0))
+        {
+            // quadrant 1
+            // nothing to do
+        }
+        else if ((toX < 0) && (toY >= 0))
+        {
+            // quadrant 2
+            degrees += 180;
+        }
+        else if ((toX < 0) && (toY < 0))
+        {
+            // quadrant 3
+            degrees += 180;
+        }
+        else
+        {
+            // quadrant 4
+            degrees += 360;
+        }
+        // Now, to get a hit off of this contact, the scan direction plus or minus half of the resolution
+        // must pass over the bearing.
+        if (((direction - (resolution / 2)) <= degrees) || ((direction + (resolution / 2)) >= degrees))
+        {
+            // we have a hit we only return the closest one
+            if (result == 0) {
+                result = radius;
+            }
+            else if ((result > 0) && (result < radius))
+            {
+                result = radius;
+            }
+        }
+        return result;
+    }
+
 }
 
 void Engine::PlaceRobots()
