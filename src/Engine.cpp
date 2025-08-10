@@ -12,6 +12,10 @@ namespace Crobots
 
 void Engine::Tick()
 {
+    // All moves take place on the new arena, with "decisions" made on the old one.
+    // This is to "double buffer" the arena and keep a level playing field no matter who
+    // moves first.
+    m_oldArena = m_newArena;
     //CROBOTS_LOG("Crobots::Engine::Tick()");
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
@@ -38,7 +42,7 @@ void Engine::Tick()
 void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
 {
     m_robots = std::move(robots);
-    m_arena = arena;
+    m_newArena = arena;
 
     // Set this engine as the static engine for IRobot
     IRobot::SetEngine(this);
@@ -108,9 +112,8 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
                 result = radius;
             }
         }
-        return result;
     }
-
+    return result;
 }
 
 void Engine::PlaceRobots()
@@ -119,8 +122,8 @@ void Engine::PlaceRobots()
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
-        robot->m_locX = IRobot::BoundedRand(m_arena.GetX());
-        robot->m_locY = IRobot::BoundedRand(m_arena.GetY());
+        robot->m_locX = IRobot::BoundedRand(m_newArena.GetX());
+        robot->m_locY = IRobot::BoundedRand(m_newArena.GetY());
     }
 }
 

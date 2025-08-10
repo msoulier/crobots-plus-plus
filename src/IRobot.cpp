@@ -88,8 +88,7 @@ uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
     // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise
     // to complete the circle, we can determine if the scan will ping off of one or more of them.
     assert( m_engine != nullptr );
-    uint32_t hit = m_engine->ScanResult(GetId(), degree, resolution);
-    return 0;
+    return m_engine->ScanResult(GetId(), degree, resolution);
 }
 
 bool IRobot::Cannon(uint32_t degree, uint32_t range)
