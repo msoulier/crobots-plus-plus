@@ -12,10 +12,6 @@ namespace Crobots
 
 void Engine::Tick()
 {
-    // All moves take place on the new arena, with "decisions" made on the old one.
-    // This is to "double buffer" the arena and keep a level playing field no matter who
-    // moves first.
-    m_oldArena = m_newArena;
     //CROBOTS_LOG("Crobots::Engine::Tick()");
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
@@ -42,7 +38,7 @@ void Engine::Tick()
 void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
 {
     m_robots = std::move(robots);
-    m_newArena = arena;
+    m_arena = arena;
 
     // Set this engine as the static engine for IRobot
     IRobot::SetEngine(this);
@@ -77,7 +73,7 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
         // https://www.mathsisfun.com/polar-cartesian-coordinates.html
         uint32_t radius = sqrt( toX*toX + toY*toY );
         uint32_t radians = atan( toY / toX );
-        uint32_t degrees = radians * ( 180 / std::numbers::pi_v<float> );
+        uint32_t degrees = Engine::ToDegrees(radians);
         // Adjust for quadrant.
         if ((toX >= 0) && (toY >= 0))
         {
@@ -122,17 +118,70 @@ void Engine::PlaceRobots()
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
-        robot->m_locX = IRobot::BoundedRand(m_newArena.GetX());
-        robot->m_locY = IRobot::BoundedRand(m_newArena.GetY());
+        robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
+        robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
     }
 }
 
 void Engine::MoveRobots()
 {
+    // Given the bearing and speed, move each robot.
+    for (const auto& robot : m_robots) {
+        uint32_t speed = robot->m_speed;
+        uint32_t facing = robot->m_facing;
+        uint32_t x = speed * std::cos(Engine::ToRadians(facing));
+        uint32_t y = speed * std::sin(Engine::ToRadians(facing));
+        robot->m_nextX = robot->m_currentX + x;
+        robot->m_nextY = robot->m_currentY + y;
+    }
 }
 
 void Engine::AccelRobots()
 {
+    for (const auto& robot : m_robots) {
+        // Manage speed
+        if (robot->m_desiredSpeed != robot->m_speed)
+        {
+            if (robot->m_desiredSpeed < robot->m_speed)
+            {
+                if ((robot->m_speed - robot->m_desiredSpeed) <= robot->m_braking)
+                {
+                    robot->m_speed = robot->m_desiredSpeed;
+                }
+            }
+            else
+            {
+                robot->m_speed += robot->m_acceleration;
+                if (robot->m_speed > robot->m_desiredSpeed)
+                {
+                    robot->m_speed = robot->m_desiredSpeed;
+                }
+            }
+        }
+        // Manage facing.
+        if (robot->m_desiredFacing != robot->m_facing)
+        {
+            // Turn left or right?
+            uint32_t left_distance = robot->m_desiredFacing - robot->m_facing;
+            uint32_t right_distance = robot->m_facing + ( 360 - robot->m_desiredFacing );
+            if (left_distance < right_distance)
+            {
+                robot->m_facing += robot->m_turnRate;
+                if (robot->m_facing > robot->m_desiredFacing)
+                {
+                    robot->m_facing = robot->m_desiredFacing;
+                }
+            }
+            else
+            {
+                robot->m_facing -= robot->m_turnRate;
+                if (robot->m_facing < robot->m_desiredFacing)
+                {
+                    robot->m_facing = robot->m_desiredFacing;
+                }
+            }
+        }
+    }
 }
 
 void Engine::MoveShotsInFlight()
@@ -141,6 +190,16 @@ void Engine::MoveShotsInFlight()
 
 void Engine::DetonateShots()
 {
+}
+
+uint32_t Engine::ToDegrees(uint32_t radians)
+{
+    return radians * ( 180 / std::numbers::pi_v<float> );
+}
+
+uint32_t Engine::ToRadians(uint32_t degrees)
+{
+    return ( degrees * std::numbers::pi_v<float> ) / 180;
 }
 
 }

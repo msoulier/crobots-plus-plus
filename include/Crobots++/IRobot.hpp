@@ -40,26 +40,40 @@ private:
     // in which it was loaded.
     uint32_t m_id;
 
-    uint32_t m_locX;
-    uint32_t m_locY;
+    // Current X and Y location. To allow high resolution of movement, the coordinates that the
+    // robot stores are multiplied by 100.
+    float m_currentX;
+    float m_currentY;
+    // Post-move X and Y location.
+    float m_nextX;
+    float m_nextY;
+    // Speed we are trying to achieve.
     uint32_t m_desiredSpeed;
+    // Current speed
     uint32_t m_speed;
 
+    // Facing we would like to have.
     uint32_t m_desiredFacing;
+    // Facing we currently have.
     uint32_t m_facing;
 
     // default to 65535 for now, so effectively unlimited, planning for the future
     uint32_t m_rounds;
 
+    // Some performance parameters for the future.
     uint32_t m_acceleration;
     uint32_t m_braking;
     uint32_t m_turnRate;
 
+    // How much we are hurt.
     uint32_t m_damage;
 
+    // A scan counter, reset at the beginning of each Tick.
     uint32_t m_scansDuringTick;
+    // The number of scans our scanner is capable of per Tick.
     uint32_t m_scansPerTick;
 
+    // Cannon parameters.
     CannonType m_cannonType;
     bool m_cannotShotRegistered;
     uint32_t m_cannonShotDegree;
@@ -129,7 +143,7 @@ protected:
     /*
         The LocX() method returns the robot's current x axis location. LocX()
         takes no arguments, and returns 0-999. The LocY() method is similar to
-        LocX(), but returns the current y axis position.
+        LocX(), but returns the current y axis position. Location is in meters.
     */
     uint32_t LocX();
     uint32_t LocY();

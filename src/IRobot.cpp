@@ -1,5 +1,6 @@
 #include <Crobots++/IRobot.hpp>
-#include <assert.h>
+#include <cassert>
+#include <cmath>
 
 #include "Engine.hpp"
 
@@ -13,8 +14,10 @@ Engine* IRobot::m_engine = nullptr;
 
 IRobot::IRobot()
 {
-    m_locX = 0;
-    m_locY = 0;
+    m_currentX = 0.0;
+    m_currentY = 0.0;
+    m_nextX = 0.0;
+    m_nextY = 0.0;
     m_desiredSpeed = 0;
     m_speed = 0;
     m_desiredFacing = 0;
@@ -36,12 +39,12 @@ IRobot::IRobot()
 
 uint32_t IRobot::LocX()
 {
-    return m_locX;
+    return std::round(m_currentX);
 }
 
 uint32_t IRobot::LocY()
 {
-    return m_locY;
+    return std::round(m_currentY);
 }
 
 uint32_t IRobot::GetId() const

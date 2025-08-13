@@ -32,23 +32,4 @@ uint32_t Arena::GetY()
     return m_y;
 }
 
-void Arena::SetPosition(uint32_t robotid, uint32_t locX, uint32_t locY)
-{
-    for (auto pos : m_positions)
-    {
-        if (pos.m_robotid == robotid)
-        {
-            pos.m_locX = locX;
-            pos.m_locY = locY;
-            return;
-        }
-    }
-    // FIXME: didn't find robot - raise exception?
-}
-
-const std::vector<Position>& Arena::GetPositions(void)
-{
-    return m_positions;
-}
-
 }
