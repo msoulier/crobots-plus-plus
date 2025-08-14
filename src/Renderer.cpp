@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <SDLx_model/SDL_model.h>
 
 #include <cstdint>
 #include <memory>
@@ -10,8 +11,6 @@
 #include "DebugGroup.hpp"
 #include "Log.hpp"
 #include "Math.hpp"
-#include "Model.hpp"
-#include "ModelVoxObj.hpp"
 #include "ParticleBuffer.hpp"
 #include "Pipeline.hpp"
 #include "Renderer.hpp"
@@ -80,7 +79,7 @@ bool Renderer::Create(Window& window)
     }
 
     /* TODO: remove */
-    m_models["default"] = Model::Create(m_device, copyPass, "default");
+    m_models["default"] = SDLx_ModelLoad(m_device, copyPass, "default", SDLX_MODELTYPE_VOXOBJ);
 
     SDL_EndGPUCopyPass(copyPass);
     SDL_SubmitGPUCommandBuffer(commandBuffer);
@@ -101,9 +100,9 @@ void Renderer::Destroy(Window& window)
     {
         particleBuffer.Destroy(m_device);
     }
-    for (std::pair<const std::string, std::shared_ptr<Model>>& item : m_models)
+    for (std::pair<const std::string, SDLx_Model*>& item : m_models)
     {
-        item.second->Destroy(m_device);
+        SDLx_ModelDestroy(m_device, item.second);
     }
     for (int i = 0; i < SamplerCount; i++)
     {
@@ -295,14 +294,14 @@ void Renderer::RenderModels(SDL_GPUTexture* colorTexture)
     }
 
     /* TODO: remove */
-    std::vector<std::shared_ptr<Model>> models{m_models["default"]};
+    std::vector<SDLx_Model*> models{m_models["default"]};
 
-    for (const std::shared_ptr<Model>& model : models)
+    for (SDLx_Model* model : models)
     {
-        switch (model->GetType())
+        switch (model->type)
         {
-        case ModelType::VoxObj:
-            RenderModelVoxObj(renderPass, std::dynamic_pointer_cast<ModelVoxObj>(model));
+        case SDLX_MODELTYPE_VOXOBJ:
+            RenderModelVoxObj(renderPass, model);
             break;
         default:
             CROBOTS_ASSERT(false);
@@ -312,7 +311,7 @@ void Renderer::RenderModels(SDL_GPUTexture* colorTexture)
     SDL_EndGPURenderPass(renderPass);
 }
 
-void Renderer::RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::shared_ptr<ModelVoxObj>& model)
+void Renderer::RenderModelVoxObj(SDL_GPURenderPass* renderPass, SDLx_Model* model)
 {
     /* TODO: remove */
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -100.0f);
@@ -327,14 +326,14 @@ void Renderer::RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::share
     SDL_GPUBufferBinding vertexBufferBinding{};
     SDL_GPUBufferBinding indexBufferBinding{};
     SDL_GPUTextureSamplerBinding paletteTextureBinding{};
-    vertexBufferBinding.buffer = model->GetVertexBuffer();
-    indexBufferBinding.buffer = model->GetIndexBuffer();
+    vertexBufferBinding.buffer = model->vox_obj.vertex_buffer;
+    indexBufferBinding.buffer = model->vox_obj.index_buffer;
     paletteTextureBinding.sampler = m_samplers[SamplerNearest];
-    paletteTextureBinding.texture = model->GetPaletteTexture();
+    paletteTextureBinding.texture = model->vox_obj.palette_texture;
     SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBufferBinding, 1);
-    SDL_BindGPUIndexBuffer(renderPass, &indexBufferBinding, model->GetIndexElementSize());
+    SDL_BindGPUIndexBuffer(renderPass, &indexBufferBinding, model->vox_obj.index_element_size);
     SDL_BindGPUFragmentSamplers(renderPass, 0, &paletteTextureBinding, 1);
-    SDL_DrawGPUIndexedPrimitives(renderPass, model->GetIndexCount(), 1, 0, 0, 0);
+    SDL_DrawGPUIndexedPrimitives(renderPass, model->vox_obj.num_indices, 1, 0, 0, 0);
 }
 
 }

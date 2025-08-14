@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <SDLx_model/SDL_model.h>
 
 #include <array>
 #include <cstdint>
@@ -14,8 +15,6 @@
 namespace Crobots
 {
 
-class Model;
-class ModelVoxObj;
 class Window;
 
 class Renderer
@@ -34,7 +33,7 @@ private:
     bool CreateParticleBuffers(Window& window, SDL_GPUCopyPass* copyPass);
     bool ResizeTextures(uint32_t width, uint32_t height);
     void RenderModels(SDL_GPUTexture* colorTexture);
-    void RenderModelVoxObj(SDL_GPURenderPass* renderPass, const std::shared_ptr<ModelVoxObj>& model);
+    void RenderModelVoxObj(SDL_GPURenderPass* renderPass, SDLx_Model* model);
 
     enum TextureType
     {
@@ -72,7 +71,7 @@ private:
     SDL_GPUGraphicsPipeline* m_graphicsPipelines[GraphicsPipelineCount];
     SDL_GPUTexture* m_textures[TextureCount];
     SDL_GPUSampler* m_samplers[SamplerCount];
-    std::unordered_map<std::string, std::shared_ptr<Model>> m_models;
+    std::unordered_map<std::string, SDLx_Model*> m_models;
     std::array<ParticleBuffer, ParticleBufferCount> m_particleBuffers;
     std::array<Mesh, MeshCount> m_meshes;
     SDL_GPUCommandBuffer* m_commandBuffer;
