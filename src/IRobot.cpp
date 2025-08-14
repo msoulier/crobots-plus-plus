@@ -111,6 +111,10 @@ bool IRobot::RegisterShot(CannonType weapon, uint32_t degree, uint32_t range)
     // FIXME
     // Note, we do not care if a robot calls Cannon(), which calls this method, multiple times
     // in a Tick. Only the final shot registration will be acted upon.
+    // if the cannon can be fired right now...
+    m_cannonShotDegree = degree;
+    m_cannonShotRange = range;
+    m_cannotShotRegistered = true;
     return true;
 }
 

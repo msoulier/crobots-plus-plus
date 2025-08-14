@@ -25,6 +25,7 @@ void Engine::Tick()
         void AccelRobots();
         // Check for any loss of control (ie. skidding) - future item
 
+        void AddShots();
         // Update the position of any shots in flight
         void MoveShotsInFlight();
 
@@ -44,6 +45,28 @@ void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobot
     IRobot::SetEngine(this);
 
     PlaceRobots();
+}
+
+void Engine::AddShot(Shot shot)
+{
+    m_shots.push_back(shot);
+}
+
+void Engine::AddShots()
+{
+    // Check each robot for a pending shot.
+    for (auto& robot : m_robots)
+    {
+        if (robot->m_cannotShotRegistered)
+        {
+            Shot shot(robot->m_currentX,
+                      robot->m_currentY,
+                      robot->m_cannonShotDegree,
+                      robot->m_cannonShotSpeed,
+                      robot->m_cannonShotRange);
+            AddShot(shot);
+        }
+    }
 }
 
 uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t resolution) const

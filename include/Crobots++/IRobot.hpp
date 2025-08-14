@@ -73,13 +73,19 @@ private:
     // The number of scans our scanner is capable of per Tick.
     uint32_t m_scansPerTick;
 
-    // Cannon parameters.
-    CannonType m_cannonType;
+    // Shot parameters that go into the next shot.
     bool m_cannotShotRegistered;
     uint32_t m_cannonShotDegree;
     uint32_t m_cannonShotRange;
-    uint32_t m_cannonReloadTime;
+    uint32_t m_cannonShotSpeed;
+
+    // Countdown until done reloading.
     uint32_t m_cannonTimeUntilReload;
+
+    // Cannon parameters.
+    CannonType m_cannonType;
+    uint32_t m_cannonReloadTime;
+    uint32_t m_cannonShotMaxRange;
 
     void UpdateTickCounters();
     bool RegisterShot(CannonType weapon, uint32_t degree, uint32_t range);

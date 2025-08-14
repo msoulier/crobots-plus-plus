@@ -13,7 +13,7 @@ make_directory(${BINARY_DIR})
 configure_file(LICENSE ${BINARY_DIR} COPYONLY)
 configure_file(README.md ${BINARY_DIR} COPYONLY)
 
-add_library(crobots_api src/IRobot.cpp src/Engine.cpp src/Arena.cpp)
+add_library(crobots_api src/IRobot.cpp src/Engine.cpp src/Arena.cpp src/Shot.cpp)
 set_target_properties(crobots_api PROPERTIES CXX_STANDARD 23)
 set_target_properties(crobots_api PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(crobots_api PUBLIC include)
@@ -59,6 +59,7 @@ add_executable(crobots WIN32
     src/Pipeline.cpp
     src/Renderer.cpp
     src/Shader.cpp
+    src/Shot.cpp
     src/Texture.cpp
     src/Timer.cpp
     src/Window.cpp

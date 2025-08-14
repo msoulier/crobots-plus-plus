@@ -6,6 +6,7 @@
 #include <Crobots++/IRobot.hpp>
 
 #include "Arena.hpp"
+#include "Shot.hpp"
 
 // Lets talk about velocity.
 // I am modeling the arena dimensions after meters, so 100x100 is 100m on each side,
@@ -30,15 +31,18 @@ public:
     void Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Arena arena);
     void Tick();
     uint32_t ScanResult(uint32_t robot_id, uint32_t degree, uint32_t resolution) const;
+    void AddShot(Shot shot);
 
 private:
     std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
+    std::vector<Shot> m_shots;
     Crobots::Arena m_arena;
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();
     void MoveRobots();
     void AccelRobots();
+    void AddShots();
     void MoveShotsInFlight();
     void DetonateShots();
 
