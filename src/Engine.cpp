@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cmath>
 #include <ctime>
 #include <vector>
 #include <cassert>
@@ -81,7 +82,7 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
     uint32_t fromX = m_robots[robot_id]->LocX();
     uint32_t fromY = m_robots[robot_id]->LocY();
 
-    for (int i = 0; i < m_robots.size(); ++i) 
+    for (uint32_t i = 0; i < m_robots.size(); ++i)
     {
         // Skip ourselves.
         if (i == robot_id) {
@@ -209,6 +210,10 @@ void Engine::AccelRobots()
 
 void Engine::MoveShotsInFlight()
 {
+    for (auto& shot : m_shots)
+    {
+
+    }
 }
 
 void Engine::DetonateShots()

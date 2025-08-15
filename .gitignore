@@ -3,3 +3,4 @@ build
 *.swp
 tags
 lib/
+.dir-locals.el

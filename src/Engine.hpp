@@ -12,7 +12,7 @@
 // I am modeling the arena dimensions after meters, so 100x100 is 100m on each side,
 // roughly the size of a football field. We do not want the robots to cross it too
 // quickly, that would be no fun, so I am aiming for about 10 1s ticks to cross
-// 100m. Therefore, 100% speed is 10 m/s. 
+// 100m. Therefore, 100% speed is 10 m/s.
 // This may not be the case for all robots in the future.
 // To accurately model this, we want the position of the robot to be precise, rounding
 // to the artificial grid construct, but secretly keeping more accurate positioning.
