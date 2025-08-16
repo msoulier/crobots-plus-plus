@@ -2,13 +2,8 @@
 
 #include <SDL3/SDL.h>
 
-#ifndef NDEBUG
-#define CROBOTS_DEBUG_GROUP(...) ::Crobots::DebugGroup debugGroup(__VA_ARGS__, __func__)
-#else
-#define CROBOTS_DEBUG_GROUP(...)
-#endif
+#define CROBOTS_DEBUG_GROUP(commandBuffer) ::Crobots::DebugGroup(commandBuffer, __func__)
 
-#ifndef NDEBUG
 namespace Crobots
 {
 
@@ -21,4 +16,3 @@ struct DebugGroup
 };
 
 }
-#endif
