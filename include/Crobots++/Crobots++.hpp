@@ -9,3 +9,4 @@
 #endif
 
 #include <Crobots++/IRobot.hpp>
+#include <Crobots++/Log.hpp>

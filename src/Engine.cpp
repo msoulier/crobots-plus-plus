@@ -5,7 +5,7 @@
 #include <cassert>
 #include <numbers>
 
-#include <Crobots++/ClientLog.hpp>
+#include <Crobots++/Log.hpp>
 #include "Arena.hpp"
 #include "Engine.hpp"
 
@@ -14,7 +14,7 @@ namespace Crobots
 
 void Engine::Tick()
 {
-    ROBOTLOG("Engine.Tick");
+    CROBOTS_LOG("Engine.Tick");
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Reset any internal tick counters.

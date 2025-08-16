@@ -13,9 +13,16 @@ make_directory(${BINARY_DIR})
 configure_file(LICENSE ${BINARY_DIR} COPYONLY)
 configure_file(README.md ${BINARY_DIR} COPYONLY)
 
-add_library(crobots_api src/IRobot.cpp src/Engine.cpp src/Arena.cpp src/Shot.cpp)
+add_library(crobots_api
+    src/IRobot.cpp
+    src/Engine.cpp
+    src/Arena.cpp
+    src/Shot.cpp
+    src/Log.cpp
+)
 set_target_properties(crobots_api PROPERTIES CXX_STANDARD 23)
 set_target_properties(crobots_api PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(crobots_api PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 target_include_directories(crobots_api PUBLIC include)
 target_precompile_headers(crobots_api PUBLIC
     <algorithm>
@@ -34,6 +41,11 @@ target_precompile_headers(crobots_api PUBLIC
     <unordered_map>
     <vector>
 )
+# For __VA_OPT__
+if(MSVC)
+    target_compile_options(crobots_api PUBLIC /Zc:preprocessor)
+endif()
+target_link_libraries(crobots_api PRIVATE SDL3::SDL3)
 
 file(GLOB ROBOTS robots/*.cpp)
 foreach(PATH ${ROBOTS})
@@ -51,7 +63,6 @@ add_executable(crobots WIN32
     src/DebugGroup.cpp
     src/Engine.cpp
     src/Loader.cpp
-    src/Log.cpp
     src/Main.cpp
     src/Math.cpp
     src/Pipeline.cpp
