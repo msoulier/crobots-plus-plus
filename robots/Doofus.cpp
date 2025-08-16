@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include <Crobots++/Crobots++.hpp>
+#include <Crobots++/Log.hpp>
 
 using namespace Crobots;
 
@@ -14,9 +17,11 @@ public:
 
     void Tick() override
     {
+        LOG("Doofus.Tick");
         // What is my current position?
         uint32_t currentX = LocX();
         uint32_t currentY = LocY();
+        LOG("x = {}, y = {}", currentX, currentY);
     }
 };
 

@@ -37,8 +37,6 @@ bool App::Init(const AppInfo& info)
     Arena arena(info.arenaX, info.arenaY);
     Loader loader;
     // FIXME: loop over command-line arguments and Load() each robot
-    //std::vector<Crobots::IRobot> robots;
-    //m_engine.Load(std::move(robots), arena);
     m_engine.Load(loader.GetRobots(), arena);
     return true;
 }

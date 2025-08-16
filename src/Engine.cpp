@@ -12,7 +12,6 @@ namespace Crobots
 
 void Engine::Tick()
 {
-    //CROBOTS_LOG("Crobots::Engine::Tick()");
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Reset any internal tick counters.
