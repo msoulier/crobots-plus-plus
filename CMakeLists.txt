@@ -54,13 +54,9 @@ add_executable(crobots WIN32
     src/Log.cpp
     src/Main.cpp
     src/Math.cpp
-    src/Mesh.cpp
-    src/ParticleBuffer.cpp
     src/Pipeline.cpp
     src/Renderer.cpp
-    src/Shader.cpp
     src/Shot.cpp
-    src/Texture.cpp
     src/Timer.cpp
     src/Window.cpp
 )
@@ -68,12 +64,9 @@ set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
 set_target_properties(crobots PROPERTIES CXX_STANDARD 23)
 target_link_libraries(crobots PRIVATE crobots_api crobots_lib)
 
-include(cmake/AddShader.cmake)
-add_shader(crobots ModelVoxObj.frag)
-add_shader(crobots ModelVoxObj.vert)
-add_shader(crobots Particle.comp ${CMAKE_SOURCE_DIR}/src/ShaderConfig.h)
-add_shader(crobots Particle.frag)
-add_shader(crobots Particle.vert)
+include(lib/SDLx_gpu/AddShader.cmake)
+add_shader(crobots ${CMAKE_SOURCE_DIR}/shaders/ModelVoxObj.frag)
+add_shader(crobots ${CMAKE_SOURCE_DIR}/shaders/ModelVoxObj.vert)
 
 include(cmake/AddModel.cmake)
 add_model(crobots default)

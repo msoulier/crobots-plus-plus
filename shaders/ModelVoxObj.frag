@@ -1,11 +1,13 @@
-#version 450
+Texture2D<float4> PaletteTexture : register(t0, space2);
+SamplerState PaletteSampler : register(s0, space2);
 
-layout(location = 0) out vec4 outColor;
-layout(location = 0) in flat vec3 inNormal;
-layout(location = 1) in vec2 inTexcoord;
-layout(set = 2, binding = 0) uniform sampler2D paletteTexture;
-
-void main()
+struct Input
 {
-    outColor = texture(paletteTexture, inTexcoord);
+    float2 Texcoord : TEXCOORD0;
+    float3 Normal : TEXCOORD1;
+};
+
+float4 main(Input input) : SV_Target
+{
+    return PaletteTexture.Sample(PaletteSampler, input.Texcoord);
 }

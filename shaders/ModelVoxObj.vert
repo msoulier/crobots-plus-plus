@@ -1,21 +1,29 @@
-#version 450
-
-layout(location = 0) in uvec2 inVertex;
-layout(location = 0) out flat vec3 outNormal;
-layout(location = 1) out vec2 outTexcoord;
-layout(set = 1, binding = 0) uniform uniformViewProjMatrix
+cbuffer UniformViewProj : register(b0, space1)
 {
-    mat4 viewProjMatrix;
-};
-layout(set = 1, binding = 1) uniform uniformModelMatrix
-{
-    mat4 modelMatrix;
+    float4x4 ViewProj : packoffset(c0);
 };
 
-vec3 getPosition(uvec2 vertex)
+cbuffer UniformModel : register(b1, space1)
 {
-    vec3 magnitude;
-    vec3 direction;
+    float4x4 Model : packoffset(c0);
+};
+
+struct Input
+{
+    uint2 Vertex : TEXCOORD0;
+};
+
+struct Output
+{
+    float4 Position : SV_POSITION;
+    float2 Texcoord : TEXCOORD0;
+    float3 Normal : TEXCOORD1;
+};
+
+float3 GetPosition(uint2 vertex)
+{
+    float3 magnitude;
+    float3 direction;
     magnitude.x = float((vertex.x >> 0) & 0xFFu);
     direction.x = float((vertex.x >> 8) & 0x1u);
     magnitude.y = float((vertex.x >> 9) & 0xFFu);
@@ -25,30 +33,31 @@ vec3 getPosition(uvec2 vertex)
     return (1.0f - 2.0f * direction) * magnitude;
 }
 
-const vec3 Normals[6] = vec3[6]
-(
-    vec3(-1.0f, 0.0f, 0.0f ),
-    vec3( 1.0f, 0.0f, 0.0f ),
-    vec3( 0.0f,-1.0f, 0.0f ),
-    vec3( 0.0f, 1.0f, 0.0f ),
-    vec3( 0.0f, 0.0f,-1.0f ),
-    vec3( 0.0f, 0.0f, 1.0f )
-);
+static const float3 Normals[6] =
+{
+    float3(-1.0f, 0.0f, 0.0f),
+    float3( 1.0f, 0.0f, 0.0f),
+    float3( 0.0f,-1.0f, 0.0f),
+    float3( 0.0f, 1.0f, 0.0f),
+    float3( 0.0f, 0.0f,-1.0f),
+    float3( 0.0f, 0.0f, 1.0f)
+};
 
-vec3 getNormal(uvec2 vertex)
+float3 GetNormal(uint2 vertex)
 {
     return Normals[(vertex.y >> 0) & 0x7u];
 }
 
-vec2 getTexcoord(uvec2 vertex)
+float2 GetTexcoord(uint2 vertex)
 {
-    return vec2(float((vertex.y >> 3) & 0xFFu) / 256.0f, 0.5f);
+    return float2(float((vertex.y >> 3) & 0xFFu) / 255.0f, 0.5f);
 }
 
-void main()
+Output main(Input input)
 {
-    vec3 position = getPosition(inVertex);
-    outNormal = normalize(transpose(inverse(mat3(modelMatrix))) * getNormal(inVertex));
-    outTexcoord = getTexcoord(inVertex);
-    gl_Position = viewProjMatrix * modelMatrix * vec4(position, 1.0f);
+    Output output;
+    output.Normal = GetNormal(input.Vertex);
+    output.Texcoord = GetTexcoord(input.Vertex);
+    output.Position = mul(ViewProj, mul(Model, float4(GetPosition(input.Vertex), 1.0f)));
+    return output;
 }

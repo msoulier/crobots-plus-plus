@@ -7,9 +7,10 @@ action=$1
 
 if [ "x$action" = "x" ]; then
     echo "Usage: $0 <action>" 1>&2
-    echo "  actions: debug release run clean" 1>&2
-    echo "  debug: build debug binary" 1>&2
-    echo "  release: build release binary" 1>&2
+    echo "  actions: build debug release run clean" 1>&2
+    echo "  debug: configure debug binary" 1>&2
+    echo "  release: configure release binary" 1>&2
+    echo "  build: configured binary - Debug if not configured" 1>&2
     echo "  run: run build locally" 1>&2
     echo "  clean: clean up build output" 1>&2
     echo "  tags: run ctags on all source" 1>&2
@@ -17,13 +18,19 @@ if [ "x$action" = "x" ]; then
     exit 1
 fi
 
-build()
+configure()
 {
     build_type=${1:-Debug}
+    rm -rf build && mkdir build
+    (cd build && cmake .. -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=${build_type})
+}
+
+build()
+{
     if [ ! -d build ]; then
-        mkdir build
+        configure Debug
     fi
-    (cd build && cmake .. -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=${build_type} && cmake --build . -j${JOBS})
+    (cd build && cmake --build . -j${JOBS})
 }
 
 run()
@@ -37,12 +44,15 @@ clean()
 }
 
 case "$action" in
+    build)
+        build
+        ;;
     debug)
-        build Debug
+        configure Debug
         ;;
 
     release)
-        build Release
+        configure Release
         ;;
 
     run)
