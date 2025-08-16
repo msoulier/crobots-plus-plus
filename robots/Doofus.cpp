@@ -17,11 +17,11 @@ public:
 
     void Tick() override
     {
-        LOG("Doofus.Tick");
+        ROBOTLOG("Doofus.Tick");
         // What is my current position?
         uint32_t currentX = LocX();
         uint32_t currentY = LocY();
-        LOG("x = {}, y = {}", currentX, currentY);
+        ROBOTLOG("x = {}, y = {}", currentX, currentY);
     }
 };
 
