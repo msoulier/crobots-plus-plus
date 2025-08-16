@@ -9,7 +9,7 @@ namespace Crobots::Internal
 
 void Log(const std::string& string)
 {
-    SDL_Log(string.data());
+    SDL_Log("%s", string.data());
 }
 
 }
