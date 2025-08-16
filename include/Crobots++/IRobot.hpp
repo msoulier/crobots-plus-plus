@@ -3,7 +3,7 @@
 #include <string_view>
 #include <cstdint>
 
-#include "Crobots++/Log.hpp"
+#include "Crobots++/ClientLog.hpp"
 
 namespace Crobots
 {

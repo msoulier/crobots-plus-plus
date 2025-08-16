@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <Crobots++/Crobots++.hpp>
-#include <Crobots++/Log.hpp>
+#include <Crobots++/ClientLog.hpp>
 
 using namespace Crobots;
 
