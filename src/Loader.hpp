@@ -13,7 +13,7 @@ class Loader
 public:
     Loader() = default;
 
-    bool Load(const std::string_view& path);
+    bool Load(const std::string& path);
     std::vector<std::unique_ptr<Crobots::IRobot>>&& GetRobots();
 
 private:

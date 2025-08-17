@@ -11,6 +11,7 @@
 static bool verbose = false;
 static uint32_t arenaX = 1000;
 static uint32_t arenaY = 1000;
+// FIXME: make logpath configurable
 static std::string logFile{"crobots++.log"};
 static SDL_IOStream* logFileHandle;
 static std::string robot1_path;
@@ -66,7 +67,13 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
 	if (! robot1_path.empty())
 	{
 		info.nrobots++;
-		info.robot1_path = robot1_path;
+#ifdef __WIN32
+        info.robot1_path = robot1_path + ".dll";
+#elif __linux__
+        info.robot1_path = "lib" + robot1_path + ".so";
+#else
+#error "Unsupported platform"
+#endif
 	}
 
     return true;
