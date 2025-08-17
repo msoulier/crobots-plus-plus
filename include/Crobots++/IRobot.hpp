@@ -89,11 +89,15 @@ private:
 
     void UpdateTickCounters();
     bool RegisterShot(CannonType weapon, uint32_t degree, uint32_t range);
+    void MoveRobot();
 
     static Engine *m_engine;
 
     static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
+
+    static uint32_t ToDegrees(uint32_t radians);
+    static uint32_t ToRadians(uint32_t degrees);
 
 protected:
     /*

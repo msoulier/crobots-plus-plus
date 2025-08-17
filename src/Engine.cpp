@@ -22,19 +22,19 @@ void Engine::Tick()
         // Run each robot through a tick.
         robot->Tick();
         // Update the position of each robot based on its velocity
-        void MoveRobots();
+        robot->MoveRobot();
         // Update the velocity (ie. speed and facing) of each robot
-        void AccelRobots();
+        AccelRobots();
         // Check for any loss of control (ie. skidding) - future item
 
-        void AddShots();
+        AddShots();
         // Update the position of any shots in flight
-        void MoveShotsInFlight();
+        MoveShotsInFlight();
 
         // Fire any direct fire weapons that have zero time of flight - future item
 
         // Detonate any shots that have reached their target
-        void DetonateShots();
+        DetonateShots();
     }
 }
 
@@ -98,7 +98,7 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
         // https://www.mathsisfun.com/polar-cartesian-coordinates.html
         uint32_t radius = sqrt( toX*toX + toY*toY );
         uint32_t radians = atan( toY / toX );
-        uint32_t degrees = Engine::ToDegrees(radians);
+        uint32_t degrees = IRobot::ToDegrees(radians);
         // Adjust for quadrant.
         if ((toX >= 0) && (toY >= 0))
         {
@@ -145,19 +145,6 @@ void Engine::PlaceRobots()
         // Start each robot at a random spot in the arena.
         robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
         robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
-    }
-}
-
-void Engine::MoveRobots()
-{
-    // Given the bearing and speed, move each robot.
-    for (const auto& robot : m_robots) {
-        uint32_t speed = robot->m_speed;
-        uint32_t facing = robot->m_facing;
-        uint32_t x = speed * std::cos(Engine::ToRadians(facing));
-        uint32_t y = speed * std::sin(Engine::ToRadians(facing));
-        robot->m_nextX = robot->m_currentX + x;
-        robot->m_nextY = robot->m_currentY + y;
     }
 }
 
@@ -219,16 +206,6 @@ void Engine::MoveShotsInFlight()
 
 void Engine::DetonateShots()
 {
-}
-
-uint32_t Engine::ToDegrees(uint32_t radians)
-{
-    return radians * ( 180 / std::numbers::pi_v<float> );
-}
-
-uint32_t Engine::ToRadians(uint32_t degrees)
-{
-    return ( degrees * std::numbers::pi_v<float> ) / 180;
 }
 
 }

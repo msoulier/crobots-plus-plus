@@ -40,14 +40,10 @@ private:
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();
-    void MoveRobots();
     void AccelRobots();
     void AddShots();
     void MoveShotsInFlight();
     void DetonateShots();
-
-    static uint32_t ToDegrees(uint32_t radians);
-    static uint32_t ToRadians(uint32_t degrees);
 };
 
 }

@@ -166,4 +166,22 @@ void IRobot::SetEngine(Engine* handle)
     m_engine = handle;
 }
 
+void IRobot::MoveRobot()
+{
+	uint32_t x = m_speed * std::cos(ToRadians(m_facing));
+	uint32_t y = m_speed * std::sin(ToRadians(m_facing));
+	m_nextX = m_currentX + x;
+	m_nextY = m_currentY + y;
+}
+
+uint32_t IRobot::ToDegrees(uint32_t radians)
+{
+    return radians * ( 180 / std::numbers::pi_v<float> );
+}
+
+uint32_t IRobot::ToRadians(uint32_t degrees)
+{
+    return ( degrees * std::numbers::pi_v<float> ) / 180;
+}
+
 }
