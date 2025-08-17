@@ -1,8 +1,10 @@
 #include <Crobots++/IRobot.hpp>
 #include <cassert>
-#include <numbers>
 #include <cmath>
+#include <ctime>
+#include <numbers>
 
+#include "Crobots++/Log.hpp"
 #include "Engine.hpp"
 
 namespace Crobots {
@@ -121,6 +123,7 @@ bool IRobot::RegisterShot(CannonType weapon, uint32_t degree, uint32_t range)
 
 uint32_t IRobot::BoundedRand(uint32_t range)
 {
+    assert( range > 0 );
     /* TODO: ideally we don't use rand() but instead rely on the random generators
     in <random>. that way we can improve reproducibility since there's no guarantees
     on the algorithm that rand() uses. */
@@ -145,9 +148,8 @@ uint32_t IRobot::BoundedRand(uint32_t range)
     }
 
     */
-    for (uint32_t x, r;;)
-        if (x = rand(), r = x % range, x - r <= -range)
-            return r;
+    uint32_t result = rand();
+    return result % range;
 }
 
 void IRobot::UpdateTickCounters()

@@ -41,9 +41,10 @@ void Engine::Tick()
 
 void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
 {
-	CROBOTS_LOG("Engine::Load: nrobots = {}", robots.size());
+	CROBOTS_LOG("Engine::Load: nrobots = {}, arena = {}x{}", robots.size(), arena.GetX(), arena.GetY());
     m_robots = std::move(robots);
     m_arena = arena;
+    CROBOTS_LOG("my arena is {} x {}", m_arena.GetX(), m_arena.GetY());
 
     // Set this engine as the static engine for IRobot
     IRobot::SetEngine(this);
@@ -141,6 +142,8 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
 
 void Engine::PlaceRobots()
 {
+    assert( m_arena.GetX() > 0 );
+    assert( m_arena.GetY() > 0 );
     std::srand(std::time(nullptr));
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {

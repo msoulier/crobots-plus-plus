@@ -36,7 +36,7 @@ public:
 private:
     std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
     std::vector<Shot> m_shots;
-    Crobots::Arena m_arena;
+    Arena m_arena;
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();

@@ -9,8 +9,8 @@
 
 // Verbose logging.
 static bool verbose = false;
-static uint32_t arenaX = 1000;
-static uint32_t arenaY = 1000;
+static uint32_t arenaX = 100;
+static uint32_t arenaY = 100;
 // FIXME: make logpath configurable
 static std::string logFile{"crobots++.log"};
 static SDL_IOStream* logFileHandle;

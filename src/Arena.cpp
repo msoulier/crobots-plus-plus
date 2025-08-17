@@ -9,6 +9,11 @@ Arena::Arena(uint32_t x, uint32_t y)
 
 const Arena& Arena::operator=(const Arena& other)
 {
+    if (this != &other)
+    {
+        this->m_x = other.m_x;
+        this->m_y = other.m_y;
+    }
     return *this;
 }
 
