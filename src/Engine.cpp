@@ -14,9 +14,10 @@ namespace Crobots
 
 void Engine::Tick()
 {
-    CROBOTS_LOG("Engine.Tick");
+    CROBOTS_LOG("Engine.Tick on {} robots", m_robots.size());
     for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
     {
+		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());
         // Reset any internal tick counters.
         robot->UpdateTickCounters();
         // Run each robot through a tick.
@@ -40,6 +41,7 @@ void Engine::Tick()
 
 void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
 {
+	CROBOTS_LOG("Engine::Load: nrobots = {}", robots.size());
     m_robots = std::move(robots);
     m_arena = arena;
 

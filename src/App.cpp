@@ -36,6 +36,12 @@ bool App::Init(const AppInfo& info)
 
     Arena arena(info.arenaX, info.arenaY);
     Loader loader;
+	// FIXME: load the other robots
+	if (! loader.Load(info.robot1_path))
+	{
+		std::cerr << "Failed to load " << info.robot1_path << std::endl;
+		return false;
+	}
     // FIXME: loop over command-line arguments and Load() each robot
     m_engine.Load(loader.GetRobots(), arena);
     return true;

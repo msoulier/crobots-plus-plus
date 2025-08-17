@@ -18,7 +18,11 @@ struct AppInfo
     std::string_view title;
     uint32_t arenaX;
     uint32_t arenaY;
-    /* TODO: args */
+	uint32_t nrobots;
+	std::string_view robot1_path;
+	std::string_view robot2_path;
+	std::string_view robot3_path;
+	std::string_view robot4_path;
 };
 
 class App

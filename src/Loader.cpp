@@ -8,7 +8,9 @@ namespace Crobots {
 
 bool Loader::Load(const std::string_view& path)
 {
-    SDL_SharedObject *plugin = SDL_LoadObject("Doofus.dll");
+	std::string spath(path);
+	CROBOTS_LOG("loading robot at path {}", spath);
+    SDL_SharedObject *plugin = SDL_LoadObject(spath.c_str());
     if (!plugin) return false;
 
     // Cast SDL_FunctionPointer to the correct function type

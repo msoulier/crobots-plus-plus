@@ -13,6 +13,10 @@ static uint32_t arenaX = 1000;
 static uint32_t arenaY = 1000;
 static std::string logFile{"crobots++.log"};
 static SDL_IOStream* logFileHandle;
+static std::string robot1_path;
+static std::string robot2_path;
+static std::string robot3_path;
+static std::string robot4_path;
 
 static void LogCallback(void* data, int category, SDL_LogPriority priority, const char* string)
 {
@@ -34,9 +38,13 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
     argv = parser.ensure_utf8(argv);
 
     parser.add_flag("-v,--verbose", verbose, "Verbose logging");
-    parser.add_option("-x,--arena-x", arenaX, "Arena X dimension (default 1000)");
-    parser.add_option("-y,--arena-y", arenaY, "Arena Y dimension (default 1000)");
+    parser.add_option("-x,--arena-x", arenaX, "Arena X dimension (default 1000)")->check(CLI::Number);
+    parser.add_option("-y,--arena-y", arenaY, "Arena Y dimension (default 1000)")->check(CLI::Number);
     parser.add_option("-l,--logfile", logFile, "Path to logfile (default crobots++.log)");
+	parser.add_option("robot1", robot1_path, "First robot")->required();
+	parser.add_option("robot2", robot2_path, "Second robot");
+	parser.add_option("robot3", robot3_path, "Third robot");
+	parser.add_option("robot4", robot4_path, "Fourth robot");
 
     try
     {
@@ -50,6 +58,16 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
 
     info.arenaX = arenaX;
     info.arenaY = arenaY;
+	info.nrobots = 0;
+	info.robot1_path = "";
+	info.robot2_path = "";
+	info.robot3_path = "";
+	info.robot4_path = "";
+	if (! robot1_path.empty())
+	{
+		info.nrobots++;
+		info.robot1_path = robot1_path;
+	}
 
     return true;
 }
