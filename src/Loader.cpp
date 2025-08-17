@@ -9,7 +9,7 @@ namespace Crobots {
 bool Loader::Load(const std::string& path)
 {
 	CROBOTS_LOG("loading robot at path {}", path);
-    SDL_SharedObject *plugin = SDL_LoadObject(path.c_str());
+    SDL_SharedObject *plugin = SDL_LoadObject("./libDoofus.so");
     if (!plugin)
     {
         CROBOTS_LOG("SDL_LoadObject failed on {}", path);
