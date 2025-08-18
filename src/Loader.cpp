@@ -6,19 +6,35 @@
 
 namespace Crobots {
 
-bool Loader::Load(const std::string& path)
+bool Loader::Load(const std::string& name)
 {
-	CROBOTS_LOG("loading robot at path {}", path);
+	CROBOTS_LOG("loading robot {}", name);
+    // This should not be a path. Reject anything that is.
+    if (name.size() == 0)
+    {
+        CROBOTS_LOG("Cannot load empty robot name");
+        return false;
+    }
+    if ((name[0] == '/') || (name[0] == '.'))
+    {
+        CROBOTS_LOG("Path characters not permitted in robot name");
+        return false;
+    }
+    std::string filename(name);
 #if defined(SDL_PLATFORM_WIN32)
-    SDL_SharedObject *plugin = SDL_LoadObject("./Doofus.dll");
+    filename += ".dll";
+    filename = ".\\" + filename;
 #elif defined(SDL_PLATFORM_APPLE)
-    SDL_SharedObject *plugin = SDL_LoadObject("./libDoofus.dylib");
+    filename = "lib" + filename + ".dylib";
+    filename = "./" + filename;
 #else
-    SDL_SharedObject *plugin = SDL_LoadObject("./libDoofus.so");
+    filename = "lib" + filename + ".so";
+    filename = "./" + filename;
 #endif
+    SDL_SharedObject *plugin = SDL_LoadObject(filename.c_str());
     if (!plugin)
     {
-        CROBOTS_LOG("SDL_LoadObject failed on {}", path);
+        CROBOTS_LOG("SDL_LoadObject failed on {}", filename);
         return false;
     }
 

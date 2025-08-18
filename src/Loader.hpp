@@ -13,7 +13,12 @@ class Loader
 public:
     Loader() = default;
 
-    bool Load(const std::string& path);
+    /*
+     * Note: The user should provide robot names. Then based on the platform
+     * and a configured robots directory, we can find the appropriate file
+     * to load based on the platform and its naming convention for shared libraries.
+     */
+    bool Load(const std::string& name);
     std::vector<std::unique_ptr<Crobots::IRobot>>&& GetRobots();
 
 private:

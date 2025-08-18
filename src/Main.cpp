@@ -67,13 +67,22 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
 	if (! robot1_path.empty())
 	{
 		info.nrobots++;
-#ifdef WIN32
-        info.robot1_path = robot1_path + ".dll";
-#elif __linux__
-        info.robot1_path = "lib" + robot1_path + ".so";
-#else
-#error "Unsupported platform"
-#endif
+        info.robot1_path = robot1_path;
+	}
+	if (! robot2_path.empty())
+	{
+		info.nrobots++;
+        info.robot2_path = robot2_path;
+	}
+	if (! robot3_path.empty())
+	{
+		info.nrobots++;
+        info.robot3_path = robot3_path;
+	}
+	if (! robot4_path.empty())
+	{
+		info.nrobots++;
+        info.robot4_path = robot4_path;
 	}
 
     return true;
