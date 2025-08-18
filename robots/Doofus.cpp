@@ -21,6 +21,16 @@ public:
         uint32_t currentX = LocX();
         uint32_t currentY = LocY();
         CROBOTS_LOG("x = {}, y = {}", currentX, currentY);
+        
+        uint32_t new_facing = Facing();
+        if ((currentX > 90)
+         || (currentY > 90)
+         || (currentX < 10)
+         || (currentY < 10))
+        {
+            new_facing = Rand(360);
+        }
+        Drive(new_facing, 100);
     }
 };
 

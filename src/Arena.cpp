@@ -27,12 +27,12 @@ void Arena::SetY(uint32_t y)
     m_y = y;
 }
 
-uint32_t Arena::GetX()
+uint32_t Arena::GetX() const
 {
     return m_x;
 }
 
-uint32_t Arena::GetY()
+uint32_t Arena::GetY() const
 {
     return m_y;
 }

@@ -65,6 +65,11 @@ uint32_t IRobot::Damage()
     return m_damage;
 }
 
+uint32_t IRobot::Facing()
+{
+    return m_facing;
+}
+
 uint32_t IRobot::Speed()
 {
     return m_speed;
@@ -81,6 +86,7 @@ void IRobot::Drive(uint32_t degree, uint32_t speed)
     }
     m_desiredFacing = degree;
     m_desiredSpeed = speed;
+    CROBOTS_LOG("desired facing {}, desired speed {}", m_desiredFacing, m_desiredSpeed);
 }
 
 uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
@@ -171,20 +177,58 @@ void IRobot::SetEngine(Engine* handle)
 
 void IRobot::MoveRobot()
 {
-	uint32_t x = m_speed * std::cos(ToRadians(m_facing));
-	uint32_t y = m_speed * std::sin(ToRadians(m_facing));
-	m_nextX = m_currentX + x;
-	m_nextY = m_currentY + y;
+    if (IsDead())
+    {
+        return;
+    }
+    uint32_t arenaX = m_engine->GetArena().GetX();
+    uint32_t arenaY = m_engine->GetArena().GetY();
+    float radians = ToRadians(m_facing);
+    uint32_t myspeed = GetActualSpeed();
+    float x = GetActualSpeed() * std::cos(radians);
+    float y = GetActualSpeed() * std::sin(radians);
+    m_nextX = m_currentX + x;
+    m_nextY = m_currentY + y;
+    CROBOTS_LOG("speed is {}, x comp {}, y comp {}", GetActualSpeed(), m_nextX, m_nextY);
+    // Boundary check.
+    if (m_nextX > arenaX)
+    {
+        // Collision with the wall.
+        m_nextX = arenaX;
+        HitTheWall();
+    }
+    if (m_nextY > arenaY)
+    {
+        // Collision with the wall.
+        m_nextY = arenaY;
+        HitTheWall();
+    }
 }
 
-uint32_t IRobot::ToDegrees(uint32_t radians)
+void IRobot::HitTheWall()
+{
+    m_damage += 5;
+}
+
+bool IRobot::IsDead()
+{
+    return m_damage >= 100;
+}
+
+float IRobot::ToDegrees(float radians)
 {
     return radians * ( 180 / std::numbers::pi_v<float> );
 }
 
-uint32_t IRobot::ToRadians(uint32_t degrees)
+float IRobot::ToRadians(float degrees)
 {
     return ( degrees * std::numbers::pi_v<float> ) / 180;
+}
+
+float IRobot::GetActualSpeed()
+{
+    // speed is a percentage - for now translate to 1-10 m/s
+    return m_speed / 10.0;
 }
 
 }

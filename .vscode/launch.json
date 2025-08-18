@@ -6,18 +6,18 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/crobots++.exe",
-            "args": [".\\Doofus"],
+            "args": ["Doofus"],
             "cwd": "${workspaceFolder}/build/bin",
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build"
         },
         {
             "name": "linux",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/crobots++",
-            "args": ["./Doofus"],
+            "args": ["Doofus"],
             "cwd": "${workspaceFolder}/build/bin",
-            "preLaunchTask": "CMake: build",
-        },
+            "preLaunchTask": "CMake: build"
+        }
     ]
 }

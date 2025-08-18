@@ -32,6 +32,7 @@ public:
     void Tick();
     uint32_t ScanResult(uint32_t robot_id, uint32_t degree, uint32_t resolution) const;
     void AddShot(Shot shot);
+    const Arena& GetArena();
 
 private:
     std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
@@ -44,6 +45,7 @@ private:
     void AddShots();
     void MoveShotsInFlight();
     void DetonateShots();
+    void UpdateArena();
 };
 
 }

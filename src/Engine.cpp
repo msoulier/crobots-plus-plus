@@ -12,6 +12,11 @@
 namespace Crobots
 {
 
+const Arena& Engine::GetArena()
+{
+    return m_arena;
+}
+
 void Engine::Tick()
 {
     CROBOTS_LOG("Engine.Tick on {} robots", m_robots.size());
@@ -36,6 +41,9 @@ void Engine::Tick()
 
         // Detonate any shots that have reached their target
         DetonateShots();
+
+        // Update the arena.
+        UpdateArena();
     }
 }
 
@@ -62,6 +70,10 @@ void Engine::AddShots()
     // Check each robot for a pending shot.
     for (auto& robot : m_robots)
     {
+        if (robot->IsDead())
+        {
+            continue;
+        }
         if (robot->m_cannotShotRegistered)
         {
             Shot shot(robot->m_currentX,
@@ -211,6 +223,17 @@ void Engine::MoveShotsInFlight()
 
 void Engine::DetonateShots()
 {
+}
+
+void Engine::UpdateArena()
+{
+    for (auto &robot : m_robots)
+    {
+        robot->m_currentX = robot->m_nextX;
+        robot->m_currentY = robot->m_nextY;
+        // FIXME: turn rate
+        robot->m_facing = robot->m_desiredFacing;
+    }
 }
 
 }

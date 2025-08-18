@@ -90,16 +90,24 @@ private:
     void UpdateTickCounters();
     bool RegisterShot(CannonType weapon, uint32_t degree, uint32_t range);
     void MoveRobot();
+    void HitTheWall();
+    bool IsDead();
+    float GetActualSpeed();
 
     static Engine *m_engine;
 
     static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
 
-    static uint32_t ToDegrees(uint32_t radians);
-    static uint32_t ToRadians(uint32_t degrees);
+    static float ToDegrees(float radians);
+    static float ToRadians(float degrees);
 
 protected:
+    /*
+     * Return the robot's current facing, where 0 is to the right and the facing
+     * increases positively counter-clockwise.
+     */
+    uint32_t Facing();
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
         resolution. Scan() returns 0 if no robots are within the scan range or a
