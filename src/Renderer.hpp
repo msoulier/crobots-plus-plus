@@ -22,10 +22,17 @@ public:
     bool Create(Window& window);
     void Destroy(Window& window);
     void Present(Window& window);
+    void Draw(const std::string& model, float x, float y, float z, float yaw);
 
 private:
     void RenderModels(SDL_GPUCommandBuffer* commandBuffer);
-    void RenderModelVoxObj(SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass, SDLx_Model* model);
+    void RenderModelVoxObj(SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass, SDLx_Model* model, const glm::mat4& transform);
+
+    struct ModelInstance
+    {
+        std::string m_model;
+        glm::mat4 m_transform;
+    };
 
     SDL_GPUDevice* m_device;
     SDL_GPUGraphicsPipeline* m_modelVoxObjPipeline;
@@ -33,6 +40,7 @@ private:
     SDL_GPUTexture* m_colorTexture;
     SDL_GPUSampler* m_nearestSampler;
     std::unordered_map<std::string, SDLx_Model*> m_models;
+    std::vector<ModelInstance> m_instances;
     uint32_t m_width;
     uint32_t m_height;
     Camera m_camera;

@@ -34,6 +34,8 @@ public:
     // them a time limit, as such implementations can be error prone.
     virtual void Tick() = 0;
     uint32_t GetId() const;
+    float GetX() const;
+    float GetY() const;
 
 private:
     // This id should be a simple integer uniquely identifying the robot based on the order

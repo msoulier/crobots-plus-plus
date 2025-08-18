@@ -12,9 +12,14 @@
 namespace Crobots
 {
 
-const Arena& Engine::GetArena()
+const Arena& Engine::GetArena() const
 {
     return m_arena;
+}
+
+const std::vector<std::unique_ptr<Crobots::IRobot>>& Engine::GetRobots() const
+{
+    return m_robots;
 }
 
 void Engine::Tick()

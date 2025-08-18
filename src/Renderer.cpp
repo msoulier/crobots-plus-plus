@@ -41,27 +41,6 @@ bool Renderer::Create(Window& window)
     {
         return false;
     }
-
-
-
-    SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(m_device);
-    if (!commandBuffer)
-    {
-        CROBOTS_LOG("Failed to acquire command buffer: %s", SDL_GetError());
-        return false;
-    }
-    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
-    if (!copyPass)
-    {
-        CROBOTS_LOG("Failed to begin copy pass: %s", SDL_GetError());
-        return false;
-    }
-
-    /* TODO: remove */
-    m_models["default"] = SDLx_ModelLoad(m_device, copyPass, "default", SDLX_MODELTYPE_VOXOBJ);
-
-    SDL_EndGPUCopyPass(copyPass);
-    SDL_SubmitGPUCommandBuffer(commandBuffer);
     return true;
 }
 
@@ -104,6 +83,8 @@ void Renderer::Present(Window& window)
         m_width = width;
         m_height = height;
     }
+    m_camera.SetViewport(glm::vec2(m_width, m_height));
+    m_camera.Update();
     RenderModels(commandBuffer);
     {
         SDL_GPUBlitInfo info{};
@@ -116,11 +97,35 @@ void Renderer::Present(Window& window)
         SDL_BlitGPUTexture(commandBuffer, &info);
     }
     SDL_SubmitGPUCommandBuffer(commandBuffer);
+    m_instances.clear();
+}
+
+void Renderer::Draw(const std::string& model, float x, float y, float z, float yaw)
+{
+    glm::vec3 position = glm::vec3{x, y, z};
+    glm::vec3 rotation = glm::vec3{yaw, 0.0f, 0.0f};
+    m_instances.emplace_back(model, CreateModelMatrix(position, rotation));
 }
 
 void Renderer::RenderModels(SDL_GPUCommandBuffer* commandBuffer)
 {
     CROBOTS_DEBUG_GROUP(commandBuffer);
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
+    if (!copyPass)
+    {
+        CROBOTS_LOG("Failed to begin copy pass: %s", SDL_GetError());
+        return;
+    }
+    for (ModelInstance& instance : m_instances)
+    {
+        if (m_models.contains(instance.m_model))
+        {
+            continue;
+        }
+        /* TODO: other models */
+        m_models[instance.m_model] = SDLx_ModelLoad(m_device, copyPass, instance.m_model.data(), SDLX_MODELTYPE_VOXOBJ);
+    }
+    SDL_EndGPUCopyPass(copyPass);
     SDL_GPUColorTargetInfo colorInfo{};
     colorInfo.texture = m_colorTexture;
     colorInfo.load_op = SDL_GPU_LOADOP_CLEAR;
@@ -139,16 +144,17 @@ void Renderer::RenderModels(SDL_GPUCommandBuffer* commandBuffer)
         CROBOTS_LOG("Failed to begin render pass: %s", SDL_GetError());
         return;
     }
-
-    /* TODO: remove */
-    std::vector<SDLx_Model*> models{m_models["default"]};
-
-    for (SDLx_Model* model : models)
+    for (ModelInstance& instance : m_instances)
     {
+        SDLx_Model* model = m_models[instance.m_model];
+        if (!model)
+        {
+            continue;
+        }
         switch (model->type)
         {
         case SDLX_MODELTYPE_VOXOBJ:
-            RenderModelVoxObj(commandBuffer, renderPass, model);
+            RenderModelVoxObj(commandBuffer, renderPass, model, instance.m_transform);
             break;
         default:
             CROBOTS_ASSERT(false);
@@ -158,18 +164,11 @@ void Renderer::RenderModels(SDL_GPUCommandBuffer* commandBuffer)
     SDL_EndGPURenderPass(renderPass);
 }
 
-void Renderer::RenderModelVoxObj(SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass, SDLx_Model* model)
+void Renderer::RenderModelVoxObj(SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass, SDLx_Model* model, const glm::mat4& transform)
 {
-    /* TODO: remove */
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, -100.0f);
-    glm::vec3 rotation = glm::vec3(0.5f, 0.5f, 0.0f);
-    glm::mat4 matrix = CreateModelMatrix(position, rotation);
-    m_camera.SetViewport(glm::vec2(m_width, m_height));
-    m_camera.Update();
-
     SDL_BindGPUGraphicsPipeline(renderPass, m_modelVoxObjPipeline);
     SDL_PushGPUVertexUniformData(commandBuffer, 0, &m_camera.GetViewProj(), 64);
-    SDL_PushGPUVertexUniformData(commandBuffer, 1, &matrix, 64);
+    SDL_PushGPUVertexUniformData(commandBuffer, 1, &transform, 64);
     SDL_GPUBufferBinding vertexBufferBinding{};
     SDL_GPUBufferBinding indexBufferBinding{};
     SDL_GPUTextureSamplerBinding paletteTextureBinding{};

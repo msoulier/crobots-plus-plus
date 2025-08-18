@@ -55,6 +55,16 @@ uint32_t IRobot::GetId() const
     return m_id;
 }
 
+float IRobot::GetX() const
+{
+    return m_currentX;
+}
+
+float IRobot::GetY() const
+{
+    return m_currentX;
+}
+
 uint32_t IRobot::Rand(uint32_t limit)
 {
     return BoundedRand(limit);
