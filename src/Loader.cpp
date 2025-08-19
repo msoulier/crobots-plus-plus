@@ -47,12 +47,12 @@ bool Loader::Load(const std::string& name)
         return false;
     }
 
-    std::unique_ptr<Crobots::IRobot> robot(fcn());
+    std::shared_ptr<Crobots::IRobot> robot(fcn());
     m_robots.push_back(std::move(robot));
     return true;
 }
 
-std::vector<std::unique_ptr<Crobots::IRobot>>&& Loader::GetRobots()
+std::vector<std::shared_ptr<Crobots::IRobot>>&& Loader::GetRobots()
 {
     return std::move(m_robots);
 }

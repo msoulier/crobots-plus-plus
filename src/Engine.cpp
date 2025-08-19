@@ -17,7 +17,7 @@ const Arena& Engine::GetArena() const
     return m_arena;
 }
 
-const std::vector<std::unique_ptr<Crobots::IRobot>>& Engine::GetRobots() const
+const std::vector<std::shared_ptr<Crobots::IRobot>>& Engine::GetRobots() const
 {
     return m_robots;
 }
@@ -25,7 +25,7 @@ const std::vector<std::unique_ptr<Crobots::IRobot>>& Engine::GetRobots() const
 void Engine::Tick()
 {
     CROBOTS_LOG("Engine.Tick on {} robots", m_robots.size());
-    for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
+    for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
 		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());
         // Reset any internal tick counters.
@@ -52,7 +52,7 @@ void Engine::Tick()
     }
 }
 
-void Engine::Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
+void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
 {
 	CROBOTS_LOG("Engine::Load: nrobots = {}, arena = {}x{}", robots.size(), arena.GetX(), arena.GetY());
     m_robots = std::move(robots);
@@ -162,7 +162,7 @@ void Engine::PlaceRobots()
     assert( m_arena.GetX() > 0 );
     assert( m_arena.GetY() > 0 );
     std::srand(std::time(nullptr));
-    for (std::unique_ptr<Crobots::IRobot>& robot : m_robots)
+    for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
         robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());

@@ -3,6 +3,7 @@
 #include <SDL3/SDL_main.h>
 
 #include <string>
+#include <fstream>
 
 #include "Api.hpp"
 #include "App.hpp"
@@ -13,7 +14,9 @@ static uint32_t arenaX = 100;
 static uint32_t arenaY = 100;
 // FIXME: make logpath configurable
 static std::string logFile{"crobots++.log"};
-static SDL_IOStream* logFileHandle;
+static std::ofstream logStream;
+
+/* TODO(Michael): We should have enums "Robot1", "Robot2", etc, etc and an array */
 static std::string robot1_path;
 static std::string robot2_path;
 static std::string robot3_path;
@@ -22,11 +25,10 @@ static std::string robot4_path;
 static void LogCallback(void* data, int category, SDL_LogPriority priority, const char* string)
 {
     SDL_GetDefaultLogOutputFunction()(data, category, priority, string);
-    if (logFileHandle)
+    if (logStream.is_open())
     {
-        SDL_WriteIO(logFileHandle, string, SDL_strlen(string));
-        SDL_WriteU8(logFileHandle, '\n');
-        SDL_FlushIO(logFileHandle);
+        logStream << string << '\n';
+        logStream.flush();
     }
 }
 
@@ -98,12 +100,12 @@ int main(int argc, char** argv)
         return 1;
     }
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-    logFileHandle = SDL_IOFromFile(logFile.data(), "w");
-    if (!logFileHandle)
+    logStream.open(logFile, std::ios::out);
+    if (!logStream.is_open())
     {
-        CROBOTS_LOG("Failed to open log file: %s", SDL_GetError());
+        CROBOTS_LOG("Failed to open log stream: %s", SDL_GetError());
     }
-    SDL_SetLogOutputFunction(LogCallback, logFileHandle);
+    SDL_SetLogOutputFunction(LogCallback, nullptr);
     Crobots::App app{};
     if (!app.Init(info))
     {
@@ -121,6 +123,6 @@ int main(int argc, char** argv)
     app.Quit();
     SDL_ResetLogPriorities();
     SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr);
-    SDL_CloseIO(logFileHandle);
+    logStream.close();
     return 0;
 }

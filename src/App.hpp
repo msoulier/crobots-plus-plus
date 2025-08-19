@@ -5,6 +5,7 @@
 
 #include <string_view>
 
+#include "Camera.hpp"
 #include "Engine.hpp"
 #include "Renderer.hpp"
 #include "Timer.hpp"
@@ -37,6 +38,7 @@ public:
 private:
     Engine m_engine;
     Renderer m_renderer;
+    Camera m_camera;
     Timer m_renderTimer;
     Timer m_engineTimer;
     bool m_shouldQuit;

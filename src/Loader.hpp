@@ -19,10 +19,10 @@ public:
      * to load based on the platform and its naming convention for shared libraries.
      */
     bool Load(const std::string& name);
-    std::vector<std::unique_ptr<Crobots::IRobot>>&& GetRobots();
+    std::vector<std::shared_ptr<Crobots::IRobot>>&& GetRobots();
 
 private:
-    std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
+    std::vector<std::shared_ptr<Crobots::IRobot>> m_robots;
 };
 
 }

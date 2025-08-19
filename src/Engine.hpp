@@ -3,8 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include <Crobots++/IRobot.hpp>
-
+#include "Api.hpp"
 #include "Arena.hpp"
 #include "Shot.hpp"
 
@@ -28,15 +27,15 @@ public:
     Engine(const Engine&) = delete;
     const Engine& operator=(const Engine&) = delete;
 
-    void Load(std::vector<std::unique_ptr<Crobots::IRobot>>&& robots, Arena arena);
+    void Load(std::vector<std::shared_ptr<IRobot>>&& robots, Arena arena);
     void Tick();
     uint32_t ScanResult(uint32_t robot_id, uint32_t degree, uint32_t resolution) const;
     void AddShot(Shot shot);
     const Arena& GetArena() const;
-    const std::vector<std::unique_ptr<Crobots::IRobot>>& GetRobots() const;
+    const std::vector<std::shared_ptr<IRobot>>& GetRobots() const;
 
 private:
-    std::vector<std::unique_ptr<Crobots::IRobot>> m_robots;
+    std::vector<std::shared_ptr<IRobot>> m_robots;
     std::vector<Shot> m_shots;
     Arena m_arena;
 

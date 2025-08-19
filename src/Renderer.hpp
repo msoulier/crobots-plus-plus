@@ -5,11 +5,10 @@
 
 #include <string>
 
-#include "Camera.hpp"
-
 namespace Crobots
 {
 
+class Camera;
 class Engine;
 
 class Renderer
@@ -17,7 +16,7 @@ class Renderer
 public:
     bool Init();
     void Quit();
-    void Present(const Engine& engine);
+    void Present(const Engine& engine, Camera& canera);
     void Draw(const std::string& path, float x, float y, float z, float yaw);
 
 private:
@@ -26,7 +25,6 @@ private:
     SDLx_GPURenderer* m_renderer;
     SDL_GPUTexture* m_depthTexture;
     SDL_GPUTexture* m_colorTexture;
-    Camera m_camera;
 };
 
 }

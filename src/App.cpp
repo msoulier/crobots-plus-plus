@@ -1,6 +1,5 @@
 #include <SDL3/SDL.h>
 
-#include "Crobots++/Log.hpp"
 #include "Api.hpp"
 #include "App.hpp"
 #include "Loader.hpp"
@@ -58,7 +57,7 @@ void App::Iterate()
     m_engineTimer.Tick();
     if (m_renderTimer.ShouldTick())
     {
-        m_renderer.Present(m_engine);
+        m_renderer.Present(m_engine, m_camera);
     }
     if (m_engineTimer.ShouldTick())
     {
@@ -74,6 +73,7 @@ void App::Event(SDL_Event* event)
         m_shouldQuit = true;
         break;
     }
+    m_camera.Handle(event);
 }
 
 }

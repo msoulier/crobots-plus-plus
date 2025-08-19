@@ -67,7 +67,7 @@ void Renderer::Quit()
     SDL_DestroyGPUDevice(m_device);
 }
 
-void Renderer::Present(const Engine& engine)
+void Renderer::Present(const Engine& engine, Camera& camera)
 {
     SDL_GPUCommandBuffer* commandBuffer;
     SDL_GPUTexture* swapchainTexture;
@@ -77,7 +77,7 @@ void Renderer::Present(const Engine& engine)
     {
         return;
     }
-    if (m_camera.GetWidth() != width || m_camera.GetHeight() != height)
+    if (camera.GetWidth() != width || camera.GetHeight() != height)
     {
         SDL_ReleaseGPUTexture(m_device, m_colorTexture);
         SDL_ReleaseGPUTexture(m_device, m_depthTexture);
@@ -89,11 +89,12 @@ void Renderer::Present(const Engine& engine)
             SDL_SubmitGPUCommandBuffer(commandBuffer);
             return;
         }
-        m_camera.SetViewport(width, height);
     }
-    m_camera.Update();
+    const Arena& arena = engine.GetArena();
+    camera.SetCenter(arena.GetX() / 2, arena.GetY() / 2);
+    camera.SetViewport(width, height);
+    camera.Update();
     {
-        const Arena& arena = engine.GetArena();
         int w = arena.GetX() / GridSpacing;
         int h = arena.GetY() / GridSpacing;
         for (int i = 0; i <= w; i++)
@@ -117,8 +118,8 @@ void Renderer::Present(const Engine& engine)
         }
     }
     SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);
-    SDLx_GPUSubmitRenderer(m_renderer, commandBuffer, m_colorTexture, m_depthTexture,
-        &m_camera.GetOrtho(), &m_camera.GetViewProj());
+    SDLx_GPUSubmitRenderer(m_renderer, commandBuffer, m_colorTexture,
+        m_depthTexture, &camera.GetMatrix2D(), &camera.GetMatrix3D());
     {
         SDL_GPUBlitInfo info{};
         info.source.texture = m_colorTexture;
