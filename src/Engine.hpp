@@ -47,6 +47,7 @@ private:
     void MoveShotsInFlight();
     void DetonateShots();
     void UpdateArena();
+    void GameOver();
 };
 
 }

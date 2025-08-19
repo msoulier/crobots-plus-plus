@@ -232,13 +232,33 @@ void Engine::DetonateShots()
 
 void Engine::UpdateArena()
 {
+    uint32_t nRobotsAlive = 0;
     for (auto &robot : m_robots)
     {
         robot->m_currentX = robot->m_nextX;
         robot->m_currentY = robot->m_nextY;
         // FIXME: turn rate
         robot->m_facing = robot->m_desiredFacing;
+
+        // Dead?
+        if (robot->m_damage < 100)
+        {
+            nRobotsAlive++;
+        }
     }
+    // The threshold to end the game is 1 living robot, but for now,
+    // for development, lets allow a single robot to run around.
+    if (nRobotsAlive < 1)
+    {
+        GameOver();
+    }
+}
+
+void Engine::GameOver()
+{
+    // We'll do more in the future. For now just shut down.
+    CROBOTS_LOG("Game over");
+    exit(0);
 }
 
 }

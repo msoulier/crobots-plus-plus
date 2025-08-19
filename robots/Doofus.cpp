@@ -20,7 +20,7 @@ public:
         // What is my current position?
         uint32_t currentX = LocX();
         uint32_t currentY = LocY();
-        CROBOTS_LOG("x = {}, y = {}", currentX, currentY);
+        CROBOTS_LOG("x = {}, y = {}, damage = {}", currentX, currentY, Damage());
 
         uint32_t new_facing = Facing();
         if ((currentX > 90)
