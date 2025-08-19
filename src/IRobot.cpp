@@ -42,11 +42,13 @@ IRobot::IRobot()
 
 uint32_t IRobot::LocX()
 {
+    assert( m_currentX > 0 );
     return std::round(m_currentX);
 }
 
 uint32_t IRobot::LocY()
 {
+    assert( m_currentY > 0 );
     return std::round(m_currentY);
 }
 
@@ -193,6 +195,9 @@ void IRobot::MoveRobot()
     }
     uint32_t arenaX = m_engine->GetArena().GetX();
     uint32_t arenaY = m_engine->GetArena().GetY();
+    assert( arenaX > 0 );
+    assert( arenaY > 0 );
+
     float radians = ToRadians(m_facing);
     uint32_t myspeed = GetActualSpeed();
     float x = GetActualSpeed() * std::cos(radians);
@@ -203,16 +208,26 @@ void IRobot::MoveRobot()
     // Boundary check.
     if (m_nextX > arenaX)
     {
-        // Collision with the wall.
         m_nextX = arenaX;
+        HitTheWall();
+    }
+    else if (m_nextX < 1)
+    {
+        m_nextX = 1;
         HitTheWall();
     }
     if (m_nextY > arenaY)
     {
-        // Collision with the wall.
         m_nextY = arenaY;
         HitTheWall();
     }
+    else if (m_nextY < 1)
+    {
+        m_nextY = 1;
+        HitTheWall();
+    }
+    assert( m_nextX > 0 );
+    assert( m_nextY > 0 );
 }
 
 void IRobot::HitTheWall()

@@ -42,8 +42,8 @@ private:
     // in which it was loaded.
     uint32_t m_id;
 
-    // Current X and Y location. To allow high resolution of movement, the coordinates that the
-    // robot stores are multiplied by 100.
+    // Current X and Y location. Floats for more accurate resolution, but the LocX and LocY
+    // methods return integers, rounded off.
     float m_currentX;
     float m_currentY;
     // Post-move X and Y location.

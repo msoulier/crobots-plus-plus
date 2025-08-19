@@ -28,6 +28,7 @@ public:
          || (currentX < 10)
          || (currentY < 10))
         {
+            CROBOTS_LOG("near the wall, computing random heading change");
             new_facing = Rand(360);
         }
         Drive(new_facing, 100);
