@@ -3,4 +3,4 @@ build
 *.swp
 tags
 .dir-locals.el
-lib/
+# stop putting ./lib here, it breaks submodules

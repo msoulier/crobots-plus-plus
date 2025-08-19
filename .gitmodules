@@ -7,9 +7,6 @@
 [submodule "lib/CLI11"]
 	path = lib/CLI11
 	url = https://github.com/CLIUtils/CLI11
-[submodule "lib/SDLx_model"]
-	path = lib/SDLx_model
-	url = https://github.com/jsoulier/SDLx_model
 [submodule "lib/SDLx_gpu"]
 	path = lib/SDLx_gpu
 	url = https://github.com/jsoulier/SDLx_gpu

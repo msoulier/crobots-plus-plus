@@ -8,7 +8,6 @@
 #include "Engine.hpp"
 #include "Renderer.hpp"
 #include "Timer.hpp"
-#include "Window.hpp"
 
 namespace Crobots
 {
@@ -37,7 +36,6 @@ public:
 
 private:
     Engine m_engine;
-    Window m_window;
     Renderer m_renderer;
     Timer m_renderTimer;
     Timer m_engineTimer;

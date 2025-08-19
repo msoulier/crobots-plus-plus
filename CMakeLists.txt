@@ -60,24 +60,16 @@ add_executable(crobots WIN32
     src/App.cpp
     src/Arena.cpp
     src/Camera.cpp
-    src/DebugGroup.cpp
     src/Engine.cpp
     src/Loader.cpp
     src/Main.cpp
-    src/Math.cpp
-    src/Pipeline.cpp
     src/Renderer.cpp
     src/Shot.cpp
     src/Timer.cpp
-    src/Window.cpp
 )
 set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
 set_target_properties(crobots PROPERTIES CXX_STANDARD 23)
 target_link_libraries(crobots PRIVATE crobots_api crobots_lib)
 
-include(lib/SDLx_gpu/AddShader.cmake)
-add_shader(crobots ${CMAKE_SOURCE_DIR}/shaders/ModelVoxObj.frag)
-add_shader(crobots ${CMAKE_SOURCE_DIR}/shaders/ModelVoxObj.vert)
-
-include(cmake/AddModel.cmake)
-add_model(crobots default)
+include(lib/SDLx_gpu/AddVoxModel.cmake)
+add_vox_model(models/default)

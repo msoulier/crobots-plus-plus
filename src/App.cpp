@@ -6,14 +6,12 @@
 #include "Loader.hpp"
 #include "Renderer.hpp"
 #include "Timer.hpp"
-#include "Window.hpp"
 
 namespace Crobots
 {
 
 App::App()
     : m_engine{}
-    , m_window{}
     , m_renderer{}
     , m_renderTimer{}
     , m_engineTimer{}
@@ -22,12 +20,7 @@ App::App()
 bool App::Init(const AppInfo& info)
 {
     SDL_SetAppMetadata(info.title.data(), nullptr, nullptr);
-    if (!m_window.Create(info.title))
-    {
-        CROBOTS_LOG("Failed to create window");
-        return false;
-    }
-    if (!m_renderer.Create(m_window))
+    if (!m_renderer.Init())
     {
         CROBOTS_LOG("Failed to create renderer");
         return false;
@@ -56,8 +49,7 @@ bool App::ShouldQuit()
 
 void App::Quit()
 {
-    m_renderer.Destroy(m_window);
-    m_window.Destroy();
+    m_renderer.Quit();
 }
 
 void App::Iterate()
@@ -69,10 +61,10 @@ void App::Iterate()
         auto& robots = m_engine.GetRobots();
         for (auto& robot : robots)
         {
-            m_renderer.Draw("default", robot->GetX(), robot->GetY(), -100.0f, 0.0f);
+            m_renderer.Draw("default", robot->GetX(), robot->GetY(), 100.0f, 0.0f);
         }
 
-        m_renderer.Present(m_window);
+        m_renderer.Present();
     }
     if (m_engineTimer.ShouldTick())
     {

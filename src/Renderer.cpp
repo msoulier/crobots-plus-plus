@@ -1,74 +1,82 @@
 #include <SDL3/SDL.h>
 #include <SDLx_gpu/SDL_gpu.h>
 #include <SDLx_model/SDL_model.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdint>
-#include <memory>
-#include <optional>
-#include <vector>
+#include <string>
 
 #include "Api.hpp"
 #include "Assert.hpp"
 #include "Camera.hpp"
-#include "DebugGroup.hpp"
-#include "Math.hpp"
-#include "Pipeline.hpp"
 #include "Renderer.hpp"
-#include "Window.hpp"
+
+namespace
+{
+
+static constexpr int GridLines = 20;
+static constexpr int GridSpacing = 20;
+
+}
 
 namespace Crobots
 {
 
-bool Renderer::Create(Window& window)
+bool Renderer::Init()
 {
-    m_device = SDLx_GPUCreateDevice();
-    if (!m_device)
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
+        CROBOTS_LOG("Failed to initialize SDL: %s", SDL_GetError());
         return false;
     }
-    if (!SDL_ClaimWindowForGPUDevice(m_device, window.GetHandle()))
+    m_window = SDL_CreateWindow("Crobots++", 960, 720, SDL_WINDOW_RESIZABLE);
+    if (!m_window)
+    {
+        CROBOTS_LOG("Failed to create window: %s", SDL_GetError());
+        return false;
+    }
+    m_device = SDLx_GPUCreateDevice(true);
+    if (!m_device)
+    {
+        CROBOTS_LOG("Failed to create device: %s", SDL_GetError());;
+        return false;
+    }
+    if (!SDL_ClaimWindowForGPUDevice(m_device, m_window))
     {
         CROBOTS_LOG("Failed to claim window: %s", SDL_GetError());
         return false;
     }
-    m_modelVoxObjPipeline = CreateModelVoxObjPipeline(m_device, window);
-    if (!m_modelVoxObjPipeline)
+    m_renderer = SDLx_GPUCreateRenderer(m_device);
+    if (!m_renderer)
     {
+        CROBOTS_LOG("Failed to create renderer: %s", SDL_GetError());
         return false;
     }
-    m_nearestSampler = SDLx_GPUCreateNearestSampler(m_device);
-    if (!m_nearestSampler)
-    {
-        return false;
-    }
+    SDL_FlashWindow(m_window, SDL_FLASH_BRIEFLY);
     return true;
 }
 
-void Renderer::Destroy(Window& window)
+void Renderer::Quit()
 {
-    for (auto& [name, model] : m_models)
-    {
-        SDLx_ModelDestroy(m_device, model);
-    }
-    SDL_ReleaseGPUSampler(m_device, m_nearestSampler);
+    SDLx_GPUDestroyRenderer(m_renderer);
     SDL_ReleaseGPUTexture(m_device, m_colorTexture);
     SDL_ReleaseGPUTexture(m_device, m_depthTexture);
-    SDL_ReleaseGPUGraphicsPipeline(m_device, m_modelVoxObjPipeline);
-    SDL_ReleaseWindowFromGPUDevice(m_device, window.GetHandle());
+    SDL_ReleaseWindowFromGPUDevice(m_device, m_window);
     SDL_DestroyGPUDevice(m_device);
 }
 
-void Renderer::Present(Window& window)
+void Renderer::Present()
 {
     SDL_GPUCommandBuffer* commandBuffer;
     SDL_GPUTexture* swapchainTexture;
     uint32_t width;
     uint32_t height;
-    if (!SDLx_GPUBeginFrame(m_device, window.GetHandle(), &commandBuffer, &swapchainTexture, &width, &height))
+    if (!SDLx_GPUBeginFrame(m_device, m_window, &commandBuffer, &swapchainTexture, &width, &height))
     {
         return;
     }
-    if (m_width != width || m_height != height)
+    if (m_camera.GetWidth() != width || m_camera.GetHeight() != height)
     {
         SDL_ReleaseGPUTexture(m_device, m_colorTexture);
         SDL_ReleaseGPUTexture(m_device, m_depthTexture);
@@ -80,12 +88,20 @@ void Renderer::Present(Window& window)
             SDL_SubmitGPUCommandBuffer(commandBuffer);
             return;
         }
-        m_width = width;
-        m_height = height;
+        m_camera.SetViewport(width, height);
     }
-    m_camera.SetViewport(glm::vec2(m_width, m_height));
     m_camera.Update();
-    RenderModels(commandBuffer);
+    /* TODO: obviously draw based on the arena in the future */
+    for (int i = -GridLines; i <= GridLines; i++)
+    {
+        float a = i * GridSpacing;
+        float b = GridLines * GridSpacing;
+        SDLx_GPURenderLine3D(m_renderer, a, 0.0f, -b, a, 0.0f, b, 0xFFFFFFFF);
+        SDLx_GPURenderLine3D(m_renderer, -b, 0.0f, a, b, 0.0f, a, 0xFFFFFFFF);
+    }
+    SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);
+    SDLx_GPUSubmitRenderer(m_renderer, commandBuffer, m_colorTexture, m_depthTexture,
+        &m_camera.GetOrtho(), &m_camera.GetViewProj());
     {
         SDL_GPUBlitInfo info{};
         info.source.texture = m_colorTexture;
@@ -97,89 +113,22 @@ void Renderer::Present(Window& window)
         SDL_BlitGPUTexture(commandBuffer, &info);
     }
     SDL_SubmitGPUCommandBuffer(commandBuffer);
-    m_instances.clear();
 }
 
-void Renderer::Draw(const std::string& model, float x, float y, float z, float yaw)
+void Renderer::Draw(const std::string& path, float x, float y, float z, float yaw)
 {
-    glm::vec3 position = glm::vec3{x, y, z};
-    glm::vec3 rotation = glm::vec3{yaw, 0.0f, 0.0f};
-    m_instances.emplace_back(model, CreateModelMatrix(position, rotation));
-}
-
-void Renderer::RenderModels(SDL_GPUCommandBuffer* commandBuffer)
-{
-    CROBOTS_DEBUG_GROUP(commandBuffer);
-    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
-    if (!copyPass)
+    SDLx_Model* model = SDLx_GPUGetModel(m_renderer, path.data(), SDLX_MODELTYPE_VOXOBJ);
+    if (!model)
     {
-        CROBOTS_LOG("Failed to begin copy pass: %s", SDL_GetError());
         return;
     }
-    for (ModelInstance& instance : m_instances)
-    {
-        if (m_models.contains(instance.m_model))
-        {
-            continue;
-        }
-        /* TODO: other models */
-        m_models[instance.m_model] = SDLx_ModelLoad(m_device, copyPass, instance.m_model.data(), SDLX_MODELTYPE_VOXOBJ);
-    }
-    SDL_EndGPUCopyPass(copyPass);
-    SDL_GPUColorTargetInfo colorInfo{};
-    colorInfo.texture = m_colorTexture;
-    colorInfo.load_op = SDL_GPU_LOADOP_CLEAR;
-    colorInfo.store_op = SDL_GPU_STOREOP_STORE;
-    colorInfo.cycle = true;
-    SDL_GPUDepthStencilTargetInfo depthInfo{};
-    depthInfo.texture = m_depthTexture;
-    depthInfo.load_op = SDL_GPU_LOADOP_CLEAR;
-    depthInfo.stencil_load_op = SDL_GPU_LOADOP_CLEAR;
-    depthInfo.store_op = SDL_GPU_STOREOP_STORE;
-    depthInfo.clear_depth = 1.0f;
-    depthInfo.cycle = true;
-    SDL_GPURenderPass* renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorInfo, 1, &depthInfo);
-    if (!renderPass)
-    {
-        CROBOTS_LOG("Failed to begin render pass: %s", SDL_GetError());
-        return;
-    }
-    for (ModelInstance& instance : m_instances)
-    {
-        SDLx_Model* model = m_models[instance.m_model];
-        if (!model)
-        {
-            continue;
-        }
-        switch (model->type)
-        {
-        case SDLX_MODELTYPE_VOXOBJ:
-            RenderModelVoxObj(commandBuffer, renderPass, model, instance.m_transform);
-            break;
-        default:
-            CROBOTS_ASSERT(false);
-        }
-    }
-
-    SDL_EndGPURenderPass(renderPass);
-}
-
-void Renderer::RenderModelVoxObj(SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass, SDLx_Model* model, const glm::mat4& transform)
-{
-    SDL_BindGPUGraphicsPipeline(renderPass, m_modelVoxObjPipeline);
-    SDL_PushGPUVertexUniformData(commandBuffer, 0, &m_camera.GetViewProj(), 64);
-    SDL_PushGPUVertexUniformData(commandBuffer, 1, &transform, 64);
-    SDL_GPUBufferBinding vertexBufferBinding{};
-    SDL_GPUBufferBinding indexBufferBinding{};
-    SDL_GPUTextureSamplerBinding paletteTextureBinding{};
-    vertexBufferBinding.buffer = model->vox_obj.vertex_buffer;
-    indexBufferBinding.buffer = model->vox_obj.index_buffer;
-    paletteTextureBinding.sampler = m_nearestSampler;
-    paletteTextureBinding.texture = model->vox_obj.palette_texture;
-    SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBufferBinding, 1);
-    SDL_BindGPUIndexBuffer(renderPass, &indexBufferBinding, model->vox_obj.index_element_size);
-    SDL_BindGPUFragmentSamplers(renderPass, 0, &paletteTextureBinding, 1);
-    SDL_DrawGPUIndexedPrimitives(renderPass, model->vox_obj.num_indices, 1, 0, 0, 0);
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, glm::vec3{x, y, z} - glm::vec3{0.0f, model->min.y, 0.0f});
+    transform = glm::rotate(transform, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+    // transform = glm::rotate(transform, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    // transform = glm::rotate(transform, 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    // transform = glm::scale(transform, glm::vec3{1.0f, 1.0f, 1.0f});
+    SDLx_GPURenderModel(m_renderer, path.data(), &transform, SDLX_MODELTYPE_VOXOBJ);
 }
 
 }
