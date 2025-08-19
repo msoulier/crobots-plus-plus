@@ -13,7 +13,7 @@ Camera::Camera()
     , m_viewProj{}
     , m_view{}
     , m_proj{}
-    , m_position{0.0f, 500.0f, -500.0f}
+    , m_position{50.0f, 100.0f, -80.0f}
     /* TODO: convert to pitch. honestly scrap the whole camera and support arcball and freecam */
     , m_direction{glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f))}
     , m_width{}

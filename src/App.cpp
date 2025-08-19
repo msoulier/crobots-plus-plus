@@ -58,13 +58,7 @@ void App::Iterate()
     m_engineTimer.Tick();
     if (m_renderTimer.ShouldTick())
     {
-        auto& robots = m_engine.GetRobots();
-        for (auto& robot : robots)
-        {
-            m_renderer.Draw("default", robot->GetX(), robot->GetY(), 100.0f, 0.0f);
-        }
-
-        m_renderer.Present();
+        m_renderer.Present(m_engine);
     }
     if (m_engineTimer.ShouldTick())
     {

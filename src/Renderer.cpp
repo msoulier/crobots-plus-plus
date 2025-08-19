@@ -8,15 +8,16 @@
 #include <string>
 
 #include "Api.hpp"
+#include "Arena.hpp"
 #include "Assert.hpp"
 #include "Camera.hpp"
+#include "Engine.hpp"
 #include "Renderer.hpp"
 
 namespace
 {
 
-static constexpr int GridLines = 20;
-static constexpr int GridSpacing = 20;
+static constexpr int GridSpacing = 5;
 
 }
 
@@ -66,7 +67,7 @@ void Renderer::Quit()
     SDL_DestroyGPUDevice(m_device);
 }
 
-void Renderer::Present()
+void Renderer::Present(const Engine& engine)
 {
     SDL_GPUCommandBuffer* commandBuffer;
     SDL_GPUTexture* swapchainTexture;
@@ -91,13 +92,29 @@ void Renderer::Present()
         m_camera.SetViewport(width, height);
     }
     m_camera.Update();
-    /* TODO: obviously draw based on the arena in the future */
-    for (int i = -GridLines; i <= GridLines; i++)
     {
-        float a = i * GridSpacing;
-        float b = GridLines * GridSpacing;
-        SDLx_GPURenderLine3D(m_renderer, a, 0.0f, -b, a, 0.0f, b, 0xFFFFFFFF);
-        SDLx_GPURenderLine3D(m_renderer, -b, 0.0f, a, b, 0.0f, a, 0xFFFFFFFF);
+        const Arena& arena = engine.GetArena();
+        int w = arena.GetX() / GridSpacing;
+        int h = arena.GetY() / GridSpacing;
+        for (int i = 0; i <= w; i++)
+        {
+            float a = i * GridSpacing;
+            float b = w * GridSpacing;
+            SDLx_GPURenderLine3D(m_renderer, a, 0.0f, 0.0f, a, 0.0f, b, 0xFFFFFFFF);
+        }
+        for (int i = 0; i <= h; i++)
+        {
+            float a = i * GridSpacing;
+            float b = h * GridSpacing;
+            SDLx_GPURenderLine3D(m_renderer, 0.0f, 0.0f, a, b, 0.0f, a, 0xFFFFFFFF);
+        }
+    }
+    {
+        auto& robots = engine.GetRobots();
+        for (auto& robot : robots)
+        {
+            Draw("default", robot->GetX(), 0.0f, robot->GetY(), 0.0f);
+        }
     }
     SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);
     SDLx_GPUSubmitRenderer(m_renderer, commandBuffer, m_colorTexture, m_depthTexture,
@@ -122,12 +139,13 @@ void Renderer::Draw(const std::string& path, float x, float y, float z, float ya
     {
         return;
     }
+    static constexpr float Scale = 0.1f;
     glm::mat4 transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, glm::vec3{x, y, z} - glm::vec3{0.0f, model->min.y, 0.0f});
+    transform = glm::translate(transform, glm::vec3{x, y, z} - glm::vec3{0.0f, model->min.y * Scale, 0.0f});
     transform = glm::rotate(transform, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
     // transform = glm::rotate(transform, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     // transform = glm::rotate(transform, 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-    // transform = glm::scale(transform, glm::vec3{1.0f, 1.0f, 1.0f});
+    transform = glm::scale(transform, glm::vec3{Scale});
     SDLx_GPURenderModel(m_renderer, path.data(), &transform, SDLX_MODELTYPE_VOXOBJ);
 }
 

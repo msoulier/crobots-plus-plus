@@ -10,14 +10,15 @@
 namespace Crobots
 {
 
+class Engine;
+
 class Renderer
 {
 public:
     bool Init();
     void Quit();
-    void Present();
+    void Present(const Engine& engine);
     void Draw(const std::string& path, float x, float y, float z, float yaw);
-    /* TODO: take an Engine to render */
 
 private:
     SDL_Window* m_window;
