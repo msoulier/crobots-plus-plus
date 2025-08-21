@@ -41,7 +41,6 @@ target_precompile_headers(crobots_api PUBLIC
     <unordered_map>
     <vector>
 )
-# For __VA_OPT__
 if(MSVC)
     target_compile_options(crobots_api PUBLIC /Zc:preprocessor)
 endif()
@@ -71,5 +70,5 @@ set_target_properties(crobots PROPERTIES OUTPUT_NAME "crobots++")
 set_target_properties(crobots PROPERTIES CXX_STANDARD 23)
 target_link_libraries(crobots PRIVATE crobots_api crobots_lib)
 
-include(lib/SDLx_gpu/AddVoxModel.cmake)
+include(cmake/AddVoxModel.cmake)
 add_vox_model(models/default)
