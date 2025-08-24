@@ -120,12 +120,10 @@ void Renderer::Present(const Engine& engine, Camera& camera)
             float b = j * GridSpacing;
             Draw(std::format("{} {}", i, j), a, b, 0xFFFFFFFF);
         }
-    }
-    {
         auto& robots = engine.GetRobots();
         for (auto& robot : robots)
         {
-            Draw("default", robot->GetX(), 0.0f, robot->GetY(), 0.0f);
+            Draw("default", arena.GetX() - robot->GetX(), 0.0f, robot->GetY(), 0.0f);
         }
     }
     SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);
@@ -164,7 +162,6 @@ void Renderer::Draw(const std::string& path, float x, float y, float z, float ya
 void Renderer::Draw(const std::string& text, float x, float y, Uint32 color)
 {
     static constexpr float Scale = 0.05f;
-    static constexpr float Yaw = glm::pi<float>();
     static constexpr float Pitch = glm::pi<float>() * 3.0f / 2.0f;
     static constexpr float Roll = glm::pi<float>();
     static constexpr int Size = 16;
