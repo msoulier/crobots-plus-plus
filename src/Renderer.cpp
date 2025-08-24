@@ -118,7 +118,7 @@ void Renderer::Present(const Engine& engine, Camera& camera)
         {
             float a = i * GridSpacing;
             float b = j * GridSpacing;
-            Draw(std::format("{} {}", i, j), a, b, 0xFFFFFFFF);
+            Draw(std::format("{} {}", i * GridSpacing, j * GridSpacing), a, b, 0xFFFFFFFF);
         }
         auto& robots = engine.GetRobots();
         for (auto& robot : robots)
