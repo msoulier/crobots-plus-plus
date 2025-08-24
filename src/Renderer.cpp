@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdint>
+#include <format>
 #include <string>
 
 #include "Api.hpp"
@@ -18,6 +19,7 @@ namespace
 {
 
 static constexpr int GridSpacing = 5;
+static constexpr const char* FontPath = "RasterForgeRegular.ttf";
 
 }
 
@@ -97,6 +99,8 @@ void Renderer::Present(const Engine& engine, Camera& camera)
     {
         int w = arena.GetX() / GridSpacing;
         int h = arena.GetY() / GridSpacing;
+        Draw("X", w * GridSpacing + GridSpacing, h * GridSpacing / 2, 0xFF00FFFF);
+        Draw("Y", w * GridSpacing / 2, h * GridSpacing + GridSpacing, 0xFF00FFFF);
         for (int i = 0; i <= w; i++)
         {
             float a = i * GridSpacing;
@@ -108,6 +112,13 @@ void Renderer::Present(const Engine& engine, Camera& camera)
             float a = i * GridSpacing;
             float b = h * GridSpacing;
             SDLx_GPURenderLine3D(m_renderer, 0.0f, 0.0f, a, b, 0.0f, a, 0xFFFFFFFF);
+        }
+        for (int i = 0; i <= w; i++)
+        for (int j = 0; j <= h; j++)
+        {
+            float a = i * GridSpacing;
+            float b = j * GridSpacing;
+            Draw(std::format("{} {}", i, j), a, b, 0xFFFFFFFF);
         }
     }
     {
@@ -148,6 +159,22 @@ void Renderer::Draw(const std::string& path, float x, float y, float z, float ya
     // transform = glm::rotate(transform, 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
     transform = glm::scale(transform, glm::vec3{Scale});
     SDLx_GPURenderModel(m_renderer, path.data(), &transform, SDLX_MODELTYPE_VOXOBJ);
+}
+
+void Renderer::Draw(const std::string& text, float x, float y, Uint32 color)
+{
+    static constexpr float Scale = 0.05f;
+    static constexpr float Yaw = glm::pi<float>();
+    static constexpr float Pitch = glm::pi<float>() * 3.0f / 2.0f;
+    static constexpr float Roll = glm::pi<float>();
+    static constexpr int Size = 16;
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, glm::vec3{x, 0.0f, y});
+    // transform = glm::rotate(transform, Yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = glm::rotate(transform, Pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+    transform = glm::rotate(transform, Roll, glm::vec3(0.0f, 0.0f, 1.0f));
+    transform = glm::scale(transform, glm::vec3{Scale});
+    SDLx_GPURenderText3D(m_renderer, FontPath, text.data(), &transform, Size, color);
 }
 
 }

@@ -18,6 +18,7 @@ public:
     void Quit();
     void Present(const Engine& engine, Camera& canera);
     void Draw(const std::string& path, float x, float y, float z, float yaw);
+    void Draw(const std::string& text, float x, float y, Uint32 color);
 
 private:
     SDL_Window* m_window;

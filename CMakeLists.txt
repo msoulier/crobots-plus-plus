@@ -12,6 +12,7 @@ make_directory(${BINARY_DIR})
 
 configure_file(LICENSE ${BINARY_DIR} COPYONLY)
 configure_file(README.md ${BINARY_DIR} COPYONLY)
+configure_file(fonts/RasterForgeRegular.ttf ${BINARY_DIR} COPYONLY)
 
 add_library(crobots_api
     src/IRobot.cpp

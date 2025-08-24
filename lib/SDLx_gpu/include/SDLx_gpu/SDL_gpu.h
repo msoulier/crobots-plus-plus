@@ -35,6 +35,7 @@ void SDLx_GPUDestroyRenderer(SDLx_GPURenderer* renderer);
 void SDLx_GPURenderLine2D(SDLx_GPURenderer* renderer, float x1, float y1, float x2, float y2, Uint32 color);
 void SDLx_GPURenderLine3D(SDLx_GPURenderer* renderer, float x1, float y1, float z1, float x2, float y2, float z2, Uint32 color);
 void SDLx_GPURenderText2D(SDLx_GPURenderer* renderer, const char* path, const char* string, float x, float y, int size, Uint32 color);
+void SDLx_GPURenderText3D(SDLx_GPURenderer* renderer, const char* path, const char* string, const void* transform, int size, Uint32 color);
 void SDLx_GPURenderModel(SDLx_GPURenderer* renderer, const char* path, const void* transform, SDLx_ModelType type);
 SDLx_Model* SDLx_GPUGetModel(SDLx_GPURenderer* renderer, const char* path, SDLx_ModelType type);
 void SDLx_GPUSubmitRenderer(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* command_buffer,

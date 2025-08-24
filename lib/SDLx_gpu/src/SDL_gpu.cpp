@@ -27,6 +27,8 @@
 #define DEBUG 1
 #endif
 
+static constexpr size_t NullTextId = std::numeric_limits<size_t>::max();
+
 struct DebugGroup
 {
     DebugGroup(SDL_GPUCommandBuffer* command_buffer, const char* name)
@@ -220,7 +222,6 @@ struct Text
     std::vector<TextPass> passes;
 };
 
-struct TextInstance3D {};
 struct TextInstance2D
 {
     size_t id;
@@ -228,6 +229,17 @@ struct TextInstance2D
     {
         float x;
         float y;
+        uint32_t color;
+    }
+    data;
+};
+
+struct TextInstance3D
+{
+    size_t id;
+    struct
+    {
+        float transform[16];
         uint32_t color;
     }
     data;
@@ -257,6 +269,7 @@ typedef struct SDLx_GPURenderer
     SDL_GPUGraphicsPipeline* line_2d_pipeline;
     SDL_GPUGraphicsPipeline* line_3d_pipeline;
     SDL_GPUGraphicsPipeline* text_2d_pipeline;
+    SDL_GPUGraphicsPipeline* text_3d_pipeline;
     SDL_GPUGraphicsPipeline* vox_obj_pipeline;
     SDL_GPUGraphicsPipeline* vox_raw_pipeline;
     SDL_GPUSampler* nearest_sampler;
@@ -813,6 +826,56 @@ static SDL_GPUGraphicsPipeline* CreateText2DPipeline(SDL_GPUDevice* device)
     return pipeline;
 }
 
+static SDL_GPUGraphicsPipeline* CreateText3DPipeline(SDL_GPUDevice* device)
+{
+    SDL_GPUShader* frag_shader = SDLx_GPULoadShader(device, "text_3d.frag");
+    SDL_GPUShader* vert_shader = SDLx_GPULoadShader(device, "text_3d.vert");
+    if (!frag_shader || !vert_shader)
+    {
+        SDL_Log("Failed to load shader(s)");
+        return nullptr;
+    }
+    SDL_GPUColorTargetDescription targets[1]{};
+    SDL_GPUVertexBufferDescription buffers[1]{};
+    SDL_GPUVertexAttribute attribs[2]{};
+    targets[0].format = SDLx_GPUGetColorTextureFormat(device);
+    buffers[0].slot = 0;
+    buffers[0].pitch = sizeof(TextVertex);
+    buffers[0].input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
+    buffers[0].instance_step_rate = 0;
+    attribs[0].location = 0;
+    attribs[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+    attribs[0].offset = offsetof(TextVertex, x);
+    attribs[0].buffer_slot = 0;
+    attribs[1].location = 1;
+    attribs[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+    attribs[1].offset = offsetof(TextVertex, u);
+    attribs[1].buffer_slot = 0;
+    SDL_GPUGraphicsPipelineCreateInfo info{};
+    info.vertex_shader = vert_shader;
+    info.fragment_shader = frag_shader;
+    info.target_info.color_target_descriptions = targets;
+    info.target_info.num_color_targets = 1;
+    info.target_info.depth_stencil_format = SDLx_GPUGetDepthTextureFormat(device);
+    info.target_info.has_depth_stencil_target = true;
+    info.vertex_input_state.vertex_buffer_descriptions = buffers;
+    info.vertex_input_state.num_vertex_buffers = 1;
+    info.vertex_input_state.vertex_attributes = attribs;
+    info.vertex_input_state.num_vertex_attributes = 2;
+    info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
+    info.depth_stencil_state.enable_depth_write = true;
+    info.depth_stencil_state.enable_depth_test = true;
+    SDL_GPUGraphicsPipeline* pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);
+    if (!pipeline)
+    {
+        SDL_Log("Failed to create graphics pipeline: %s", SDL_GetError());
+        return nullptr;
+    }
+    SDL_ReleaseGPUShader(device, frag_shader);
+    SDL_ReleaseGPUShader(device, vert_shader);
+    return pipeline;
+}
+
 static SDL_GPUGraphicsPipeline* CreateLine2DPipeline(SDL_GPUDevice* device)
 {
     SDL_GPUShader* frag_shader = SDLx_GPULoadShader(device, "line_2d.frag");
@@ -1058,6 +1121,12 @@ SDLx_GPURenderer* SDLx_GPUCreateRenderer(SDL_GPUDevice* device)
         SDL_Log("Failed to create text 2d pipeline");
         return nullptr;
     }
+    renderer->text_3d_pipeline = CreateText3DPipeline(device);
+    if (!renderer->text_3d_pipeline)
+    {
+        SDL_Log("Failed to create text 3d pipeline");
+        return nullptr;
+    }
     renderer->vox_obj_pipeline = CreateVoxObjPipeline(device);
     if (!renderer->vox_obj_pipeline)
     {
@@ -1105,6 +1174,7 @@ void SDLx_GPUDestroyRenderer(SDLx_GPURenderer* renderer)
     renderer->buffer_line_3d.Destroy(renderer->device);
     SDL_ReleaseGPUSampler(renderer->device, renderer->nearest_sampler);
     SDL_ReleaseGPUGraphicsPipeline(renderer->device, renderer->text_2d_pipeline);
+    SDL_ReleaseGPUGraphicsPipeline(renderer->device, renderer->text_3d_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(renderer->device, renderer->line_3d_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(renderer->device, renderer->line_2d_pipeline);
     SDL_ReleaseGPUGraphicsPipeline(renderer->device, renderer->vox_obj_pipeline);
@@ -1155,27 +1225,27 @@ void SDLx_GPURenderLine3D(SDLx_GPURenderer* renderer, float x1, float y1, float 
     renderer->buffer_line_3d.Push(renderer->device, vertex2);
 }
 
-void SDLx_GPURenderText2D(SDLx_GPURenderer* renderer, const char* path, const char* string, float x, float y, int size, Uint32 color)
+static size_t PrepareText(SDLx_GPURenderer* renderer, const char* path, const char* string, int size)
 {
     if (!renderer)
     {
         SDL_InvalidParamError("renderer");
-        return;
+        return NullTextId;
     }
     if (!path)
     {
         SDL_InvalidParamError("path");
-        return;
+        return NullTextId;
     }
     if (!string)
     {
         SDL_InvalidParamError("string");
-        return;
+        return NullTextId;
     }
     if (!size)
     {
         SDL_InvalidParamError("size");
-        return;
+        return NullTextId;
     }
     auto& fonts = renderer->fonts[path];
     auto font_it = fonts.find(size);
@@ -1186,7 +1256,7 @@ void SDLx_GPURenderText2D(SDLx_GPURenderer* renderer, const char* path, const ch
         if (!font.handle)
         {
             SDL_Log("Failed to open font: %s", SDL_GetError());
-            return;
+            return NullTextId;
         }
         font_it = fonts.emplace(size, font).first;
     }
@@ -1199,16 +1269,37 @@ void SDLx_GPURenderText2D(SDLx_GPURenderer* renderer, const char* path, const ch
         if (!text.handle)
         {
             SDL_Log("Failed to create text: %s", SDL_GetError());
-            return;
+            return NullTextId;
         }
         text_it = texts.emplace(string, renderer->texts.size() - 1).first;
     }
+    if (text_it == texts.end())
+    {
+        return NullTextId;
+    }
+    else
+    {
+        return text_it->second;
+    }
+}
+
+void SDLx_GPURenderText2D(SDLx_GPURenderer* renderer, const char* path, const char* string, float x, float y, int size, Uint32 color)
+{
     TextInstance2D instance;
-    instance.id = text_it->second;
+    instance.id = PrepareText(renderer, path, string, size);
     instance.data.x = x;
     instance.data.y = y;
     instance.data.color = color;
     renderer->text_instances_2d.push_back(instance);
+}
+
+void SDLx_GPURenderText3D(SDLx_GPURenderer* renderer, const char* path, const char* string, const void* transform, int size, Uint32 color)
+{
+    TextInstance3D instance;
+    instance.id = PrepareText(renderer, path, string, size);
+    std::memcpy(instance.data.transform, transform, 64);
+    instance.data.color = color;
+    renderer->text_instances_3d.push_back(instance);
 }
 
 void SDLx_GPURenderModel(SDLx_GPURenderer* renderer, const char* path, const void* transform, SDLx_ModelType type)
@@ -1265,8 +1356,13 @@ SDLx_Model* SDLx_GPUGetModel(SDLx_GPURenderer* renderer, const char* path, SDLx_
     return model;
 }
 
-static void UploadText(SDLx_GPURenderer* renderer, Text& text, SDL_GPUCopyPass* copy_pass)
+static void UploadText(SDLx_GPURenderer* renderer, size_t id, SDL_GPUCopyPass* copy_pass)
 {
+    if (id == NullTextId)
+    {
+        return;
+    }
+    Text& text = renderer->texts[id];
     if (!text.passes.empty())
     {
         return;
@@ -1411,14 +1507,18 @@ static void RenderShapes3D(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* com
     }
 }
 
-static void RenderText(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* command_buffer,
+static void RenderText2D(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* command_buffer,
     SDL_GPURenderPass* render_pass, const void* matrix_2d, const void* matrix_3d)
 {
-    DebugGroup debug_group(command_buffer, "SDLx_gpu::RenderText");
+    DebugGroup debug_group(command_buffer, "SDLx_gpu::RenderText2D");
     SDL_BindGPUGraphicsPipeline(render_pass, renderer->text_2d_pipeline);
     SDL_PushGPUVertexUniformData(command_buffer, 0, matrix_2d, 64);
     for (TextInstance2D& instance : renderer->text_instances_2d)
     {
+        if (instance.id == NullTextId)
+        {
+            continue;
+        }
         Text& text = renderer->texts[instance.id];
         if (text.passes.empty())
         {
@@ -1429,6 +1529,48 @@ static void RenderText(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* command
         TTF_GetTextSize(text.handle, &width, &height);
         instance.data.x -= width / 2;
         instance.data.y += height / 2;
+        SDL_PushGPUVertexUniformData(command_buffer, 1, &instance.data, sizeof(instance.data));
+        SDL_GPUBufferBinding vertex_buffer{};
+        SDL_GPUBufferBinding index_buffer{};
+        SDL_GPUTextureSamplerBinding atlas_texture{};
+        vertex_buffer.buffer = text.vertex_buffer;
+        index_buffer.buffer = text.index_buffer;
+        atlas_texture.sampler = renderer->nearest_sampler;
+        SDL_BindGPUIndexBuffer(render_pass, &index_buffer, SDL_GPU_INDEXELEMENTSIZE_16BIT);
+        for (const TextPass& pass : text.passes)
+        {
+            vertex_buffer.offset = pass.vertex_offset;
+            atlas_texture.texture = pass.atlas_texture;
+            SDL_BindGPUVertexBuffers(render_pass, 0, &vertex_buffer, 1);
+            SDL_BindGPUFragmentSamplers(render_pass, 0, &atlas_texture, 1);
+            SDL_DrawGPUIndexedPrimitives(render_pass, pass.num_indices, 1, pass.first_index, 0, 0);
+        }
+    }
+}
+
+static void RenderText3D(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* command_buffer,
+    SDL_GPURenderPass* render_pass, const void* matrix_2d, const void* matrix_3d)
+{
+    DebugGroup debug_group(command_buffer, "SDLx_gpu::RenderText3D");
+    SDL_BindGPUGraphicsPipeline(render_pass, renderer->text_3d_pipeline);
+    SDL_PushGPUVertexUniformData(command_buffer, 0, matrix_3d, 64);
+    for (TextInstance3D& instance : renderer->text_instances_3d)
+    {
+        if (instance.id == NullTextId)
+        {
+            continue;
+        }
+        Text& text = renderer->texts[instance.id];
+        if (text.passes.empty())
+        {
+            continue;
+        }
+        int width;
+        int height;
+        /* TODO: */
+        // TTF_GetTextSize(text.handle, &width, &height);
+        // instance.data.x -= width / 2;
+        // instance.data.y += height / 2;
         SDL_PushGPUVertexUniformData(command_buffer, 1, &instance.data, sizeof(instance.data));
         SDL_GPUBufferBinding vertex_buffer{};
         SDL_GPUBufferBinding index_buffer{};
@@ -1539,7 +1681,11 @@ void SDLx_GPUSubmitRenderer(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* co
     renderer->buffer_line_3d.Upload(renderer->device, copy_pass);
     for (TextInstance2D& instance : renderer->text_instances_2d)
     {
-        UploadText(renderer, renderer->texts[instance.id], copy_pass);
+        UploadText(renderer, instance.id, copy_pass);
+    }
+    for (TextInstance3D& instance : renderer->text_instances_3d)
+    {
+        UploadText(renderer, instance.id, copy_pass);
     }
     for (ModelInstance& instance : renderer->model_instances)
     {
@@ -1572,9 +1718,11 @@ void SDLx_GPUSubmitRenderer(SDLx_GPURenderer* renderer, SDL_GPUCommandBuffer* co
     RenderShapes3D(renderer, command_buffer, render_pass, matrix_2d, matrix_3d);
     RenderModels(renderer, command_buffer, render_pass, matrix_2d, matrix_3d);
     RenderShapes2D(renderer, command_buffer, render_pass, matrix_2d, matrix_3d);
-    RenderText(renderer, command_buffer, render_pass, matrix_2d, matrix_3d);
+    RenderText2D(renderer, command_buffer, render_pass, matrix_2d, matrix_3d);
+    RenderText3D(renderer, command_buffer, render_pass, matrix_2d, matrix_3d);
     SDL_EndGPURenderPass(render_pass);
     renderer->draw_passes_2d.clear();
     renderer->text_instances_2d.clear();
+    renderer->text_instances_3d.clear();
     renderer->model_instances.clear();
 }
