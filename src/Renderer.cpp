@@ -99,26 +99,24 @@ void Renderer::Present(const Engine& engine, Camera& camera)
     {
         int w = arena.GetX() / GridSpacing;
         int h = arena.GetY() / GridSpacing;
-        Draw("X", w * GridSpacing + GridSpacing, h * GridSpacing / 2, 0xFF00FFFF);
-        Draw("Y", w * GridSpacing / 2, h * GridSpacing + GridSpacing, 0xFF00FFFF);
         for (int i = 0; i <= w; i++)
         {
             float a = i * GridSpacing;
             float b = w * GridSpacing;
-            SDLx_GPURenderLine3D(m_renderer, a, 0.0f, 0.0f, a, 0.0f, b, 0xFFFFFFFF);
+            SDLx_GPURenderLine3D(m_renderer, arena.GetX() - a, 0.0f, 0.0f, arena.GetX() - a, 0.0f, b, 0xFFFFFFFF);
         }
         for (int i = 0; i <= h; i++)
         {
             float a = i * GridSpacing;
             float b = h * GridSpacing;
-            SDLx_GPURenderLine3D(m_renderer, 0.0f, 0.0f, a, b, 0.0f, a, 0xFFFFFFFF);
+            SDLx_GPURenderLine3D(m_renderer, arena.GetX() - 0.0f, 0.0f, a, arena.GetX() - b, 0.0f, a, 0xFFFFFFFF);
         }
         for (int i = 0; i <= w; i++)
         for (int j = 0; j <= h; j++)
         {
             float a = i * GridSpacing;
             float b = j * GridSpacing;
-            Draw(std::format("{} {}", i * GridSpacing, j * GridSpacing), a, b, 0xFFFFFFFF);
+            Draw(std::format("{} {}", i * GridSpacing, j * GridSpacing), arena.GetX() - a, b, 0xFFFFFFFF);
         }
         auto& robots = engine.GetRobots();
         for (auto& robot : robots)

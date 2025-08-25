@@ -26,7 +26,7 @@ Camera::Camera()
     , m_near{0.1f}
     , m_far{1000.0f}
     , m_pitch{glm::radians(-45.0f)}
-    , m_yaw{}
+    , m_yaw{glm::radians(90.0f)}
     , m_distance{100.0f} {}
 
 void Camera::Update()
