@@ -17,6 +17,7 @@ Engine* IRobot::m_engine = nullptr;
 
 IRobot::IRobot()
 {
+    CROBOTS_LOG("IRobot ctor()");
     m_currentX = 0.0;
     m_currentY = 0.0;
     m_nextX = 0.0;
@@ -185,6 +186,58 @@ void IRobot::UpdateTickCounters()
 void IRobot::SetEngine(Engine* handle)
 {
     m_engine = handle;
+}
+
+void IRobot::AccelRobot()
+{
+    if (IsDead())
+    {
+        m_speed = 0;
+        return;
+    }
+    // Manage speed increase/decrease.
+    if (m_speed != m_desiredSpeed)
+    {
+        if (m_desiredSpeed > m_speed)
+        {
+            m_speed += m_acceleration;
+            if (m_speed > m_desiredSpeed)
+            {
+                m_speed = m_desiredSpeed;
+            }
+        }
+        else
+        {
+            m_speed -= m_braking;
+            if (m_speed < m_desiredSpeed)
+            {
+                m_speed = m_desiredSpeed;
+            }
+        }
+    }
+    // Manage facing changes.
+    if (m_desiredFacing != m_facing)
+    {
+        // Turn left or right?
+        uint32_t left_distance = m_desiredFacing - m_facing;
+        uint32_t right_distance = m_facing + ( 360 - m_desiredFacing );
+        if (left_distance < right_distance)
+        {
+            m_facing += m_turnRate;
+            if (m_facing > m_desiredFacing)
+            {
+                m_facing = m_desiredFacing;
+            }
+        }
+        else
+        {
+            m_facing -= m_turnRate;
+            if (m_facing < m_desiredFacing)
+            {
+                m_facing = m_desiredFacing;
+            }
+        }
+    }
 }
 
 void IRobot::MoveRobot()

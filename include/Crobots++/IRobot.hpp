@@ -91,6 +91,7 @@ private:
 
     void UpdateTickCounters();
     bool RegisterShot(CannonType weapon, uint32_t degree, uint32_t range);
+    void AccelRobot();
     void MoveRobot();
     void HitTheWall();
     bool IsDead();

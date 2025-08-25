@@ -24,7 +24,6 @@ const std::vector<std::shared_ptr<Crobots::IRobot>>& Engine::GetRobots() const
 
 void Engine::Tick()
 {
-    CROBOTS_LOG("Engine.Tick on {} robots", m_robots.size());
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
 		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());
@@ -34,9 +33,9 @@ void Engine::Tick()
         robot->Tick();
         // Update the position of each robot based on its velocity
         robot->MoveRobot();
-        // Update the velocity (ie. speed and facing) of each robot
-        AccelRobots();
         // Check for any loss of control (ie. skidding) - future item
+        // Update the velocity (ie. speed and facing) of each robot
+        robot->AccelRobot();
 
         AddShots();
         // Update the position of any shots in flight
@@ -167,54 +166,8 @@ void Engine::PlaceRobots()
         // Start each robot at a random spot in the arena.
         robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
         robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
-    }
-}
-
-void Engine::AccelRobots()
-{
-    for (const auto& robot : m_robots) {
-        // Manage speed
-        if (robot->m_desiredSpeed != robot->m_speed)
-        {
-            if (robot->m_desiredSpeed < robot->m_speed)
-            {
-                if ((robot->m_speed - robot->m_desiredSpeed) <= robot->m_braking)
-                {
-                    robot->m_speed = robot->m_desiredSpeed;
-                }
-            }
-            else
-            {
-                robot->m_speed += robot->m_acceleration;
-                if (robot->m_speed > robot->m_desiredSpeed)
-                {
-                    robot->m_speed = robot->m_desiredSpeed;
-                }
-            }
-        }
-        // Manage facing.
-        if (robot->m_desiredFacing != robot->m_facing)
-        {
-            // Turn left or right?
-            uint32_t left_distance = robot->m_desiredFacing - robot->m_facing;
-            uint32_t right_distance = robot->m_facing + ( 360 - robot->m_desiredFacing );
-            if (left_distance < right_distance)
-            {
-                robot->m_facing += robot->m_turnRate;
-                if (robot->m_facing > robot->m_desiredFacing)
-                {
-                    robot->m_facing = robot->m_desiredFacing;
-                }
-            }
-            else
-            {
-                robot->m_facing -= robot->m_turnRate;
-                if (robot->m_facing < robot->m_desiredFacing)
-                {
-                    robot->m_facing = robot->m_desiredFacing;
-                }
-            }
-        }
+        CROBOTS_LOG("placing robot {} to initial location {}x{}",
+            robot->GetName(), robot->m_currentX, robot->m_currentY);
     }
 }
 

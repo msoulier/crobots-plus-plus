@@ -4,19 +4,19 @@
 
 using namespace Crobots;
 
-class Doofus : public IRobot
+class Dummy : public IRobot
 {
 public:
-    Doofus() = default;
+    Dummy() = default;
 
     std::string_view GetName() const override
     {
-        return "Doofus";
+        return "Dummy";
     }
 
     void Tick() override
     {
-        CROBOTS_LOG("Doofus.Tick");
+        CROBOTS_LOG("Dummy.Tick");
         // What is my current position?
         uint32_t currentX = LocX();
         uint32_t currentY = LocY();
@@ -54,5 +54,5 @@ public:
 
 CROBOTS_ENTRYPOINT IRobot* GetRobot()
 {
-    return new Doofus();
+    return new Dummy();
 }

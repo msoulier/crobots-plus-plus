@@ -47,8 +47,9 @@ bool Loader::Load(const std::string& name)
         return false;
     }
 
-    std::shared_ptr<Crobots::IRobot> robot(fcn());
+    std::unique_ptr<Crobots::IRobot> robot(fcn());
     m_robots.push_back(std::move(robot));
+
     return true;
 }
 

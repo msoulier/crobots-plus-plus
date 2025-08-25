@@ -41,7 +41,6 @@ private:
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();
-    void AccelRobots();
     void AddShots();
     void MoveShotsInFlight();
     void DetonateShots();
