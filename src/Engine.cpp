@@ -45,10 +45,10 @@ void Engine::Tick()
 
         // Detonate any shots that have reached their target
         DetonateShots();
-
-        // Update the arena.
-        UpdateArena();
     }
+
+    // Update the arena.
+    UpdateArena();
 }
 
 void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
