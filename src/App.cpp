@@ -25,7 +25,7 @@ bool App::Init(const AppInfo& info)
         return false;
     }
     m_renderTimer = Timer{16.6f};
-    m_engineTimer = Timer{1000.0f};
+    m_engineTimer = Timer{32.0f};
 
     CROBOTS_LOG("Creating arena dimensions {} and {}", info.arenaX, info.arenaY);
     Arena arena(info.arenaX, info.arenaY);

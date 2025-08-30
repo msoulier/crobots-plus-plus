@@ -1,5 +1,7 @@
 #pragma once
 
+// FIXME: stop using vsync
+
 #include <SDL3/SDL.h>
 #include <SDLx_gpu/SDL_gpu.h>
 

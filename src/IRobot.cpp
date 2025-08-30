@@ -168,7 +168,7 @@ uint32_t IRobot::BoundedRand(uint32_t range)
 
     */
     uint32_t result = rand();
-    return result % range;
+    return std::max(result % range, 1u);
 }
 
 void IRobot::UpdateTickCounters()
@@ -305,8 +305,8 @@ float IRobot::ToRadians(float degrees)
 
 float IRobot::GetActualSpeed()
 {
-    // speed is a percentage - for now translate to 1-10 m/s
-    return m_speed / 10.0;
+    // speed is a percentage - FIXME: base this on the frame rate
+    return m_speed / 200.0;
 }
 
 }
