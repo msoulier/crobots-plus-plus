@@ -23,28 +23,18 @@ public:
         CROBOTS_LOG("x = {}, y = {}, damage = {}", currentX, currentY, Damage());
 
         uint32_t new_facing = Facing();
-
-        if (currentX > 95)
+        if ((new_facing != 270) && (new_facing != 90))
         {
-            if (currentY < 50)
-            {
-                new_facing = 190;
-            }
-            else
-            {
-                new_facing = 170;
-            }
+            new_facing = 90;
         }
-        else if (currentX < 5)
+
+        if (currentY > 95)
         {
-            if (currentY < 50)
-            {
-                new_facing = 350;
-            }
-            else
-            {
-                new_facing = 10;
-            }
+            new_facing = 270;;
+        }
+        else if (currentY < 5)
+        {
+            new_facing = 90;
         }
         //new_facing = Rand(360);
         Drive(new_facing, 100);

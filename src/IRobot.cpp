@@ -65,7 +65,7 @@ float IRobot::GetX() const
 
 float IRobot::GetY() const
 {
-    return m_currentX;
+    return m_currentY;
 }
 
 uint32_t IRobot::Rand(uint32_t limit)
