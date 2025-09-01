@@ -34,6 +34,7 @@ public:
     // them a time limit, as such implementations can be error prone.
     virtual void Tick() = 0;
     uint32_t GetId() const;
+    void SetId(uint32_t id);
     float GetX() const;
     float GetY() const;
 
@@ -177,6 +178,12 @@ protected:
         The Rand() method returns a random number between 0 and limit, up to 32767.
     */
     uint32_t Rand(uint32_t limit);
+
+    // Fetch the X dimension of the arena.
+    uint32_t GetArenaX();
+
+    // Fetch the Y dimension of the arena.
+    uint32_t GetArenaY();
 };
 
 }

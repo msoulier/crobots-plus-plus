@@ -18,7 +18,7 @@ public:
      * and a configured robots directory, we can find the appropriate file
      * to load based on the platform and its naming convention for shared libraries.
      */
-    bool Load(const std::string& name);
+    bool Load(const std::string& name, uint32_t id);
     std::vector<std::shared_ptr<Crobots::IRobot>>&& GetRobots();
 
 private:

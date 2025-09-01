@@ -58,6 +58,11 @@ uint32_t IRobot::GetId() const
     return m_id;
 }
 
+void IRobot::SetId(uint32_t id)
+{
+    m_id = id;
+}
+
 float IRobot::GetX() const
 {
     return m_currentX;
@@ -307,6 +312,16 @@ float IRobot::GetActualSpeed()
 {
     // speed is a percentage - FIXME: base this on the frame rate
     return m_speed / 200.0;
+}
+
+uint32_t IRobot::GetArenaX()
+{
+    return m_engine->GetArena().GetX();
+}
+
+uint32_t IRobot::GetArenaY()
+{
+    return m_engine->GetArena().GetY();
 }
 
 }

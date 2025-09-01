@@ -30,24 +30,25 @@ bool App::Init(const AppInfo& info)
     CROBOTS_LOG("Creating arena dimensions {} and {}", info.arenaX, info.arenaY);
     Arena arena(info.arenaX, info.arenaY);
     Loader loader;
-	if (! loader.Load(info.robot1_path))
+    m_engine.Init(arena);
+	if (! loader.Load(info.robot1_path, 1))
 	{
 		std::cerr << "Failed to load " << info.robot1_path << std::endl;
 		return false;
 	}
-    if ((info.robot2_path.size() > 0) && (! loader.Load(info.robot2_path)))
+    if ((info.robot2_path.size() > 0) && (! loader.Load(info.robot2_path, 2)))
     {
         std::cerr << "Failed to load " << info.robot2_path << std::endl;
     }
-    if ((info.robot3_path.size() > 0) && (! loader.Load(info.robot3_path)))
+    if ((info.robot3_path.size() > 0) && (! loader.Load(info.robot3_path, 3)))
     {
         std::cerr << "Failed to load " << info.robot3_path << std::endl;
     }
-    if ((info.robot4_path.size() > 0) && (! loader.Load(info.robot4_path)))
+    if ((info.robot4_path.size() > 0) && (! loader.Load(info.robot4_path, 4)))
     {
         std::cerr << "Failed to load " << info.robot4_path << std::endl;
     }
-    m_engine.Load(loader.GetRobots(), arena);
+    m_engine.Load(loader.GetRobots());
     return true;
 }
 

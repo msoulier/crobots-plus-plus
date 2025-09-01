@@ -27,7 +27,8 @@ public:
     Engine(const Engine&) = delete;
     const Engine& operator=(const Engine&) = delete;
 
-    void Load(std::vector<std::shared_ptr<IRobot>>&& robots, Arena arena);
+    void Init(Arena arena);
+    void Load(std::vector<std::shared_ptr<IRobot>>&& robots);
     void Tick();
     uint32_t ScanResult(uint32_t robot_id, uint32_t degree, uint32_t resolution) const;
     void AddShot(Shot shot);

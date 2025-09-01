@@ -6,7 +6,7 @@
 
 namespace Crobots {
 
-bool Loader::Load(const std::string& name)
+bool Loader::Load(const std::string& name, uint32_t id)
 {
 	CROBOTS_LOG("loading robot {}", name);
     // This should not be a path. Reject anything that is.
@@ -48,6 +48,7 @@ bool Loader::Load(const std::string& name)
     }
 
     std::unique_ptr<Crobots::IRobot> robot(fcn());
+    robot->SetId(id);
     m_robots.push_back(std::move(robot));
 
     return true;

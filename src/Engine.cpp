@@ -5,12 +5,19 @@
 #include <cassert>
 #include <numbers>
 
+#include "Crobots++/IRobot.hpp"
 #include "Api.hpp"
 #include "Arena.hpp"
 #include "Engine.hpp"
 
 namespace Crobots
 {
+
+void Engine::Init(Crobots::Arena arena)
+{
+    m_arena = arena;
+    IRobot::SetEngine(this);
+}
 
 const Arena& Engine::GetArena() const
 {
@@ -36,30 +43,26 @@ void Engine::Tick()
         // Check for any loss of control (ie. skidding) - future item
         // Update the velocity (ie. speed and facing) of each robot
         robot->AccelRobot();
-
-        AddShots();
-        // Update the position of any shots in flight
-        MoveShotsInFlight();
-
-        // Fire any direct fire weapons that have zero time of flight - future item
-
-        // Detonate any shots that have reached their target
-        DetonateShots();
     }
+
+    // Add any shots from robots firing now.
+    AddShots();
+    // Update the position of any shots in flight
+    MoveShotsInFlight();
+
+    // Fire any direct fire weapons that have zero time of flight - future item
+
+    // Detonate any shots that have reached their target
+    DetonateShots();
 
     // Update the arena.
     UpdateArena();
 }
 
-void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots, Crobots::Arena arena)
+void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots)
 {
-	CROBOTS_LOG("Engine::Load: nrobots = {}, arena = {}x{}", robots.size(), arena.GetX(), arena.GetY());
+	CROBOTS_LOG("Engine::Load: nrobots = {}", robots.size());
     m_robots = std::move(robots);
-    m_arena = arena;
-    CROBOTS_LOG("my arena is {} x {}", m_arena.GetX(), m_arena.GetY());
-
-    // Set this engine as the static engine for IRobot
-    IRobot::SetEngine(this);
 
     PlaceRobots();
 }
@@ -116,7 +119,7 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
         // Now convert the "to" robot to polar coordinates.
         // https://www.mathsisfun.com/polar-cartesian-coordinates.html
         uint32_t radius = sqrt( toX*toX + toY*toY );
-        uint32_t radians = atan( toY / toX );
+        uint32_t radians = atan2( toY, toX );
         uint32_t degrees = IRobot::ToDegrees(radians);
         // Adjust for quadrant.
         if ((toX >= 0) && (toY >= 0))
