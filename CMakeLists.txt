@@ -73,3 +73,6 @@ target_link_libraries(crobots PRIVATE crobots_api crobots_lib)
 
 include(cmake/AddVoxModel.cmake)
 add_vox_model(models/default)
+
+enable_testing()
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)

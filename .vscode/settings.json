@@ -1,4 +1,6 @@
 {
     "cmake.parallelJobs": 8,
     "iis.configDir": "",
+    "cmake.ctestDefaultArgs": ["--test-dir=${workspaceFolder}/build/test"],
+
 }
