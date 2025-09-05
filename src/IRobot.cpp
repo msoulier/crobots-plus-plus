@@ -112,7 +112,7 @@ uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
     m_scansDuringTick++;
     if (m_scansDuringTick > m_scansPerTick)
     {
-        return 0;
+        return -1;
     }
     // We need to determine the bearing of each other robot to this one.
     // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise

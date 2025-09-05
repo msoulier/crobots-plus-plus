@@ -12,6 +12,9 @@ public:
         : m_minimum_ticks_before_turn{20}
         , m_arenaX{0}
         , m_arenaY{0}
+        , m_last_scan_dir{720}
+        , m_last_damage{0}
+        , m_last_scan_hit{false}
     {
         m_arenaX = GetArenaX();
         m_arenaY = GetArenaY();
@@ -22,6 +25,9 @@ public:
     uint32_t m_minimum_ticks_before_turn;
     uint32_t m_arenaX;
     uint32_t m_arenaY;
+    uint32_t m_last_scan_dir;
+    uint32_t m_last_damage;
+    bool m_last_scan_hit;
 
     std::string_view GetName() const override
     {
@@ -50,8 +56,24 @@ public:
 
     bool NearWall(uint32_t x, uint32_t y)
     {
-        if (NearTopWall(y) || NearBottomWall(y) || NearLeftWall(x) || NearRightWall(x))
+        if (NearTopWall(y))
         {
+            CROBOTS_LOG("I'm near the top wall");
+            return true;
+        }
+        else if (NearBottomWall(y))
+        {
+            CROBOTS_LOG("I am near the bottom wall");
+            return true;
+        }
+        else if (NearLeftWall(x))
+        {
+            CROBOTS_LOG("I am near the left wall");
+            return true;
+        }
+        else if (NearRightWall(x))
+        {
+            CROBOTS_LOG("I am near the right wall");
             return true;
         }
         else
@@ -69,35 +91,74 @@ public:
         CROBOTS_LOG("x = {}, y = {}, damage = {}", currentX, currentY, Damage());
 
         uint32_t new_facing = Facing();
-
-        if (NearWall(currentX, currentY))
+        uint32_t scan_direction = 0;
+        if (m_last_scan_dir == 720)
         {
-            CROBOTS_LOG("We are near a wall and need to turn, arena {}x{}", m_arenaX, m_arenaY);
-            new_facing += 90;
-            Drive(new_facing, 100);
-            m_minimum_ticks_before_turn = 20;
+            m_last_scan_dir = new_facing;
+            scan_direction = new_facing;
         }
         else
         {
-            // Scan in the direction of movement.
-            if (Scan(new_facing, 45))
+            if (m_last_scan_hit)
             {
-                Drive(new_facing, 100);
-                m_minimum_ticks_before_turn = 20;
+                // FIXME: tighten the scan - track the target
+                scan_direction = m_last_scan_dir;
             }
             else
             {
-                m_minimum_ticks_before_turn--;
-                if (m_minimum_ticks_before_turn == 0)
+                // Keep rotating scan like a radar.
+                scan_direction += 90;
+            }
+        }
+
+        bool want_to_turn = false;
+        bool taking_damage = false;
+        uint32_t current_damage = Damage();
+        if (m_last_damage != current_damage)
+        {
+            CROBOTS_LOG("We're taking damage!");
+            taking_damage = true;
+            m_last_damage = current_damage;
+            want_to_turn = true;
+        }
+
+        if (NearWall(currentX, currentY))
+        {
+            CROBOTS_LOG("We want to turn");
+            want_to_turn = true;
+        }
+
+        uint32_t range = 0;
+        if (range = Scan(scan_direction, 45) > 0)
+        {
+            CROBOTS_LOG("Scan turned up a hit! direction {}, range {}", scan_direction, range);
+            // Got a hit. Drive that way.
+            m_last_scan_hit = true;
+            if (scan_direction != new_facing)
+            {
+                new_facing = scan_direction;
+            }
+        }
+        else
+        {
+            CROBOTS_LOG("Nothing on the scan");
+            m_last_scan_hit = false;
+            if (want_to_turn)
+            {
+                if (m_minimum_ticks_before_turn > 0)
                 {
-                    new_facing -= 90;
+                    m_minimum_ticks_before_turn--;
+                }
+                else
+                {
+                    m_minimum_ticks_before_turn = 20;
+                    new_facing += 90;
                     new_facing %= 360;
-                    Drive(new_facing, 100);
                 }
             }
         }
 
-        CROBOTS_LOG("driving at facing {} at max speed", Facing());
+        Drive(new_facing, 100);
     }
 };
 

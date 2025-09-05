@@ -93,7 +93,7 @@ void Engine::AddShots()
     }
 }
 
-uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t resolution) const
+uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t facing, uint32_t resolution) const
 {
     uint32_t result = 0;
 
@@ -102,8 +102,8 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
         resolution = 10;
     }
 
-    uint32_t fromX = m_robots[robot_id]->LocX();
-    uint32_t fromY = m_robots[robot_id]->LocY();
+    float myX = m_robots[robot_id]->LocX();
+    float myY = m_robots[robot_id]->LocY();
 
     for (uint32_t i = 0; i < m_robots.size(); ++i)
     {
@@ -111,41 +111,24 @@ uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t direction, uint32_t reso
         if (i == robot_id) {
             continue;
         }
-        uint32_t toX = m_robots[i]->LocX();
-        uint32_t toY = m_robots[i]->LocY();
-        // Simplify the math. Shift the grid until we are at the origin.
-        toX -= fromX;
-        toY -= fromY;
+        float theirX = m_robots[i]->LocX();
+        float theirY = m_robots[i]->LocY();
+
+        float diffX = theirX - myX;
+        float diffY = theirY - myY;
+
         // Now convert the "to" robot to polar coordinates.
         // https://www.mathsisfun.com/polar-cartesian-coordinates.html
-        uint32_t radius = sqrt( toX*toX + toY*toY );
-        uint32_t radians = atan2( toY, toX );
-        uint32_t degrees = IRobot::ToDegrees(radians);
-        // Adjust for quadrant.
-        if ((toX >= 0) && (toY >= 0))
-        {
-            // quadrant 1
-            // nothing to do
-        }
-        else if ((toX < 0) && (toY >= 0))
-        {
-            // quadrant 2
-            degrees += 180;
-        }
-        else if ((toX < 0) && (toY < 0))
-        {
-            // quadrant 3
-            degrees += 180;
-        }
-        else
-        {
-            // quadrant 4
-            degrees += 360;
-        }
+        float radius = sqrt( pow(diffX, 2) + pow(diffY, 2) );
+        // FIXME: if radius > scanner_range, return 0
+        float radians = atan2( diffY, diffX );
+        float degrees = IRobot::ToDegrees(radians);
+        // Adjust for quadrant. ?
         // Now, to get a hit off of this contact, the scan direction plus or minus half of the resolution
         // must pass over the bearing.
-        if (((direction - (resolution / 2)) <= degrees) || ((direction + (resolution / 2)) >= degrees))
+        if (((facing - (resolution / 2)) <= degrees) && ((facing + (resolution / 2)) >= degrees))
         {
+            CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, degrees, radius);
             // we have a hit we only return the closest one
             if (result == 0) {
                 result = radius;
@@ -164,11 +147,28 @@ void Engine::PlaceRobots()
     assert( m_arena.GetX() > 0 );
     assert( m_arena.GetY() > 0 );
     std::srand(std::time(nullptr));
+    int count = 0;
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
-        robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
-        robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
+        //robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
+        //robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
+        // Temporarily place the robots at a known position for testing.
+        if (count == 0)
+        {
+            robot->m_currentX = 1;
+            robot->m_currentY = 45;
+            robot->m_facing = 0;
+            robot->m_desiredFacing = 0;
+        }
+        else
+        {
+            robot->m_currentX = 45;
+            robot->m_currentY = 45;
+            robot->m_facing = 0;
+            robot->m_desiredFacing = 0;
+        }
+        count++;
         CROBOTS_LOG("placing robot {} to initial location {}x{}",
             robot->GetName(), robot->m_currentX, robot->m_currentY);
     }
