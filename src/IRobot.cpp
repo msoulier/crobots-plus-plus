@@ -112,7 +112,6 @@ void IRobot::Drive(float degree, float speed)
     }
     m_desiredFacing = degree;
     m_desiredSpeed = speed;
-    CROBOTS_LOG("Drive: desired facing {}, desired speed {}", m_desiredFacing, m_desiredSpeed);
 }
 
 float IRobot::Scan(float degree, float resolution)
@@ -211,8 +210,6 @@ void IRobot::AccelRobot()
     // Manage speed increase/decrease.
     if (m_speed != m_desiredSpeed)
     {
-        CROBOTS_LOG("speed is not desired speed: speed = {}, desired speed = {}",
-            m_speed, m_desiredSpeed);
         if (m_desiredSpeed > m_speed)
         {
             m_speed += m_acceleration;
