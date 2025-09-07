@@ -93,13 +93,19 @@ void Engine::AddShots()
     }
 }
 
-uint32_t Engine::ScanResult(uint32_t robot_id, uint32_t facing, uint32_t resolution) const
+float Engine::ScanResult(uint32_t robot_id, uint32_t facing, uint32_t resolution) const
 {
-    uint32_t result = 0;
+    float result = 0;
 
     // Minimum resolution is 10.
     if (resolution < 10) {
         resolution = 10;
+    }
+
+    // Need 2 or more robots to get a hit on scanning.
+    if (m_robots.size() < 2)
+    {
+        return -1;
     }
 
     float myX = m_robots[robot_id]->LocX();
@@ -158,15 +164,11 @@ void Engine::PlaceRobots()
         {
             robot->m_currentX = 1;
             robot->m_currentY = 45;
-            robot->m_facing = 0;
-            robot->m_desiredFacing = 0;
         }
         else
         {
             robot->m_currentX = 45;
             robot->m_currentY = 45;
-            robot->m_facing = 0;
-            robot->m_desiredFacing = 0;
         }
         count++;
         CROBOTS_LOG("placing robot {} to initial location {}x{}",

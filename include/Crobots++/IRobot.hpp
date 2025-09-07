@@ -51,36 +51,36 @@ private:
     float m_nextX;
     float m_nextY;
     // Speed we are trying to achieve.
-    uint32_t m_desiredSpeed;
+    float m_desiredSpeed;
     // Current speed
-    uint32_t m_speed;
+    float m_speed;
 
     // Facing we would like to have.
-    uint32_t m_desiredFacing;
+    float m_desiredFacing;
     // Facing we currently have.
-    uint32_t m_facing;
+    float m_facing;
 
     // default to 65535 for now, so effectively unlimited, planning for the future
     uint32_t m_rounds;
 
     // Some performance parameters for the future.
-    uint32_t m_acceleration;
-    uint32_t m_braking;
-    uint32_t m_turnRate;
+    float m_acceleration;
+    float m_braking;
+    float m_turnRate;
 
     // How much we are hurt.
-    uint32_t m_damage;
+    float m_damage;
 
     // A scan counter, reset at the beginning of each Tick.
-    uint32_t m_scansDuringTick;
-    // The number of scans our scanner is capable of per Tick.
-    uint32_t m_scansPerTick;
+    uint32_t m_scanCountDown;
+    // The number of ticks that must pass between scans.
+    uint32_t m_ticksPerScan;
 
     // Shot parameters that go into the next shot.
     bool m_cannotShotRegistered;
-    uint32_t m_cannonShotDegree;
-    uint32_t m_cannonShotRange;
-    uint32_t m_cannonShotSpeed;
+    float m_cannonShotDegree;
+    float m_cannonShotRange;
+    float m_cannonShotSpeed;
 
     // Countdown until done reloading.
     uint32_t m_cannonTimeUntilReload;
@@ -88,10 +88,10 @@ private:
     // Cannon parameters.
     CannonType m_cannonType;
     uint32_t m_cannonReloadTime;
-    uint32_t m_cannonShotMaxRange;
+    float m_cannonShotMaxRange;
 
     void UpdateTickCounters();
-    bool RegisterShot(CannonType weapon, uint32_t degree, uint32_t range);
+    bool RegisterShot(CannonType weapon, float degree, float range);
     void AccelRobot();
     void MoveRobot();
     void HitTheWall();
@@ -111,7 +111,7 @@ protected:
      * Return the robot's current facing, where 0 is to the right and the facing
      * increases positively counter-clockwise.
      */
-    uint32_t Facing();
+    float Facing();
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
         resolution. Scan() returns 0 if no robots are within the scan range or a
@@ -123,7 +123,7 @@ protected:
         Scan() can only be called at the robot's scansPerTick rate, which is initially 1.
         Any additional scans during the robot's Tick() method will return 0.
     */
-    uint32_t Scan(uint32_t degree, uint32_t resolution);
+    float Scan(float degree, float resolution);
 
     /*
         The Cannon() method chooses to fire a missile heading a specified range and
@@ -133,7 +133,7 @@ protected:
 
         Calling this multiple times in a Tick is pointless, only the last call matters.
     */
-    bool Cannon(uint32_t degree, uint32_t range);
+    bool Cannon(float degree, float range);
 
     /*
         The Drive() method activates the robot's drive mechanism, on a specified
@@ -144,7 +144,7 @@ protected:
 
         Calling this multiple times in a Tick is pointless, only the last call matters.
     */
-    void Drive(uint32_t degree, uint32_t speed);
+    void Drive(float degree, float speed);
 
     /*
         The Damage() method returns the current amount of damage incurred.
@@ -160,15 +160,15 @@ protected:
         not always be the same as the last drive(), because of acceleration and
         deceleration.
     */
-    uint32_t Speed();
+    float Speed();
 
     /*
         The LocX() method returns the robot's current x axis location. LocX()
         takes no arguments, and returns 0-999. The LocY() method is similar to
         LocX(), but returns the current y axis position. Location is in meters.
     */
-    uint32_t LocX();
-    uint32_t LocY();
+    float LocX();
+    float LocY();
 
     // Note - The mathematical functions are not required due to the C++ standard library.
     // https://cppreference.com/w/cpp/numeric/math.html
@@ -180,10 +180,10 @@ protected:
     uint32_t Rand(uint32_t limit);
 
     // Fetch the X dimension of the arena.
-    uint32_t GetArenaX();
+    float GetArenaX();
 
     // Fetch the Y dimension of the arena.
-    uint32_t GetArenaY();
+    float GetArenaY();
 };
 
 }

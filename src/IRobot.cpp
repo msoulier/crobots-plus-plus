@@ -27,27 +27,27 @@ IRobot::IRobot()
     m_desiredFacing = 0;
     m_facing = 0;
     m_damage = 0;
-    m_scansDuringTick = 0;
     m_cannonTimeUntilReload = 0;
     // This will need to eventually use a unique robot profile, but for now
     // everyone gets the same attributes.
     m_rounds = 65535; // TODO: use std::numeric_limits<uint16_t>::max() or UINT16_MAX
-    m_acceleration = 100;
-    m_braking = 100;
-    m_turnRate = 90;
+    m_acceleration = 1;
+    m_braking = 5;
+    m_turnRate = 5;
     m_cannonType = CannonType::Standard;
     m_cannonReloadTime = 3;
     // For now everyone has the same scanner.
-    m_scansPerTick = 1;
+    m_ticksPerScan = 10;
+    m_scanCountDown = 0;
 }
 
-uint32_t IRobot::LocX()
+float IRobot::LocX()
 {
     assert( m_currentX > 0 );
     return std::round(m_currentX);
 }
 
-uint32_t IRobot::LocY()
+float IRobot::LocY()
 {
     assert( m_currentY > 0 );
     return std::round(m_currentY);
@@ -83,19 +83,27 @@ uint32_t IRobot::Damage()
     return m_damage;
 }
 
-uint32_t IRobot::Facing()
+float IRobot::Facing()
 {
     return m_facing;
 }
 
-uint32_t IRobot::Speed()
+float IRobot::Speed()
 {
     return m_speed;
 }
 
-void IRobot::Drive(uint32_t degree, uint32_t speed)
+void IRobot::Drive(float degree, float speed)
 {
-    degree %= 360;
+    CROBOTS_LOG("Drive: degree = {}, speed = {}", degree, speed);
+    if (degree < 0)
+    {
+        degree = 0.0;
+    }
+    else if (degree > 360)
+    {
+        degree = 0.0;
+    }
     // TODO: use std::clamp
     if (speed < 0) {
         speed = 0;
@@ -104,16 +112,17 @@ void IRobot::Drive(uint32_t degree, uint32_t speed)
     }
     m_desiredFacing = degree;
     m_desiredSpeed = speed;
-    CROBOTS_LOG("desired facing {}, desired speed {}", m_desiredFacing, m_desiredSpeed);
+    CROBOTS_LOG("Drive: desired facing {}, desired speed {}", m_desiredFacing, m_desiredSpeed);
 }
 
-uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
+float IRobot::Scan(float degree, float resolution)
 {
-    m_scansDuringTick++;
-    if (m_scansDuringTick > m_scansPerTick)
+    if (m_scanCountDown > 0)
     {
+        m_scanCountDown--;
         return -1;
     }
+    m_scanCountDown = m_ticksPerScan;
     // We need to determine the bearing of each other robot to this one.
     // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise
     // to complete the circle, we can determine if the scan will ping off of one or more of them.
@@ -121,7 +130,7 @@ uint32_t IRobot::Scan(uint32_t degree, uint32_t resolution)
     return m_engine->ScanResult(GetId(), degree, resolution);
 }
 
-bool IRobot::Cannon(uint32_t degree, uint32_t range)
+bool IRobot::Cannon(float degree, float range)
 {
     return RegisterShot(m_cannonType, degree, range);
 }
@@ -133,7 +142,7 @@ bool IRobot::Cannon(uint32_t degree, uint32_t range)
 
 // Private methods that we want accessible indirectly but no direct access by Robots
 //----------------------------------------------------------------------------------
-bool IRobot::RegisterShot(CannonType weapon, uint32_t degree, uint32_t range)
+bool IRobot::RegisterShot(CannonType weapon, float degree, float range)
 {
     // FIXME
     // Note, we do not care if a robot calls Cannon(), which calls this method, multiple times
@@ -178,7 +187,6 @@ uint32_t IRobot::BoundedRand(uint32_t range)
 
 void IRobot::UpdateTickCounters()
 {
-    m_scansDuringTick = 0;
     m_cannotShotRegistered = false;
     // Manage cannon reload time.
     if (m_cannonTimeUntilReload > 0) {
@@ -203,6 +211,8 @@ void IRobot::AccelRobot()
     // Manage speed increase/decrease.
     if (m_speed != m_desiredSpeed)
     {
+        CROBOTS_LOG("speed is not desired speed: speed = {}, desired speed = {}",
+            m_speed, m_desiredSpeed);
         if (m_desiredSpeed > m_speed)
         {
             m_speed += m_acceleration;
@@ -219,13 +229,14 @@ void IRobot::AccelRobot()
                 m_speed = m_desiredSpeed;
             }
         }
+        CROBOTS_LOG("speed is now {}", m_speed);
     }
     // Manage facing changes.
     if (m_desiredFacing != m_facing)
     {
         // Turn left or right?
-        uint32_t left_distance = m_desiredFacing - m_facing;
-        uint32_t right_distance = m_facing + ( 360 - m_desiredFacing );
+        float left_distance = m_desiredFacing - m_facing;
+        float right_distance = m_facing + ( 360 - m_desiredFacing );
         if (left_distance < right_distance)
         {
             m_facing += m_turnRate;
@@ -251,18 +262,18 @@ void IRobot::MoveRobot()
     {
         return;
     }
-    uint32_t arenaX = m_engine->GetArena().GetX();
-    uint32_t arenaY = m_engine->GetArena().GetY();
+    float arenaX = m_engine->GetArena().GetX();
+    float arenaY = m_engine->GetArena().GetY();
     assert( arenaX > 0 );
     assert( arenaY > 0 );
 
     float radians = ToRadians(m_facing);
-    uint32_t myspeed = GetActualSpeed();
-    float x = GetActualSpeed() * std::cos(radians);
-    float y = GetActualSpeed() * std::sin(radians);
+    float myspeed = GetActualSpeed();
+    float x = myspeed * std::cos(radians);
+    float y = myspeed * std::sin(radians);
     m_nextX = m_currentX + x;
     m_nextY = m_currentY + y;
-    CROBOTS_LOG("speed is {}, x comp {}, y comp {}", GetActualSpeed(), m_nextX, m_nextY);
+    CROBOTS_LOG("speed is {}, x next {}, y next {}", myspeed, m_nextX, m_nextY);
     // Boundary check.
     if (m_nextX > arenaX)
     {
@@ -314,12 +325,12 @@ float IRobot::GetActualSpeed()
     return m_speed / 200.0;
 }
 
-uint32_t IRobot::GetArenaX()
+float IRobot::GetArenaX()
 {
     return m_engine->GetArena().GetX();
 }
 
-uint32_t IRobot::GetArenaY()
+float IRobot::GetArenaY()
 {
     return m_engine->GetArena().GetY();
 }
