@@ -231,25 +231,43 @@ void IRobot::AccelRobot()
     // Manage facing changes.
     if (m_desiredFacing != m_facing)
     {
+        CROBOTS_LOG("desired facing is not our facing: {} vs {}", m_desiredFacing, m_facing);
         // Turn left or right?
-        float left_distance = m_desiredFacing - m_facing;
-        float right_distance = m_facing + ( 360 - m_desiredFacing );
-        if (left_distance < right_distance)
+        float diff = 0.0f;
+        if (m_desiredFacing > m_facing)
         {
-            m_facing += m_turnRate;
-            if (m_facing > m_desiredFacing)
+            diff = m_desiredFacing - m_facing;
+            if (diff > 180.0f)
             {
-                m_facing = m_desiredFacing;
+                // turn right
+                m_facing -= m_turnRate;
+                CROBOTS_LOG("right turn");
+            }
+            else
+            {
+                // turn left
+                m_facing += m_turnRate;
+                CROBOTS_LOG("left turn");
             }
         }
         else
         {
-            m_facing -= m_turnRate;
-            if (m_facing < m_desiredFacing)
+            diff = m_facing - m_desiredFacing;
+            if (diff > 180.0f)
             {
-                m_facing = m_desiredFacing;
+                // turn left
+                m_facing += m_turnRate;
+                CROBOTS_LOG("left turn");
+            }
+            else
+            {
+                // turn right
+                m_facing -= m_turnRate;
+                CROBOTS_LOG("right turn");
             }
         }
+        m_facing = Mod360(m_facing);
+        CROBOTS_LOG("post mod360: {}", m_facing);
     }
 }
 
@@ -330,6 +348,16 @@ float IRobot::GetArenaX()
 float IRobot::GetArenaY()
 {
     return m_engine->GetArena().GetY();
+}
+
+float IRobot::Mod360(float number)
+{
+    float result = fmod(number, 360.0f);
+    if (result < 0)
+    {
+        result += 360.0f;
+    }
+    return result;
 }
 
 }

@@ -23,11 +23,12 @@ public:
     }
 
     uint32_t m_minimum_ticks_before_turn;
-    uint32_t m_arenaX;
-    uint32_t m_arenaY;
-    uint32_t m_last_scan_dir;
+    float m_arenaX;
+    float m_arenaY;
+    float m_last_scan_dir;
     uint32_t m_last_damage;
     bool m_last_scan_hit;
+    float m_arenaMargin = 10;
 
     std::string_view GetName() const override
     {
@@ -36,22 +37,22 @@ public:
 
     bool NearTopWall(uint32_t y)
     {
-        return y > (m_arenaY - 5);
+        return y > (m_arenaY - m_arenaMargin);
     }
 
     bool NearBottomWall(uint32_t y)
     {
-        return y < 5;
+        return y < m_arenaMargin;
     }
 
     bool NearRightWall(uint32_t x)
     {
-        return x > (m_arenaX - 5);
+        return x > (m_arenaX - m_arenaMargin);
     }
 
     bool NearLeftWall(uint32_t x)
     {
-        return x < 5;
+        return x < m_arenaMargin;
     }
 
     void Tick() override

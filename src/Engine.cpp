@@ -195,8 +195,6 @@ void Engine::UpdateArena()
     {
         robot->m_currentX = robot->m_nextX;
         robot->m_currentY = robot->m_nextY;
-        // FIXME: turn rate
-        robot->m_facing = robot->m_desiredFacing;
 
         // Dead?
         if (robot->m_damage < 100)

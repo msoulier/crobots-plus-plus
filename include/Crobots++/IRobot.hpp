@@ -97,6 +97,7 @@ private:
     void HitTheWall();
     bool IsDead();
     float GetActualSpeed();
+    float Mod360(float number);
 
     static Engine *m_engine;
 
