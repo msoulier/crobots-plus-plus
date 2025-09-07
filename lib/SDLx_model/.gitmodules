@@ -1,0 +1,6 @@
+[submodule "test/lib/SDL"]
+	path = test/lib/SDL
+	url = https://github.com/libsdl-org/SDL
+[submodule "test/lib/glm"]
+	path = test/lib/glm
+	url = https://github.com/g-truc/glm
