@@ -157,20 +157,8 @@ void Engine::PlaceRobots()
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
         // Start each robot at a random spot in the arena.
-        //robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
-        //robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
-        // Temporarily place the robots at a known position for testing.
-        if (count == 0)
-        {
-            robot->m_currentX = 1;
-            robot->m_currentY = 45;
-        }
-        else
-        {
-            robot->m_currentX = 45;
-            robot->m_currentY = 45;
-        }
-        count++;
+        robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
+        robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
         CROBOTS_LOG("placing robot {} to initial location {}x{}",
             robot->GetName(), robot->m_currentX, robot->m_currentY);
     }

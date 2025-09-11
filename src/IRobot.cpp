@@ -73,6 +73,16 @@ float IRobot::GetY() const
     return m_currentY;
 }
 
+float IRobot::GetFacing() const
+{
+    return m_facing;
+}
+
+float IRobot::GetDesiredFacing() const
+{
+    return m_desiredFacing;
+}
+
 uint32_t IRobot::Rand(uint32_t limit)
 {
     return BoundedRand(limit);

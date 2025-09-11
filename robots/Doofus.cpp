@@ -15,6 +15,9 @@ public:
         , m_last_scan_dir{720}
         , m_last_damage{0}
         , m_last_scan_hit{false}
+        , m_arenaMargin{10}
+        , m_turn_countdown{0}
+        , m_ticks_per_turn{100}
     {
         m_arenaX = GetArenaX();
         m_arenaY = GetArenaY();
@@ -28,29 +31,44 @@ public:
     float m_last_scan_dir;
     uint32_t m_last_damage;
     bool m_last_scan_hit;
-    float m_arenaMargin = 10;
+    float m_arenaMargin;
+    uint32_t m_turn_countdown;
+    uint32_t m_ticks_per_turn;
 
     std::string_view GetName() const override
     {
         return "Doofus";
     }
 
-    bool NearTopWall(uint32_t y)
+    bool NearWall(float x, float y)
+    {
+        if (NearTopWall(y) || NearBottomWall(y) ||
+            NearRightWall(x) || NearLeftWall(x))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    bool NearTopWall(float y)
     {
         return y > (m_arenaY - m_arenaMargin);
     }
 
-    bool NearBottomWall(uint32_t y)
+    bool NearBottomWall(float y)
     {
         return y < m_arenaMargin;
     }
 
-    bool NearRightWall(uint32_t x)
+    bool NearRightWall(float x)
     {
         return x > (m_arenaX - m_arenaMargin);
     }
 
-    bool NearLeftWall(uint32_t x)
+    bool NearLeftWall(float x)
     {
         return x < m_arenaMargin;
     }
@@ -60,15 +78,15 @@ public:
         // What is my current position?
         float currentX = LocX();
         float currentY = LocY();
-        float new_facing = Facing();
+        float facing = Facing();
         float scan_direction = 0;
         CROBOTS_LOG("Doofus: x = {}, y = {}, facing = {}, last_scan_dir = {}, damage = {}",
-            currentX, currentY, new_facing, m_last_scan_dir, Damage());
+            currentX, currentY, facing, m_last_scan_dir, Damage());
 
         if (m_last_scan_dir == 720)
         {
-            m_last_scan_dir = new_facing;
-            scan_direction = new_facing;
+            m_last_scan_dir = facing;
+            scan_direction = facing;
         }
         else
         {
@@ -84,56 +102,25 @@ public:
             }
         }
 
-        bool taking_damage = false;
-        uint32_t current_damage = Damage();
-        if (m_last_damage != current_damage)
+        if (NearWall(currentX, currentY))
         {
-            CROBOTS_LOG("We're taking damage!");
-            taking_damage = true;
-            m_last_damage = current_damage;
+            CROBOTS_LOG("near the wall - m_turn_countdown is {}", m_turn_countdown);
         }
-
-        if (NearTopWall(currentY))
+        if ((m_turn_countdown == 0) && NearWall(currentX, currentY))
         {
-            CROBOTS_LOG("I'm near the top wall");
-            new_facing = 270;
-        }
-        else if (NearBottomWall(currentY))
-        {
-            CROBOTS_LOG("I am near the bottom wall");
-            new_facing = 90;
-        }
-        else if (NearLeftWall(currentX))
-        {
-            CROBOTS_LOG("I am near the left wall");
-            new_facing = 0;
-        }
-        else if (NearRightWall(currentX))
-        {
-            CROBOTS_LOG("I am near the right wall");
-            new_facing = 180;
-        }
-
-        float range = 0;
-        if (range = Scan(scan_direction, 45) > 0)
-        {
-            CROBOTS_LOG("Scan turned up a hit! direction {}, range {}", scan_direction, range);
+            CROBOTS_LOG("ready to turn, and near the wall");
+            facing -= 90;
+            facing = Mod360(facing);
+            Drive(facing, 50);
+            m_turn_countdown = m_ticks_per_turn;
         }
         else
         {
-            CROBOTS_LOG("Nothing on the scan");
-            m_last_scan_hit = false;
-        }
-
-        if (m_minimum_ticks_before_turn > 0 && !taking_damage)
-        {
-            m_minimum_ticks_before_turn--;
-        }
-        else
-        {
-            m_minimum_ticks_before_turn = 20;
-            Drive(new_facing, 100);
-            CROBOTS_LOG("Driving full speed, heading {}", new_facing);
+            if (m_turn_countdown > 0)
+            {
+                m_turn_countdown--;
+            }
+            Drive(GetDesiredFacing(), 100);
         }
     }
 };

@@ -37,6 +37,7 @@ public:
     void SetId(uint32_t id);
     float GetX() const;
     float GetY() const;
+    float GetFacing() const;
 
 private:
     // This id should be a simple integer uniquely identifying the robot based on the order
@@ -97,7 +98,6 @@ private:
     void HitTheWall();
     bool IsDead();
     float GetActualSpeed();
-    float Mod360(float number);
 
     static Engine *m_engine;
 
@@ -113,6 +113,8 @@ protected:
      * increases positively counter-clockwise.
      */
     float Facing();
+    // Return the robot's current desired facing.
+    float GetDesiredFacing() const;
     /*
         The Scan() method invokes the robot's scanner, at a specified degree and
         resolution. Scan() returns 0 if no robots are within the scan range or a
@@ -185,6 +187,9 @@ protected:
 
     // Fetch the Y dimension of the arena.
     float GetArenaY();
+
+    // Modulo 360 operation.
+    float Mod360(float number);
 };
 
 }
