@@ -120,7 +120,13 @@ public:
             {
                 m_turn_countdown--;
             }
-            Drive(GetDesiredFacing(), 100);
+            uint32_t speed = 100;
+            if (GetDesiredFacing() != GetFacing())
+            {
+                // We're still turning.
+                speed = 50;
+            }
+            Drive(GetDesiredFacing(), speed);
         }
     }
 };
