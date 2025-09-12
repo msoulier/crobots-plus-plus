@@ -2,6 +2,7 @@
 
 #include <string_view>
 #include <cstdint>
+#include <random>
 
 #include "Crobots++/Log.hpp"
 
@@ -106,6 +107,9 @@ private:
 
     static float ToDegrees(float radians);
     static float ToRadians(float degrees);
+
+    static std::random_device rd;
+    static std::mt19937 gen;
 
 protected:
     /*

@@ -80,8 +80,10 @@ public:
         float currentY = LocY();
         float facing = Facing();
         float scan_direction = 0;
+        uint32_t damage = Damage();
+
         CROBOTS_LOG("Doofus: x = {}, y = {}, facing = {}, last_scan_dir = {}, damage = {}",
-            currentX, currentY, facing, m_last_scan_dir, Damage());
+            currentX, currentY, facing, m_last_scan_dir, damage);
 
         if (m_last_scan_dir == 720)
         {
@@ -102,11 +104,26 @@ public:
             }
         }
 
+        float range = Scan(scan_direction, 45);
+        if (range > 0)
+        {
+            CROBOTS_LOG("===> Scan got a hit: direction {}, range {}", scan_direction, range);
+        }
+
         if (NearWall(currentX, currentY))
         {
             CROBOTS_LOG("near the wall - m_turn_countdown is {}", m_turn_countdown);
         }
-        if ((m_turn_countdown == 0) && NearWall(currentX, currentY))
+        if (m_last_damage != damage)
+        {
+            CROBOTS_LOG("taking damage, turn now");
+            m_last_damage = damage;
+            facing -= 45;
+            facing = Mod360(facing);
+            Drive(facing, 50);
+            m_turn_countdown = m_ticks_per_turn;
+        }
+        else if ((m_turn_countdown == 0) && NearWall(currentX, currentY))
         {
             CROBOTS_LOG("ready to turn, and near the wall");
             facing -= 90;

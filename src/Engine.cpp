@@ -16,6 +16,7 @@ namespace Crobots
 void Engine::Init(Crobots::Arena arena)
 {
     m_arena = arena;
+    // Static member initialization
     IRobot::SetEngine(this);
 }
 
