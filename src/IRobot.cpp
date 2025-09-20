@@ -42,6 +42,13 @@ IRobot::IRobot()
     // For now everyone has the same scanner.
     m_ticksPerScan = 10;
     m_scanCountDown = 0;
+    
+    m_deathdata = {
+        DamageType::Alive,
+        {
+            {0.0f, 0.0f, 0.0f, 0.0f}
+        }
+    };
 }
 
 float IRobot::LocX()
@@ -94,6 +101,16 @@ uint32_t IRobot::Rand(uint32_t limit)
 uint32_t IRobot::Damage()
 {
     return m_damage;
+}
+
+struct DeathData IRobot::GetDeathData() const
+{
+    return m_deathdata;
+}
+
+void IRobot::SetDeathData(struct DeathData deathdata)
+{
+    m_deathdata = deathdata;
 }
 
 float IRobot::Facing()
@@ -306,6 +323,16 @@ void IRobot::MoveRobot()
 void IRobot::HitTheWall()
 {
     m_damage += 5;
+    if (m_damage >= 100)
+    {
+        struct DeathData ddata = {
+            DamageType::HitWall,
+            {
+                { GetX(), GetY(), 100, GetFacing() }
+            }
+        };
+        SetDeathData(ddata);
+    }
 }
 
 bool IRobot::IsDead()

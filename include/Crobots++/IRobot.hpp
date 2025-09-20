@@ -12,6 +12,41 @@ namespace Crobots
 // Forward declaration
 class Engine;
 
+enum class DamageType
+{
+    Alive,
+    Cannon,
+    HitRobot,
+    HitWall,
+}; 
+
+struct CollisionDeathData
+{
+    float VelocityX;
+    float VelocityY;
+    float Mass;
+    float Heading;
+};
+
+struct CannonDeathData
+{
+    float VelocityX;
+    float VelocityY;
+    float Mass;
+    float Heading;
+};
+
+struct DeathData
+{
+    DamageType Type;
+    union
+    {
+        CannonDeathData CannonData;
+        CollisionDeathData CollisionData;
+        // other stuff
+    };
+};
+
 enum class CannonType
 {
     Standard
@@ -39,6 +74,8 @@ public:
     float GetX() const;
     float GetY() const;
     float GetFacing() const;
+
+    struct DeathData GetDeathData() const;
 
 private:
     // This id should be a simple integer uniquely identifying the robot based on the order
@@ -91,6 +128,8 @@ private:
     CannonType m_cannonType;
     uint32_t m_cannonReloadTime;
     float m_cannonShotMaxRange;
+
+    struct DeathData m_deathdata;
 
     void UpdateTickCounters();
     bool RegisterShot(CannonType weapon, float degree, float range);
@@ -194,6 +233,8 @@ protected:
 
     // Modulo 360 operation.
     float Mod360(float number);
+
+    void SetDeathData(struct DeathData deathdata);
 };
 
 }
