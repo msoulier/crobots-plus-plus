@@ -164,10 +164,11 @@ protected:
         positive integer representing the range to the closest robot. Degree should
         be within the range 0-359, otherwise degree is forced into 0-359 by a modulo
         360 operation, and made positive if necessary. Resolution controls the
-        scanner's sensing resolution, up to +/- 10 degrees.
+        scanner's sensing resolution, up to +/- 5 degrees, so 10 degrees in total.
 
-        Scan() can only be called at the robot's scansPerTick rate, which is initially 1.
-        Any additional scans during the robot's Tick() method will return 0.
+        Scanning takes time, so a scan result can only be returned at a rate of m_ticksPerScan.
+        Each Scan call reduces a counter by 1 until it reaches 0 and a scan can be made.
+        Scan returns -1 if a scan cannot be performed yet.
     */
     float Scan(float degree, float resolution);
 

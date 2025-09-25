@@ -95,7 +95,7 @@ void Engine::AddShots()
     }
 }
 
-float Engine::ScanResult(uint32_t robot_id, uint32_t facing, uint32_t resolution) const
+float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) const
 {
     float result = 0;
 
@@ -150,8 +150,8 @@ float Engine::ScanResult(uint32_t robot_id, uint32_t facing, uint32_t resolution
             degrees += 360.0f;
         }
         CROBOTS_LOG("ScanResult: They are {} away bearing {} - we're scanning at {}", radius, degrees, facing);
-        float lowerbound = (float)facing - ((float)resolution / 2.0f);
-        float upperbound = (float)facing + ((float)resolution / 2.0f);
+        float lowerbound = facing - (resolution / 2.0f);
+        float upperbound = facing + (resolution / 2.0f);
         // Now, to get a hit off of this contact, the scan direction plus or minus half of the resolution
         // must pass over the bearing.
         if ((lowerbound <= degrees) && (upperbound >= degrees))

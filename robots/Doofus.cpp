@@ -18,6 +18,7 @@ public:
         , m_arenaMargin{10}
         , m_turn_countdown{0}
         , m_ticks_per_turn{100}
+        , m_resolution{45.0f}
     {
         m_arenaX = GetArenaX();
         m_arenaY = GetArenaY();
@@ -34,6 +35,7 @@ public:
     float m_arenaMargin;
     uint32_t m_turn_countdown;
     uint32_t m_ticks_per_turn;
+    float m_resolution;
 
     std::string_view GetName() const override
     {
@@ -104,12 +106,22 @@ public:
             }
         }
 
-        float range = Scan(scan_direction, 45);
+        float range = Scan(scan_direction, m_resolution);
         if (range > 0)
         {
             CROBOTS_LOG("===> Scan got a hit: direction {}, range {}", scan_direction, range);
             Drive(scan_direction, 100);
+            // Tighten the resolution.
+            m_resolution /= 2.0f;
+            if (m_resolution < 10.0f)
+            {
+                m_resolution = 10.0f;
+            }
             return;
+        }
+        else
+        {
+            m_resolution = 45.0f;
         }
 
         if (NearWall(currentX, currentY))
