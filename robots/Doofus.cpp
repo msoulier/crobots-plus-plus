@@ -108,6 +108,8 @@ public:
         if (range > 0)
         {
             CROBOTS_LOG("===> Scan got a hit: direction {}, range {}", scan_direction, range);
+            Drive(scan_direction, 100);
+            return;
         }
 
         if (NearWall(currentX, currentY))

@@ -4,6 +4,7 @@
 #include <vector>
 #include <cassert>
 #include <numbers>
+#include <iostream>
 
 #include "Crobots++/IRobot.hpp"
 #include "Api.hpp"
@@ -126,14 +127,34 @@ float Engine::ScanResult(uint32_t robot_id, uint32_t facing, uint32_t resolution
 
         // Now convert the "to" robot to polar coordinates.
         // https://www.mathsisfun.com/polar-cartesian-coordinates.html
-        float radius = sqrt( pow(diffX, 2) + pow(diffY, 2) );
+        float radius = sqrt( ( diffX*diffX ) + ( diffY*diffY ) );
+        assert( radius >= 0 );
         // FIXME: if radius > scanner_range, return 0
         float radians = atan2( diffY, diffX );
         float degrees = IRobot::ToDegrees(radians);
-        // Adjust for quadrant. ?
+        // Adjust for quadrant.
+        if ((diffX >= 0) && (diffY >= 0))
+        {
+            degrees = degrees;
+        }
+        else if ((diffX < 0) && (diffY >= 0))
+        {
+            degrees += 180.0f;
+        }
+        else if ((diffX < 0) && (diffY < 0))
+        {
+            degrees += 180.0f;
+        }
+        else
+        {
+            degrees += 360.0f;
+        }
+        CROBOTS_LOG("ScanResult: They are {} away bearing {} - we're scanning at {}", radius, degrees, facing);
+        float lowerbound = (float)facing - ((float)resolution / 2.0f);
+        float upperbound = (float)facing + ((float)resolution / 2.0f);
         // Now, to get a hit off of this contact, the scan direction plus or minus half of the resolution
         // must pass over the bearing.
-        if (((facing - (resolution / 2)) <= degrees) && ((facing + (resolution / 2)) >= degrees))
+        if ((lowerbound <= degrees) && (upperbound >= degrees))
         {
             CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, degrees, radius);
             // we have a hit we only return the closest one
