@@ -174,9 +174,9 @@ protected:
 
     /*
         The Cannon() method chooses to fire a missile heading a specified range and
-        direction. Cannon() returns 1 (true) if a missile was fired, or 0 (false) if
+        direction. Cannon() returns true if a missile was fired, or false if
         the cannon is reloading. Degree is forced into the range 0-359 as in scan().
-        Range can be 0-700, with greater ranges truncated to 700.
+        Range can be 0-700, with greater ranges truncated to 700. FIXME
 
         Calling this multiple times in a Tick is pointless, only the last call matters.
     */

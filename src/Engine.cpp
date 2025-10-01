@@ -91,6 +91,8 @@ void Engine::AddShots()
                       robot->m_cannonShotSpeed,
                       robot->m_cannonShotRange);
             AddShot(shot);
+            robot->m_cannotShotRegistered = false;
+            robot->m_cannonTimeUntilReload = robot->m_cannonReloadTime;
         }
     }
 }

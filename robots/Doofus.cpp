@@ -117,6 +117,16 @@ public:
             {
                 m_resolution = 10.0f;
             }
+            // And lets shoot at it if we can.
+            bool shotfired = Cannon(scan_direction, range);
+            if (shotfired)
+            {
+                CROBOTS_LOG("Bang!");
+            }
+            else
+            {
+                CROBOTS_LOG("Still reloading...");
+            }
             return;
         }
         else

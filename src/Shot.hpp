@@ -7,12 +7,14 @@ namespace Crobots {
 // This class represents a shot in-flight, guided or unguided.
 // Initially just an unguide cannon shot, but maybe more in the future.
 class Shot {
+private:
+    friend class Engine;
 public:
     Shot(float initialX,
          float initialY,
-         uint32_t facing,
-         uint32_t speed,
-         uint32_t range);
+         float facing,
+         float speed,
+         float range);
     Shot(const Shot&) = default;
     const Shot& operator=(const Shot& other);
 
@@ -25,12 +27,14 @@ private:
     float m_nextX;
     float m_nextY;
     // Current speed
-    uint32_t m_speed;
+    float m_speed;
     // Facing we currently have.
-    uint32_t m_facing;
+    float m_facing;
     // Range of the shot. How long will it be in the air.
     // It gets decremented for every meter it moves.
-    uint32_t m_range;
+    float m_range;
+    // Remaining range until detonation.
+    float m_remainingRange;
 };
 
 }
