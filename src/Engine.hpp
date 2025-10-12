@@ -20,6 +20,19 @@
 namespace Crobots
 {
 
+class Position
+{
+public:
+    Position(float x, float y);
+    float GetX();
+    float GetY();
+    void SetX(float x);
+    void SetY(float y);
+private:
+    float m_x;
+    float m_y;
+};
+
 class Engine
 {
 public:
@@ -35,6 +48,10 @@ public:
     const Arena& GetArena() const;
     const std::vector<std::shared_ptr<IRobot>>& GetRobots() const;
 
+    // This method is a utility method for computing a position a provided
+    // distance along the current path of an object.
+    static Position GetPositionAhead(float x, float y, float facing, float distance);
+
 private:
     std::vector<std::shared_ptr<IRobot>> m_robots;
     std::vector<Shot> m_shots;
@@ -47,6 +64,7 @@ private:
     void DetonateShots();
     void UpdateArena();
     void GameOver();
+
 };
 
 }

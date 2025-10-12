@@ -323,6 +323,7 @@ void IRobot::MoveRobot()
 void IRobot::HitTheWall()
 {
     m_damage += 5;
+    m_speed = 0;
     if (m_damage >= 100)
     {
         struct DeathData ddata = {

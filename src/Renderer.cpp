@@ -122,6 +122,10 @@ void Renderer::Present(const Engine& engine, Camera& camera)
         for (auto& robot : robots)
         {
             Draw("default", arena.GetX() - robot->GetX(), 0.0f, robot->GetY(), 0.0f);
+            Position offset = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetFacing(), 10.0f);
+            SDLx_GPURenderLine3D(m_renderer, robot->GetX(), robot->GetY(), 0.0f,
+                offset.GetX(), offset.GetY(), 0.0f,
+                0x55555555);
         }
     }
     SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);

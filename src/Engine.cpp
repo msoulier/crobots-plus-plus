@@ -14,6 +14,31 @@
 namespace Crobots
 {
 
+Position::Position(float x, float y)
+:   m_x{x}
+,   m_y{y}
+{}
+
+float Position::GetX()
+{
+    return m_x;
+}
+
+float Position::GetY()
+{
+    return m_y;
+}
+
+void Position::SetX(float x)
+{
+    m_x = x;
+}
+
+void Position::SetY(float y)
+{
+    m_y = y;
+}
+
 void Engine::Init(Crobots::Arena arena)
 {
     m_arena = arena;
@@ -225,6 +250,17 @@ void Engine::GameOver()
     // We'll do more in the future. For now just shut down.
     CROBOTS_LOG("Game over");
     exit(0);
+}
+
+Position Engine::GetPositionAhead(float x, float y, float facing, float distance)
+{
+    Position position(x, y);
+    float radians = IRobot::ToRadians(facing);
+    float diffx = distance * std::cos(radians);
+    float diffy = distance * std::sin(radians);
+    position.SetX(x + diffx);
+    position.SetY(y + diffy);
+    return position;
 }
 
 }
