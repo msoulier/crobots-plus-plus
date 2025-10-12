@@ -38,7 +38,7 @@ IRobot::IRobot()
     m_braking = 5;
     m_turnRate = 5;
     m_cannonType = CannonType::Standard;
-    m_cannonReloadTime = 3;
+    m_cannonReloadTime = 50;
     // For now everyone has the same scanner.
     m_ticksPerScan = 10;
     m_scanCountDown = 0;
@@ -161,6 +161,11 @@ float IRobot::Scan(float degree, float resolution)
 
 bool IRobot::Cannon(float degree, float range)
 {
+    if (m_cannonTimeUntilReload > 0)
+    {
+        m_cannonTimeUntilReload--;
+        return false;
+    }
     return RegisterShot(m_cannonType, degree, range);
 }
 
