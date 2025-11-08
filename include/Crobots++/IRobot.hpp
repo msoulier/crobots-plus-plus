@@ -144,9 +144,11 @@ private:
     static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
 
+public:
     static float ToDegrees(float radians);
     static float ToRadians(float degrees);
 
+private:
     static std::random_device rd;
     static std::mt19937 gen;
 

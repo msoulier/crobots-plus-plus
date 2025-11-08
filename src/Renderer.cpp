@@ -121,11 +121,11 @@ void Renderer::Present(const Engine& engine, Camera& camera)
         auto& robots = engine.GetRobots();
         for (auto& robot : robots)
         {
-            Draw("default", arena.GetX() - robot->GetX(), 0.0f, robot->GetY(), 0.0f);
-            Position offset = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetFacing(), 10.0f);
-            SDLx_GPURenderLine3D(m_renderer, robot->GetX(), 0.0f, robot->GetY(),
-                offset.GetX(), 0.0f, offset.GetY(),
-                0x55555555);
+            Draw("default", arena.GetX() - robot->GetX(), 0.0f, robot->GetY(), IRobot::ToRadians(robot->GetFacing()), 0.1f);
+            Position offset = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetFacing(), 100.0f);
+            SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
+                arena.GetX() - offset.GetX(), 0.0f, offset.GetY(),
+                0xFF00FFFF);
         }
     }
     SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);
@@ -144,20 +144,19 @@ void Renderer::Present(const Engine& engine, Camera& camera)
     SDL_SubmitGPUCommandBuffer(commandBuffer);
 }
 
-void Renderer::Draw(const std::string& path, float x, float y, float z, float yaw)
+void Renderer::Draw(const std::string& path, float x, float y, float z, float yaw, float scale)
 {
     SDLx_Model* model = SDLx_GPUGetModel(m_renderer, path.data(), SDLX_MODELTYPE_VOXOBJ);
     if (!model)
     {
         return;
     }
-    static constexpr float Scale = 0.1f;
     glm::mat4 transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, glm::vec3{x, y, z} - glm::vec3{0.0f, model->min.y * Scale, 0.0f});
+    transform = glm::translate(transform, glm::vec3{x, y, z} - glm::vec3{0.0f, model->min.y * scale, 0.0f});
     transform = glm::rotate(transform, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
     // transform = glm::rotate(transform, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     // transform = glm::rotate(transform, 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-    transform = glm::scale(transform, glm::vec3{Scale});
+    transform = glm::scale(transform, glm::vec3{scale});
     SDLx_GPURenderModel(m_renderer, path.data(), &transform, SDLX_MODELTYPE_VOXOBJ);
 }
 

@@ -20,7 +20,16 @@ public:
     bool Init();
     void Quit();
     void Present(const Engine& engine, Camera& canera);
-    void Draw(const std::string& path, float x, float y, float z, float yaw);
+
+    /**
+     * @param path The name of the robot model
+     * @param x The x position (center of model)
+     * @param y The y position (bottom of model)
+     * @param z The z position (center of model)
+     * @param yaw The rotation around the y axis (radians)
+     * @param scale The scale of the robot (robots use 0.1f)
+     */
+    void Draw(const std::string& path, float x, float y, float z, float yaw, float scale);
     void Draw(const std::string& text, float x, float y, uint32_t color);
 
 private:
