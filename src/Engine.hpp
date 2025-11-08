@@ -40,13 +40,14 @@ public:
     Engine(const Engine&) = delete;
     const Engine& operator=(const Engine&) = delete;
 
-    void Init(Arena arena);
+    void Init(Arena arena, bool debug);
     void Load(std::vector<std::shared_ptr<IRobot>>&& robots);
     void Tick();
     float ScanResult(uint32_t robot_id, float degree, float resolution) const;
     void AddShot(Shot shot);
     const Arena& GetArena() const;
     const std::vector<std::shared_ptr<IRobot>>& GetRobots() const;
+    bool DebugEnabled() const;
 
     // This method is a utility method for computing a position a provided
     // distance along the current path of an object.
@@ -56,6 +57,7 @@ private:
     std::vector<std::shared_ptr<IRobot>> m_robots;
     std::vector<Shot> m_shots;
     Arena m_arena;
+    bool m_debug;
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();

@@ -23,6 +23,8 @@ struct AppInfo
 	std::string robot2_path;
 	std::string robot3_path;
 	std::string robot4_path;
+    bool debug;
+    bool verbose;
 };
 
 class App

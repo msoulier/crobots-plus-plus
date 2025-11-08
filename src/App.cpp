@@ -30,7 +30,7 @@ bool App::Init(const AppInfo& info)
     CROBOTS_LOG("Creating arena dimensions {} and {}", info.arenaX, info.arenaY);
     Arena arena(info.arenaX, info.arenaY);
     Loader loader;
-    m_engine.Init(arena);
+    m_engine.Init(arena, info.debug);
 	if (! loader.Load(info.robot1_path, 1))
 	{
 		std::cerr << "Failed to load " << info.robot1_path << std::endl;

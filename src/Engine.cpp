@@ -39,9 +39,10 @@ void Position::SetY(float y)
     m_y = y;
 }
 
-void Engine::Init(Crobots::Arena arena)
+void Engine::Init(Crobots::Arena arena, bool debug)
 {
     m_arena = arena;
+    m_debug = debug;
     // Static member initialization
     IRobot::SetEngine(this);
 }
@@ -49,6 +50,11 @@ void Engine::Init(Crobots::Arena arena)
 const Arena& Engine::GetArena() const
 {
     return m_arena;
+}
+
+bool Engine::DebugEnabled() const
+{
+    return m_debug;
 }
 
 const std::vector<std::shared_ptr<Crobots::IRobot>>& Engine::GetRobots() const

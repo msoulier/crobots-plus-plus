@@ -10,6 +10,7 @@
 
 // Verbose logging.
 static bool verbose = false;
+static bool debug = false;
 static uint32_t arenaX = 100;
 static uint32_t arenaY = 100;
 // FIXME: make logpath configurable
@@ -41,6 +42,7 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
     argv = parser.ensure_utf8(argv);
 
     parser.add_flag("-v,--verbose", verbose, "Verbose logging");
+    parser.add_flag("-d,--debug", debug, "Enable debug features");
     parser.add_option("-x,--arena-x", arenaX, "Arena X dimension (default 1000)")->check(CLI::Number);
     parser.add_option("-y,--arena-y", arenaY, "Arena Y dimension (default 1000)")->check(CLI::Number);
     parser.add_option("-l,--logfile", logFile, "Path to logfile (default crobots++.log)");
@@ -66,6 +68,8 @@ static bool ParseOptions(int argc, char** argv, Crobots::AppInfo& info)
 	info.robot2_path = "";
 	info.robot3_path = "";
 	info.robot4_path = "";
+    info.debug = debug;
+    info.verbose = verbose;
 	if (! robot1_path.empty())
 	{
 		info.nrobots++;
