@@ -6,6 +6,8 @@
 
 #include <Crobots++/IRobot.hpp>
 
+#include "Engine.hpp"
+
 namespace Crobots {
 
 class Loader

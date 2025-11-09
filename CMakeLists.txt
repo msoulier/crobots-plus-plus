@@ -15,11 +15,12 @@ configure_file(README.md ${BINARY_DIR} COPYONLY)
 configure_file(fonts/RasterForgeRegular.ttf ${BINARY_DIR} COPYONLY)
 
 add_library(crobots_api
-    src/IRobot.cpp
-    src/Engine.cpp
     src/Arena.cpp
-    src/Shot.cpp
+    src/Engine.cpp
+    src/InternalRobotProxy.cpp
+    src/IRobot.cpp
     src/Log.cpp
+    src/Shot.cpp
 )
 set_target_properties(crobots_api PROPERTIES CXX_STANDARD 23)
 set_target_properties(crobots_api PROPERTIES POSITION_INDEPENDENT_CODE ON)

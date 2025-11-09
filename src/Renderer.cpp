@@ -122,12 +122,13 @@ void Renderer::Present(const Engine& engine, Camera& camera)
         for (auto& robot : robots)
         {
             Draw("default", arena.GetX() - robot->GetX(), 0.0f, robot->GetY(), IRobot::ToRadians(robot->GetFacing()), 0.1f);
-            Position offset = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetFacing(), 100.0f);
             // Draw debug lines if debug is enabled.
             if (engine.DebugEnabled())
             {
+                // The facing line
+                Position facing = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetFacing(), 50.0f);
                 SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
-                    arena.GetX() - offset.GetX(), 0.0f, offset.GetY(),
+                    arena.GetX() - facing.GetX(), 0.0f, facing.GetY(),
                     0xFF00FFFF);
             }
         }

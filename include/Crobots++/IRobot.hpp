@@ -10,7 +10,8 @@ namespace Crobots
 {
 
 // Forward declaration
-class Engine;
+class Engine; // remove?
+class InternalRobotProxy;
 
 enum class DamageType
 {
@@ -52,6 +53,7 @@ enum class CannonType
     Standard
 };
 
+
 class IRobot
 {
 private:
@@ -76,6 +78,18 @@ public:
     float GetFacing() const;
 
     struct DeathData GetDeathData() const;
+
+    static float ToDegrees(float radians);
+    static float ToRadians(float degrees);
+
+    template<typename T>
+    static IRobot* Create(const std::shared_ptr<InternalRobotProxy>& proxy)
+    {
+        IRobot* robot = new T();
+        robot->m_proxy = proxy;
+        return robot;
+    }
+
 
 private:
     // This id should be a simple integer uniquely identifying the robot based on the order
@@ -139,16 +153,12 @@ private:
     bool IsDead();
     float GetActualSpeed();
 
+    std::shared_ptr<InternalRobotProxy> m_proxy;
+
     static Engine *m_engine;
 
     static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
-
-public:
-    static float ToDegrees(float radians);
-    static float ToRadians(float degrees);
-
-private:
     static std::random_device rd;
     static std::mt19937 gen;
 

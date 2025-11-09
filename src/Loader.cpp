@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "Crobots++/InternalRobotProxy.hpp"
 #include "Loader.hpp"
 
 namespace Crobots {
@@ -31,6 +32,7 @@ bool Loader::Load(const std::string& name, uint32_t id)
     filename = "lib" + filename + ".so";
     filename = "./" + filename;
 #endif
+    // FIXME: Unload when done?
     SDL_SharedObject *plugin = SDL_LoadObject(filename.c_str());
     if (!plugin)
     {
@@ -39,7 +41,7 @@ bool Loader::Load(const std::string& name, uint32_t id)
     }
 
     // Cast SDL_FunctionPointer to the correct function type
-    using GetRobotFunc = Crobots::IRobot* (*)();
+    using GetRobotFunc = Crobots::IRobot* (*)(std::shared_ptr<InternalRobotProxy> proxy);
     GetRobotFunc fcn = reinterpret_cast<GetRobotFunc>(SDL_LoadFunction(plugin, "GetRobot"));
     if (!fcn)
     {
@@ -47,7 +49,10 @@ bool Loader::Load(const std::string& name, uint32_t id)
         return false;
     }
 
-    std::unique_ptr<Crobots::IRobot> robot(fcn());
+    auto proxy = std::make_shared<InternalRobotProxy>(id);
+
+    std::unique_ptr<Crobots::IRobot> robot(fcn(proxy));
+    // FIXME: obsolete
     robot->SetId(id);
     m_robots.push_back(std::move(robot));
 
