@@ -23,4 +23,14 @@ float InternalRobotProxy::ScanResult(uint32_t id, float degree, float resolution
     return m_engine->ScanResult(id, degree, resolution);
 }
 
+uint32_t InternalRobotProxy::GetId() const
+{
+    return m_id;
+}
+
+void InternalRobotProxy::SetId(const uint32_t id)
+{
+    m_id = id;
+}
+
 }

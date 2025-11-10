@@ -20,6 +20,8 @@ public:
         , m_ticks_per_turn{100}
         , m_resolution{45.0f}
     {}
+    // Note: API functions should not be used in the constructor, they are not ready until after
+    // the constructor returns.
 
     uint32_t m_minimum_ticks_before_turn;
     float m_arenaX;
@@ -83,30 +85,31 @@ public:
         float currentX = LocX();
         float currentY = LocY();
         float facing = Facing();
-        float scan_direction = 0;
+        float scan_direction = GetScanDir();
         uint32_t damage = Damage();
 
         CROBOTS_LOG("Doofus: x = {}, y = {}, facing = {}, last_scan_dir = {}, damage = {}",
             currentX, currentY, facing, m_last_scan_dir, damage);
 
-        if (m_last_scan_dir == 720)
-        {
-            m_last_scan_dir = facing;
-            scan_direction = facing;
-        }
-        else
-        {
-            if (m_last_scan_hit)
-            {
-                // FIXME: tighten the scan - track the target
-                scan_direction = m_last_scan_dir;
-            }
-            else
-            {
-                // Keep rotating scan like a radar.
-                scan_direction += 90;
-            }
-        }
+        // if (m_last_scan_dir == 720)
+        // {
+        //     m_last_scan_dir = facing;
+        //     scan_direction = facing;
+        // }
+        // else
+        // {
+        //     if (m_last_scan_hit)
+        //     {
+        //         // FIXME: tighten the scan - track the target
+        //         scan_direction = m_last_scan_dir;
+        //     }
+        //     else
+        //     {
+        //         // Keep rotating scan like a radar.
+        //         scan_direction += 10;
+        //     }
+        // }
+        scan_direction += 10;
 
         float range = Scan(scan_direction, m_resolution);
         if (range > 0)

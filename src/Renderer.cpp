@@ -130,6 +130,28 @@ void Renderer::Present(const std::shared_ptr<Engine> engine, Camera& camera)
                 SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
                     arena.GetX() - facing.GetX(), 0.0f, facing.GetY(),
                     0xFF00FFFF);
+                // The center scan line
+                Position scandir = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetScanDir(), 60.0f);
+                SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
+                    arena.GetX() - scandir.GetX(), 0.0f, scandir.GetY(),
+                    0x00FFFFFF);
+                float resolution = robot->GetResolution();
+                // The right boundary of the scan
+                Position scanright = Engine::GetPositionAhead(robot->GetX(),
+                                                              robot->GetY(),
+                                                              robot->GetScanDir()+(resolution/2),
+                                                              60.0f);
+                SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
+                    arena.GetX() - scanright.GetX(), 0.0f, scanright.GetY(),
+                    0x00FFFFFF);
+                // The left boundary of the scan
+                Position scanleft = Engine::GetPositionAhead(robot->GetX(),
+                                                             robot->GetY(),
+                                                             robot->GetScanDir()-(resolution/2),
+                                                             60.0f);
+                SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
+                    arena.GetX() - scanleft.GetX(), 0.0f, scanleft.GetY(),
+                    0x00FFFFFF);
             }
         }
     }

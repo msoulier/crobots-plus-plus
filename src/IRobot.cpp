@@ -41,6 +41,8 @@ IRobot::IRobot()
     // For now everyone has the same scanner.
     m_ticksPerScan = 10;
     m_scanCountDown = 0;
+    m_scan_dir = 0;
+    m_resolution =  0;
     
     m_deathdata = {
         DamageType::Alive,
@@ -64,12 +66,14 @@ float IRobot::LocY()
 
 uint32_t IRobot::GetId() const
 {
-    return m_id;
+    assert(m_proxy != nullptr);
+    return m_proxy->GetId();
 }
 
 void IRobot::SetId(uint32_t id)
 {
-    m_id = id;
+    assert(m_proxy != nullptr);
+    m_proxy->SetId(id);
 }
 
 float IRobot::GetX() const
@@ -85,6 +89,16 @@ float IRobot::GetY() const
 float IRobot::GetFacing() const
 {
     return m_facing;
+}
+
+float IRobot::GetScanDir() const
+{
+    return m_scan_dir;
+}
+
+float IRobot::GetResolution() const
+{
+    return m_resolution;
 }
 
 float IRobot::GetDesiredFacing() const
@@ -151,6 +165,9 @@ float IRobot::Scan(float degree, float resolution)
         return -1;
     }
     m_scanCountDown = m_ticksPerScan;
+    // FIXME: Should the scanner have a rate of rotation?
+    m_scan_dir = degree;
+    m_resolution = resolution;
     // We need to determine the bearing of each other robot to this one.
     // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise
     // to complete the circle, we can determine if the scan will ping off of one or more of them.

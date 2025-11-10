@@ -75,6 +75,8 @@ public:
     float GetX() const;
     float GetY() const;
     float GetFacing() const;
+    float GetScanDir() const;
+    float GetResolution() const;
 
     struct DeathData GetDeathData() const;
 
@@ -91,10 +93,6 @@ public:
 
 
 private:
-    // This id should be a simple integer uniquely identifying the robot based on the order
-    // in which it was loaded.
-    uint32_t m_id;
-
     // Current X and Y location. Floats for more accurate resolution, but the LocX and LocY
     // methods return integers, rounded off.
     float m_currentX;
@@ -106,6 +104,9 @@ private:
     float m_desiredSpeed;
     // Current speed
     float m_speed;
+
+    float m_scan_dir;
+    float m_resolution;
 
     // Facing we would like to have.
     float m_desiredFacing;

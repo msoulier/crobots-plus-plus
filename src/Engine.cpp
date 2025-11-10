@@ -261,6 +261,8 @@ void Engine::GameOver()
 Position Engine::GetPositionAhead(float x, float y, float facing, float distance)
 {
     Position position(x, y);
+    while (facing > 360.0f) facing -= 360.0f;
+    while (facing < 0) facing += 360.0f;
     float radians = IRobot::ToRadians(facing);
     float diffx = distance * std::cos(radians);
     float diffy = distance * std::sin(radians);
