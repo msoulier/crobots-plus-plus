@@ -19,12 +19,7 @@ public:
         , m_turn_countdown{0}
         , m_ticks_per_turn{100}
         , m_resolution{45.0f}
-    {
-        m_arenaX = GetArenaX();
-        m_arenaY = GetArenaY();
-        assert( m_arenaX > 0 );
-        assert( m_arenaY > 0 );
-    }
+    {}
 
     uint32_t m_minimum_ticks_before_turn;
     float m_arenaX;
@@ -77,6 +72,13 @@ public:
 
     void Tick() override
     {
+        if (m_arenaX == 0)
+        {
+            m_arenaX = GetArenaX();
+            m_arenaY = GetArenaY();
+            assert( m_arenaX > 0 );
+            assert( m_arenaY > 0 );
+        }
         // What is my current position?
         float currentX = LocX();
         float currentY = LocY();
