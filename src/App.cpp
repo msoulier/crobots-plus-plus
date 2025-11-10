@@ -2,6 +2,7 @@
 
 #include "Api.hpp"
 #include "App.hpp"
+#include "Engine.hpp"
 #include "Loader.hpp"
 #include "Renderer.hpp"
 #include "Timer.hpp"
@@ -10,11 +11,13 @@ namespace Crobots
 {
 
 App::App()
-    : m_engine{}
-    , m_renderer{}
+    : m_renderer{}
     , m_renderTimer{}
     , m_engineTimer{}
-    , m_shouldQuit{false} {}
+    , m_shouldQuit{false}
+{
+    m_engine = std::make_shared<Engine>();
+}
 
 bool App::Init(const AppInfo& info)
 {
@@ -29,8 +32,8 @@ bool App::Init(const AppInfo& info)
 
     CROBOTS_LOG("Creating arena dimensions {} and {}", info.arenaX, info.arenaY);
     Arena arena(info.arenaX, info.arenaY);
-    m_engine.Init(arena, info.debug);
-    Loader loader;
+    m_engine->Init(arena, info.debug);
+    Loader loader(m_engine);
 	if (! loader.Load(info.robot1_path, 1))
 	{
 		std::cerr << "Failed to load " << info.robot1_path << std::endl;
@@ -48,7 +51,7 @@ bool App::Init(const AppInfo& info)
     {
         std::cerr << "Failed to load " << info.robot4_path << std::endl;
     }
-    m_engine.Load(loader.GetRobots());
+    m_engine->Load(loader.GetRobots());
     return true;
 }
 
@@ -72,7 +75,7 @@ void App::Iterate()
     }
     if (m_engineTimer.ShouldTick())
     {
-        m_engine.Tick();
+        m_engine->Tick();
     }
 }
 

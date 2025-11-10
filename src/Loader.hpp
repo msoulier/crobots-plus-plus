@@ -14,6 +14,7 @@ class Loader
 {
 public:
     Loader() = default;
+    Loader(std::shared_ptr<Engine> engine);
 
     /*
      * Note: The user should provide robot names. Then based on the platform
@@ -25,6 +26,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<Crobots::IRobot>> m_robots;
+    std::shared_ptr<Engine> m_engine;
 };
 
 }

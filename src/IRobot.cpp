@@ -1,4 +1,5 @@
 #include <Crobots++/IRobot.hpp>
+#include <Crobots++/InternalRobotProxy.hpp>
 #include <cassert>
 #include <cmath>
 #include <ctime>
@@ -9,8 +10,6 @@
 
 namespace Crobots {
 
-// Static member. Populated in SetEngine().
-Engine* IRobot::m_engine = nullptr;
 // Static members
 std::random_device IRobot::rd;
 std::mt19937 IRobot::gen(IRobot::rd());
@@ -155,8 +154,8 @@ float IRobot::Scan(float degree, float resolution)
     // We need to determine the bearing of each other robot to this one.
     // Once we have the bearing, based on 0 degrees to the right, and increasing counter-clockwise
     // to complete the circle, we can determine if the scan will ping off of one or more of them.
-    assert( m_engine != nullptr );
-    return m_engine->ScanResult(GetId(), degree, resolution);
+    assert( m_proxy != nullptr );
+    return m_proxy->ScanResult(GetId(), degree, resolution);
 }
 
 bool IRobot::Cannon(float degree, float range)
@@ -204,12 +203,6 @@ void IRobot::UpdateTickCounters()
     }
 }
 //----------------------------------------------------------------------------------
-
-// Static method
-void IRobot::SetEngine(Engine* handle)
-{
-    m_engine = handle;
-}
 
 void IRobot::AccelRobot()
 {
@@ -288,8 +281,8 @@ void IRobot::MoveRobot()
     {
         return;
     }
-    float arenaX = m_engine->GetArena().GetX();
-    float arenaY = m_engine->GetArena().GetY();
+    float arenaX = m_proxy->GetArenaX();
+    float arenaY = m_proxy->GetArenaY();
     assert( arenaX > 0 );
     assert( arenaY > 0 );
 
@@ -364,12 +357,14 @@ float IRobot::GetActualSpeed()
 
 float IRobot::GetArenaX()
 {
-    return m_engine->GetArena().GetX();
+    assert(m_proxy != nullptr);
+    return m_proxy->GetArenaX();
 }
 
 float IRobot::GetArenaY()
 {
-    return m_engine->GetArena().GetY();
+    assert(m_proxy != nullptr);
+    return m_proxy->GetArenaY();
 }
 
 float IRobot::Mod360(float number)

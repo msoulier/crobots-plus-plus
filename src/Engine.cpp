@@ -43,8 +43,6 @@ void Engine::Init(Crobots::Arena arena, bool debug)
 {
     m_arena = arena;
     m_debug = debug;
-    // Static member initialization
-    IRobot::SetEngine(this);
 }
 
 const Arena& Engine::GetArena() const

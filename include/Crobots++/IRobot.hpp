@@ -10,7 +10,6 @@ namespace Crobots
 {
 
 // Forward declaration
-class Engine; // remove?
 class InternalRobotProxy;
 
 enum class DamageType
@@ -155,9 +154,6 @@ private:
 
     std::shared_ptr<InternalRobotProxy> m_proxy;
 
-    static Engine *m_engine;
-
-    static void SetEngine(Engine *engine);
     static uint32_t BoundedRand(uint32_t range);
     static std::random_device rd;
     static std::mt19937 gen;

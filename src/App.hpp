@@ -38,12 +38,12 @@ public:
     void Event(SDL_Event* event);
 
 private:
-    Engine m_engine;
     Renderer m_renderer;
-    Camera m_camera;
     Timer m_renderTimer;
     Timer m_engineTimer;
     bool m_shouldQuit;
+    Camera m_camera;
+    std::shared_ptr<Engine> m_engine;
 };
 
 }

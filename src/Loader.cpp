@@ -7,6 +7,10 @@
 
 namespace Crobots {
 
+Loader::Loader(std::shared_ptr<Engine> engine)
+: m_engine(engine)
+{}
+
 bool Loader::Load(const std::string& name, uint32_t id)
 {
 	CROBOTS_LOG("loading robot {}", name);
@@ -49,7 +53,7 @@ bool Loader::Load(const std::string& name, uint32_t id)
         return false;
     }
 
-    auto proxy = std::make_shared<InternalRobotProxy>(id);
+    auto proxy = std::make_shared<InternalRobotProxy>(id, m_engine);
 
     std::unique_ptr<Crobots::IRobot> robot(fcn(proxy));
     // FIXME: obsolete

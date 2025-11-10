@@ -19,7 +19,7 @@ class Renderer
 public:
     bool Init();
     void Quit();
-    void Present(const Engine& engine, Camera& canera);
+    void Present(const std::shared_ptr<Engine> engine, Camera& canera);
 
     /**
      * @param path The name of the robot model

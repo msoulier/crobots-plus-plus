@@ -69,7 +69,7 @@ void Renderer::Quit()
     SDL_DestroyGPUDevice(m_device);
 }
 
-void Renderer::Present(const Engine& engine, Camera& camera)
+void Renderer::Present(const std::shared_ptr<Engine> engine, Camera& camera)
 {
     SDL_GPUCommandBuffer* commandBuffer;
     SDL_GPUTexture* swapchainTexture;
@@ -92,7 +92,7 @@ void Renderer::Present(const Engine& engine, Camera& camera)
             return;
         }
     }
-    const Arena& arena = engine.GetArena();
+    const Arena& arena = engine->GetArena();
     camera.SetCenter(arena.GetX() / 2, arena.GetY() / 2);
     camera.SetViewport(width, height);
     camera.Update();
@@ -118,12 +118,12 @@ void Renderer::Present(const Engine& engine, Camera& camera)
             float b = j * GridSpacing;
             Draw(std::format("{} {}", i * GridSpacing, j * GridSpacing), arena.GetX() - a, b, 0xFFFFFFFF);
         }
-        auto& robots = engine.GetRobots();
+        auto& robots = engine->GetRobots();
         for (auto& robot : robots)
         {
             Draw("default", arena.GetX() - robot->GetX(), 0.0f, robot->GetY(), IRobot::ToRadians(robot->GetFacing()), 0.1f);
             // Draw debug lines if debug is enabled.
-            if (engine.DebugEnabled())
+            if (engine->DebugEnabled())
             {
                 // The facing line
                 Position facing = Engine::GetPositionAhead(robot->GetX(), robot->GetY(), robot->GetFacing(), 50.0f);

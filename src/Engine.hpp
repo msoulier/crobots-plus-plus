@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Crobots++/IRobot.hpp>
 #include <vector>
 #include <memory>
 
