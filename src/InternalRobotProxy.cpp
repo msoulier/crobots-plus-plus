@@ -1,5 +1,7 @@
 #include "Crobots++/InternalRobotProxy.hpp"
 
+#include "Engine.hpp"
+
 namespace Crobots
 {
 

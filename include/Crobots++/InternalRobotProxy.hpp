@@ -2,10 +2,10 @@
 
 #include <numbers>
 
-#include "Engine.hpp"
-
 namespace Crobots
 {
+
+class Engine;
 
 class InternalRobotProxy
 {
