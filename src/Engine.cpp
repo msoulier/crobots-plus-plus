@@ -39,10 +39,11 @@ void Position::SetY(float y)
     m_y = y;
 }
 
-void Engine::Init(Crobots::Arena arena, bool debug)
+void Engine::Init(Crobots::Arena arena, bool debug, bool damage)
 {
     m_arena = arena;
     m_debug = debug;
+    m_damage = damage;
 }
 
 const Arena& Engine::GetArena() const
@@ -65,8 +66,8 @@ void Engine::Tick()
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
 		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());
-        // Reset any internal tick counters.
-        robot->UpdateTickCounters();
+        // Reset any internal tick counters and state.
+        robot->TickInit();
         // Run each robot through a tick.
         robot->Tick();
         // Update the position of each robot based on its velocity
@@ -94,6 +95,11 @@ void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots)
 {
 	CROBOTS_LOG("Engine::Load: nrobots = {}", robots.size());
     m_robots = std::move(robots);
+
+    for (auto& robot : m_robots)
+    {
+        robot->m_indestructible = ! m_damage;
+    }
 
     PlaceRobots();
 }
@@ -188,6 +194,7 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
         if ((lowerbound <= degrees) && (upperbound >= degrees))
         {
             CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, degrees, radius);
+            m_robots[i]->Detected();
             // we have a hit we only return the closest one
             if (result == 0) {
                 result = radius;

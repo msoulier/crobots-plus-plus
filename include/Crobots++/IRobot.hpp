@@ -77,6 +77,7 @@ public:
     float GetFacing() const;
     float GetScanDir() const;
     float GetResolution() const;
+    bool IsDetected() const;
 
     struct DeathData GetDeathData() const;
 
@@ -143,15 +144,22 @@ private:
     uint32_t m_cannonReloadTime;
     float m_cannonShotMaxRange;
 
+    // Robot detected by another robot's scan?
+    bool m_detected;
+
+    // Set robot to indestructible
+    bool m_indestructible;
+
     struct DeathData m_deathdata;
 
-    void UpdateTickCounters();
+    void TickInit();
     bool RegisterShot(CannonType weapon, float degree, float range);
     void AccelRobot();
     void MoveRobot();
     void HitTheWall();
     bool IsDead();
     float GetActualSpeed();
+    void Detected();
 
     std::shared_ptr<InternalRobotProxy> m_proxy;
 

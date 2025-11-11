@@ -12,7 +12,6 @@ public:
         : m_minimum_ticks_before_turn{0}
         , m_arenaX{0}
         , m_arenaY{0}
-        , m_last_scan_dir{720}
         , m_last_damage{0}
         , m_last_scan_hit{false}
         , m_arenaMargin{10}
@@ -26,7 +25,6 @@ public:
     uint32_t m_minimum_ticks_before_turn;
     float m_arenaX;
     float m_arenaY;
-    float m_last_scan_dir;
     uint32_t m_last_damage;
     bool m_last_scan_hit;
     float m_arenaMargin;
@@ -89,31 +87,14 @@ public:
         uint32_t damage = Damage();
 
         CROBOTS_LOG("Doofus: x = {}, y = {}, facing = {}, last_scan_dir = {}, damage = {}",
-            currentX, currentY, facing, m_last_scan_dir, damage);
+            currentX, currentY, facing, scan_direction, damage);
 
-        // if (m_last_scan_dir == 720)
-        // {
-        //     m_last_scan_dir = facing;
-        //     scan_direction = facing;
-        // }
-        // else
-        // {
-        //     if (m_last_scan_hit)
-        //     {
-        //         // FIXME: tighten the scan - track the target
-        //         scan_direction = m_last_scan_dir;
-        //     }
-        //     else
-        //     {
-        //         // Keep rotating scan like a radar.
-        //         scan_direction += 10;
-        //     }
-        // }
         scan_direction += 10;
 
         float range = Scan(scan_direction, m_resolution);
         if (range > 0)
         {
+            m_last_scan_hit = true;
             CROBOTS_LOG("===> Scan got a hit: direction {}, range {}", scan_direction, range);
             Drive(scan_direction, 100);
             // Tighten the resolution.
@@ -137,6 +118,8 @@ public:
         else
         {
             m_resolution = 45.0f;
+            // FIXME: + or - ?
+            scan_direction += 20;
         }
 
         if (NearWall(currentX, currentY))

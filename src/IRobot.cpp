@@ -43,6 +43,8 @@ IRobot::IRobot()
     m_scanCountDown = 0;
     m_scan_dir = 0;
     m_resolution =  0;
+    m_detected = false;
+    m_indestructible = false;
     
     m_deathdata = {
         DamageType::Alive,
@@ -211,13 +213,14 @@ uint32_t IRobot::BoundedRand(uint32_t range)
     return dist(gen);
 }
 
-void IRobot::UpdateTickCounters()
+void IRobot::TickInit()
 {
     m_cannotShotRegistered = false;
     // Manage cannon reload time.
     if (m_cannonTimeUntilReload > 0) {
         m_cannonTimeUntilReload--;
     }
+    m_detected = false;
 }
 //----------------------------------------------------------------------------------
 
@@ -337,6 +340,10 @@ void IRobot::MoveRobot()
 
 void IRobot::HitTheWall()
 {
+    if (m_indestructible)
+    {
+        return;
+    }
     m_damage += 5;
     m_speed = 0;
     if (m_damage >= 100)
@@ -392,6 +399,16 @@ float IRobot::Mod360(float number)
         result += 360.0f;
     }
     return result;
+}
+
+void IRobot::Detected()
+{
+    m_detected = true;
+}
+
+bool IRobot::IsDetected() const
+{
+    return m_detected;
 }
 
 }

@@ -32,7 +32,7 @@ bool App::Init(const AppInfo& info)
 
     CROBOTS_LOG("Creating arena dimensions {} and {}", info.arenaX, info.arenaY);
     Arena arena(info.arenaX, info.arenaY);
-    m_engine->Init(arena, info.debug);
+    m_engine->Init(arena, info.debug, info.damage);
     Loader loader(m_engine);
 	if (! loader.Load(info.robot1_path, 1))
 	{

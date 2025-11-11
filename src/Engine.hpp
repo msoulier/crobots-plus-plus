@@ -41,7 +41,7 @@ public:
     Engine(const Engine&) = delete;
     const Engine& operator=(const Engine&) = delete;
 
-    void Init(Arena arena, bool debug);
+    void Init(Arena arena, bool debug, bool damage);
     void Load(std::vector<std::shared_ptr<IRobot>>&& robots);
     void Tick();
     float ScanResult(uint32_t robot_id, float degree, float resolution) const;
@@ -59,6 +59,7 @@ private:
     std::vector<Shot> m_shots;
     Arena m_arena;
     bool m_debug;
+    bool m_damage;
 
     // Initial random placement of the robots after loading.
     void PlaceRobots();
