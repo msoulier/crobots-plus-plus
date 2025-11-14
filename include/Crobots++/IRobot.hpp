@@ -6,6 +6,12 @@
 
 #include "Crobots++/Log.hpp"
 
+#define CROBOTS_GETROBOT(name) \
+    CROBOTS_ENTRYPOINT IRobot* GetRobot(const std::shared_ptr<InternalRobotProxy>& proxy) \
+    { \
+        return IRobot::Create<name>(proxy); \
+    }
+
 namespace Crobots
 {
 

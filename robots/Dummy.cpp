@@ -39,7 +39,4 @@ public:
     }
 };
 
-CROBOTS_ENTRYPOINT IRobot* GetRobot(const std::shared_ptr<InternalRobotProxy>& proxy)
-{
-    return IRobot::Create<Dummy>(proxy);
-}
+CROBOTS_GETROBOT(Dummy)
