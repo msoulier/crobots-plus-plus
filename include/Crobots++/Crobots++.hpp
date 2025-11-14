@@ -8,5 +8,11 @@
 #define CROBOTS_ENTRYPOINT extern "C"
 #endif
 
+#define CROBOTS_GETROBOT(name) \
+    CROBOTS_ENTRYPOINT IRobot* GetRobot(const std::shared_ptr<InternalRobotProxy>& proxy) \
+    { \
+        return IRobot::Create<name>(proxy); \
+    }
+
 #include <Crobots++/IRobot.hpp>
 #include <Crobots++/Log.hpp>
