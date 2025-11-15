@@ -45,13 +45,22 @@ IRobot::IRobot()
     m_resolution =  0;
     m_detected = false;
     m_indestructible = false;
-    
+
     m_deathdata = {
         DamageType::Alive,
         {
             {0.0f, 0.0f, 0.0f, 0.0f}
         }
     };
+}
+
+IRobot::~IRobot()
+{
+    if (m_proxy != nullptr)
+    {
+        // break circular ref and let std::shared_ptr clean it up
+        m_proxy = nullptr;
+    }
 }
 
 float IRobot::LocX()

@@ -62,7 +62,7 @@ protected:
     IRobot();
 
 public:
-    virtual ~IRobot() = default;
+    virtual ~IRobot();
     virtual std::string_view GetName() const = 0;
     // Tick is where the robot does all of its work. It is the replacement for the main loop
     // in the original game. To avoid abuse of the api in this call, most functions called
@@ -85,7 +85,7 @@ public:
     static float ToRadians(float degrees);
 
     template<typename T>
-    static IRobot* Create(const std::shared_ptr<InternalRobotProxy>& proxy)
+    static IRobot* Create(InternalRobotProxy* proxy)
     {
         IRobot* robot = new T();
         robot->m_proxy = proxy;
@@ -161,7 +161,8 @@ private:
     float GetActualSpeed();
     void Detected();
 
-    std::shared_ptr<InternalRobotProxy> m_proxy;
+    //std::shared_ptr<InternalRobotProxy> m_proxy;
+    InternalRobotProxy* m_proxy;
 
     static uint32_t BoundedRand(uint32_t range);
     static std::random_device rd;

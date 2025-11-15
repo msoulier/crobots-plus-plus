@@ -9,7 +9,7 @@
 #endif
 
 #define CROBOTS_GETROBOT(name) \
-    CROBOTS_ENTRYPOINT IRobot* GetRobot(const std::shared_ptr<InternalRobotProxy>& proxy) \
+    CROBOTS_ENTRYPOINT IRobot* GetRobot(InternalRobotProxy* proxy) \
     { \
         return IRobot::Create<name>(proxy); \
     }

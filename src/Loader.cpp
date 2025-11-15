@@ -45,7 +45,7 @@ bool Loader::Load(const std::string& name, uint32_t id)
     }
 
     // Cast SDL_FunctionPointer to the correct function type
-    using GetRobotFunc = Crobots::IRobot* (*)(std::shared_ptr<InternalRobotProxy> proxy);
+    using GetRobotFunc = Crobots::IRobot* (*)(InternalRobotProxy* proxy);
     GetRobotFunc fcn = reinterpret_cast<GetRobotFunc>(SDL_LoadFunction(plugin, "GetRobot"));
     if (!fcn)
     {
@@ -53,11 +53,9 @@ bool Loader::Load(const std::string& name, uint32_t id)
         return false;
     }
 
-    auto proxy = std::make_shared<InternalRobotProxy>(id, m_engine);
+    InternalRobotProxy* proxy = new InternalRobotProxy(id, m_engine);
 
     std::unique_ptr<Crobots::IRobot> robot(fcn(proxy));
-    // FIXME: obsolete
-    robot->SetId(id);
     m_robots.push_back(std::move(robot));
 
     return true;
