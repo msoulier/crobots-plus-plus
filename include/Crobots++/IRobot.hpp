@@ -3,6 +3,7 @@
 #include <string_view>
 #include <cstdint>
 #include <random>
+#include <vector>
 
 #include "Crobots++/Log.hpp"
 
@@ -52,6 +53,26 @@ enum class CannonType
     Standard
 };
 
+class ContactDetails
+{
+public:
+    ContactDetails(float fromx, float fromy, float tox, float toy, float bearing, float range)
+    : m_fromx{fromx}
+    , m_fromy{fromy}
+    , m_tox{tox}
+    , m_toy{toy}
+    , m_bearing{bearing}
+    , m_range{range}
+    {}
+
+private:
+    float m_fromx;
+    float m_fromy;
+    float m_tox;
+    float m_toy;
+    float m_bearing;
+    float m_range;
+};
 
 class IRobot
 {
@@ -91,6 +112,8 @@ public:
         robot->m_proxy = proxy;
         return robot;
     }
+    void AddContact(std::unique_ptr<ContactDetails>& contact);
+    void ClearContacts();
 
 
 private:
@@ -161,7 +184,8 @@ private:
     float GetActualSpeed();
     void Detected();
 
-    //std::shared_ptr<InternalRobotProxy> m_proxy;
+    std::vector<std::unique_ptr<ContactDetails>> m_contacts;
+
     InternalRobotProxy* m_proxy;
 
     static uint32_t BoundedRand(uint32_t range);

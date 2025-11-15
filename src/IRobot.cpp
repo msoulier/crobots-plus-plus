@@ -63,6 +63,16 @@ IRobot::~IRobot()
     }
 }
 
+void IRobot::AddContact(std::unique_ptr<ContactDetails>& contact)
+{
+    m_contacts.push_back(std::move(contact));
+}
+
+void IRobot::ClearContacts()
+{
+    m_contacts.clear();
+}
+
 float IRobot::LocX()
 {
     assert( m_currentX > 0 );
@@ -230,6 +240,7 @@ void IRobot::TickInit()
         m_cannonTimeUntilReload--;
     }
     m_detected = false;
+    ClearContacts();
 }
 //----------------------------------------------------------------------------------
 

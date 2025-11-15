@@ -203,6 +203,13 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
         {
             CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, degrees, radius);
             m_robots[i]->Detected();
+            std::unique_ptr<ContactDetails> contact = std::make_unique<ContactDetails>(myX,
+                                                                                       myY,
+                                                                                       theirX,
+                                                                                       theirY,
+                                                                                       degrees,
+                                                                                       radius);
+            m_robots[robot_id]->AddContact(contact);
             // we have a hit we only return the closest one
             if (result == 0) {
                 result = radius;
