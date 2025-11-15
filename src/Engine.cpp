@@ -29,81 +29,6 @@ float Position::GetY()
     return m_y;
 }
 
-void Position::SetX(float x)
-{
-    m_x = x;
-}
-
-void Position::SetY(float y)
-{
-    m_y = y;
-}
-
-void Engine::Init(Crobots::Arena arena, bool debug, bool damage)
-{
-    m_arena = arena;
-    m_debug = debug;
-    m_damage = damage;
-}
-
-const Arena& Engine::GetArena() const
-{
-    return m_arena;
-}
-
-bool Engine::DebugEnabled() const
-{
-    return m_debug;
-}
-
-const std::vector<std::shared_ptr<Crobots::IRobot>>& Engine::GetRobots() const
-{
-    return m_robots;
-}
-
-void Engine::Tick()
-{
-    for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
-    {
-		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());
-        // Reset any internal tick counters and state.
-        robot->TickInit();
-        // Run each robot through a tick.
-        robot->Tick();
-        // Update the position of each robot based on its velocity
-        robot->MoveRobot();
-        // Check for any loss of control (ie. skidding) - future item
-        // Update the velocity (ie. speed and facing) of each robot
-        robot->AccelRobot();
-    }
-
-    // Add any shots from robots firing now.
-    AddShots();
-    // Update the position of any shots in flight
-    MoveShotsInFlight();
-
-    // Fire any direct fire weapons that have zero time of flight - future item
-
-    // Detonate any shots that have reached their target
-    DetonateShots();
-
-    // Update the arena.
-    UpdateArena();
-}
-
-void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots)
-{
-	CROBOTS_LOG("Engine::Load: nrobots = {}", robots.size());
-    m_robots = std::move(robots);
-
-    for (auto& robot : m_robots)
-    {
-        robot->m_indestructible = ! m_damage;
-    }
-
-    PlaceRobots();
-}
-
 void Engine::AddShot(Shot shot)
 {
     m_shots.push_back(shot);
@@ -129,6 +54,89 @@ void Engine::AddShots()
             robot->m_cannotShotRegistered = false;
             robot->m_cannonTimeUntilReload = robot->m_cannonReloadTime;
         }
+    }
+}
+
+bool Engine::DebugEnabled() const
+{
+    return m_debug;
+}
+
+void Engine::DetonateShots()
+{
+}
+
+void Engine::GameOver()
+{
+    // We'll do more in the future. For now just shut down.
+    CROBOTS_LOG("Game over");
+    exit(0);
+}
+
+const Arena& Engine::GetArena() const
+{
+    return m_arena;
+}
+
+Position Engine::GetPositionAhead(float x, float y, float facing, float distance)
+{
+    Position position(x, y);
+    while (facing > 360.0f) facing -= 360.0f;
+    while (facing < 0) facing += 360.0f;
+    float radians = IRobot::ToRadians(facing);
+    float diffx = distance * std::cos(radians);
+    float diffy = distance * std::sin(radians);
+    position.SetX(x + diffx);
+    position.SetY(y + diffy);
+    return position;
+}
+
+const std::vector<std::shared_ptr<Crobots::IRobot>>& Engine::GetRobots() const
+{
+    return m_robots;
+}
+
+void Engine::Init(Crobots::Arena arena, bool debug, bool damage)
+{
+    m_arena = arena;
+    m_debug = debug;
+    m_damage = damage;
+}
+
+void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots)
+{
+	CROBOTS_LOG("Engine::Load: nrobots = {}", robots.size());
+    m_robots = std::move(robots);
+
+    for (auto& robot : m_robots)
+    {
+        robot->m_indestructible = ! m_damage;
+    }
+
+    PlaceRobots();
+}
+
+void Engine::MoveShotsInFlight()
+{
+    for (auto& shot : m_shots)
+    {
+
+    }
+}
+
+void Engine::PlaceRobots()
+{
+    assert( m_arena.GetX() > 0 );
+    assert( m_arena.GetY() > 0 );
+    std::srand(std::time(nullptr));
+    int count = 0;
+    for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
+    {
+        // Start each robot at a random spot in the arena.
+        robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
+        robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
+        CROBOTS_LOG("placing robot {} to initial location {}x{}",
+            robot->GetName(), robot->m_currentX, robot->m_currentY);
     }
 }
 
@@ -208,32 +216,44 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
     return result;
 }
 
-void Engine::PlaceRobots()
+void Position::SetX(float x)
 {
-    assert( m_arena.GetX() > 0 );
-    assert( m_arena.GetY() > 0 );
-    std::srand(std::time(nullptr));
-    int count = 0;
+    m_x = x;
+}
+
+void Position::SetY(float y)
+{
+    m_y = y;
+}
+
+void Engine::Tick()
+{
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
-        // Start each robot at a random spot in the arena.
-        robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
-        robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
-        CROBOTS_LOG("placing robot {} to initial location {}x{}",
-            robot->GetName(), robot->m_currentX, robot->m_currentY);
+		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());
+        // Reset any internal tick counters and state.
+        robot->TickInit();
+        // Run each robot through a tick.
+        robot->Tick();
+        // Update the position of each robot based on its velocity
+        robot->MoveRobot();
+        // Check for any loss of control (ie. skidding) - future item
+        // Update the velocity (ie. speed and facing) of each robot
+        robot->AccelRobot();
     }
-}
 
-void Engine::MoveShotsInFlight()
-{
-    for (auto& shot : m_shots)
-    {
+    // Add any shots from robots firing now.
+    AddShots();
+    // Update the position of any shots in flight
+    MoveShotsInFlight();
 
-    }
-}
+    // Fire any direct fire weapons that have zero time of flight - future item
 
-void Engine::DetonateShots()
-{
+    // Detonate any shots that have reached their target
+    DetonateShots();
+
+    // Update the arena.
+    UpdateArena();
 }
 
 void Engine::UpdateArena()
@@ -256,26 +276,6 @@ void Engine::UpdateArena()
     {
         GameOver();
     }
-}
-
-void Engine::GameOver()
-{
-    // We'll do more in the future. For now just shut down.
-    CROBOTS_LOG("Game over");
-    exit(0);
-}
-
-Position Engine::GetPositionAhead(float x, float y, float facing, float distance)
-{
-    Position position(x, y);
-    while (facing > 360.0f) facing -= 360.0f;
-    while (facing < 0) facing += 360.0f;
-    float radians = IRobot::ToRadians(facing);
-    float diffx = distance * std::cos(radians);
-    float diffy = distance * std::sin(radians);
-    position.SetX(x + diffx);
-    position.SetY(y + diffy);
-    return position;
 }
 
 }
