@@ -1,8 +1,10 @@
 #pragma once
 
-#include <string_view>
 #include <cstdint>
+#include <iostream>
 #include <random>
+#include <string_view>
+#include <sstream>
 #include <vector>
 
 #include "Crobots++/Log.hpp"
@@ -64,6 +66,15 @@ public:
     , m_bearing{bearing}
     , m_range{range}
     {}
+
+    std::string ToString()
+    {
+        std::stringstream ss;
+        ss << "ContactDetails: " << m_fromx << " " << m_fromy << " -> "
+           << m_tox << " " << m_toy << " "
+           << m_bearing << " " << m_range << std::endl;
+        return ss.str();
+    }
 
 private:
     float m_fromx;

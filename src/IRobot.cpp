@@ -65,6 +65,7 @@ IRobot::~IRobot()
 
 void IRobot::AddContact(std::unique_ptr<ContactDetails>& contact)
 {
+    CROBOTS_LOG("New contact: {}", contact->ToString());
     m_contacts.push_back(std::move(contact));
 }
 
