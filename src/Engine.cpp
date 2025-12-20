@@ -167,47 +167,48 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
         float theirX = m_robots[i]->LocX();
         float theirY = m_robots[i]->LocY();
 
-        float diffX = theirX - myX;
-        float diffY = theirY - myY;
+        // Translate so that "my" is at the origin.
+        theirX -= myX;
+        theirY -= myY;
 
         // Now convert the "to" robot to polar coordinates.
         // https://www.mathsisfun.com/polar-cartesian-coordinates.html
-        float radius = sqrt( ( diffX*diffX ) + ( diffY*diffY ) );
+        float radius = sqrt( ( theirX*theirX ) + ( theirY*theirY ) );
         assert( radius >= 0 );
         // FIXME: if radius > scanner_range, return 0
-        float radians = atan2( diffY, diffX );
+        float radians = atan2( theirY, theirX ) + std::numbers::pi;
         float degrees = IRobot::ToDegrees(radians);
-        // Adjust for quadrant.
-        if ((diffX >= 0) && (diffY >= 0))
-        {
-            degrees = degrees;
-        }
-        else if ((diffX < 0) && (diffY >= 0))
-        {
-            degrees += 180.0f;
-        }
-        else if ((diffX < 0) && (diffY < 0))
-        {
-            degrees += 180.0f;
-        }
-        else
-        {
-            degrees += 360.0f;
-        }
         CROBOTS_LOG("ScanResult: They are {} away bearing {} - we're scanning at {}", radius, degrees, facing);
-        float lowerbound = facing - (resolution / 2.0f);
-        float upperbound = facing + (resolution / 2.0f);
+        float halfres = resolution / 2.0f;
+        float lowerbound = facing - halfres;
+        float upperbound = facing + halfres;
         // Now, to get a hit off of this contact, the scan direction plus or minus half of the resolution
         // must pass over the bearing.
+        // Unfortunately this does not work if the scan crosses 0.
+        float orig_degrees = degrees;
+        // if ((degrees - halfres) < 0) {
+        //     degrees += halfres;
+        //     lowerbound += halfres;
+        //     upperbound += halfres;
+        // } else if ((degrees + halfres) > 360) {
+        //     degrees -= halfres;
+        //     lowerbound -= halfres;
+        //     upperbound -= halfres;
+        // }
+
+        // TODO: bug when crossing 0 and 360 boundary
         if ((lowerbound <= degrees) && (upperbound >= degrees))
         {
-            CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, degrees, radius);
+            CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, orig_degrees, radius);
             m_robots[i]->Detected();
+            // Need the original, unadjusted position.
+            theirX = m_robots[i]->LocX();
+            theirY = m_robots[i]->LocY();
             std::unique_ptr<ContactDetails> contact = std::make_unique<ContactDetails>(myX,
                                                                                        myY,
                                                                                        theirX,
                                                                                        theirY,
-                                                                                       degrees,
+                                                                                       orig_degrees,
                                                                                        radius);
             m_robots[robot_id]->AddContact(contact);
             // we have a hit we only return the closest one

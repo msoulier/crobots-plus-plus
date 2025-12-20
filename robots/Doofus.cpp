@@ -89,20 +89,27 @@ public:
         CROBOTS_LOG("Doofus: x = {}, y = {}, facing = {}, last_scan_dir = {}, damage = {}",
             currentX, currentY, facing, scan_direction, damage);
 
-        scan_direction += 10;
-
-        float range = Scan(scan_direction, m_resolution);
-        if (range > 0)
+        if (m_last_scan_hit)
         {
-            m_last_scan_hit = true;
-            CROBOTS_LOG("===> Scan got a hit: direction {}, range {}", scan_direction, range);
-            Drive(scan_direction, 100);
+            Drive(scan_direction, 50);
             // Tighten the resolution.
             m_resolution /= 2.0f;
             if (m_resolution < 10.0f)
             {
                 m_resolution = 10.0f;
             }
+        }
+        else
+        {
+            m_resolution = 45.0f;
+            // FIXME: + or - ?
+            scan_direction += 20;
+        }
+        float range = Scan(scan_direction, m_resolution);
+        if (range > 0)
+        {
+            m_last_scan_hit = true;
+            CROBOTS_LOG("===> Scan got a hit: direction {}, range {}", scan_direction, range);
             // And lets shoot at it if we can.
             bool shotfired = Cannon(scan_direction, range);
             if (shotfired)
@@ -114,12 +121,8 @@ public:
                 CROBOTS_LOG("Still reloading...");
             }
             return;
-        }
-        else
-        {
-            m_resolution = 45.0f;
-            // FIXME: + or - ?
-            scan_direction += 20;
+        } else {
+            m_last_scan_hit = false;
         }
 
         if (NearWall(currentX, currentY))
