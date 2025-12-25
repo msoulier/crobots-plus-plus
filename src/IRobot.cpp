@@ -185,6 +185,10 @@ void IRobot::Drive(float degree, float speed)
 
 float IRobot::Scan(float degree, float resolution)
 {
+    if (degree >= 360.0)
+    {
+        degree -= 360.0;
+    }
     if (m_scanCountDown > 0)
     {
         m_scanCountDown--;
@@ -390,12 +394,12 @@ bool IRobot::IsDead()
 
 float IRobot::ToDegrees(float radians)
 {
-    return radians * ( 180 / std::numbers::pi_v<float> );
+    return radians * 180.0 / std::numbers::pi;
 }
 
 float IRobot::ToRadians(float degrees)
 {
-    return ( degrees * std::numbers::pi_v<float> ) / 180;
+    return ( degrees * std::numbers::pi ) / 180;
 }
 
 float IRobot::GetActualSpeed()

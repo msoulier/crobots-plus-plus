@@ -34,7 +34,6 @@ public:
         {
             new_facing = 0;
         }
-        //new_facing = Rand(360);
         Drive(new_facing, 100);
     }
 };

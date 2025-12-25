@@ -162,7 +162,6 @@ void Renderer::Present(const std::shared_ptr<Engine> engine, Camera& camera)
                     SDLx_GPURenderLine3D(m_renderer, arena.GetX() - contact->m_fromx, 0.0f, contact->m_fromy,
                         arena.GetX() - contact->m_tox, 0.0f, contact->m_toy,
                         0x00FFFFFF);
-                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
         }

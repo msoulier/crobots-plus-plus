@@ -13,7 +13,7 @@ Loader::Loader(std::shared_ptr<Engine> engine)
 
 bool Loader::Load(const std::string& name, uint32_t id)
 {
-	CROBOTS_LOG("loading robot {}", name);
+	CROBOTS_LOG("loading robot {}, id {}", name, id);
     // This should not be a path. Reject anything that is.
     if (name.size() == 0)
     {

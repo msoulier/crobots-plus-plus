@@ -34,20 +34,20 @@ bool App::Init(const AppInfo& info)
     Arena arena(info.arenaX, info.arenaY);
     m_engine->Init(arena, info.debug, info.damage, info.pause_on_scan);
     Loader loader(m_engine);
-	if (! loader.Load(info.robot1_path, 1))
+	if (! loader.Load(info.robot1_path, 0))
 	{
 		std::cerr << "Failed to load " << info.robot1_path << std::endl;
 		return false;
 	}
-    if ((info.robot2_path.size() > 0) && (! loader.Load(info.robot2_path, 2)))
+    if ((info.robot2_path.size() > 0) && (! loader.Load(info.robot2_path, 1)))
     {
         std::cerr << "Failed to load " << info.robot2_path << std::endl;
     }
-    if ((info.robot3_path.size() > 0) && (! loader.Load(info.robot3_path, 3)))
+    if ((info.robot3_path.size() > 0) && (! loader.Load(info.robot3_path, 2)))
     {
         std::cerr << "Failed to load " << info.robot3_path << std::endl;
     }
-    if ((info.robot4_path.size() > 0) && (! loader.Load(info.robot4_path, 4)))
+    if ((info.robot4_path.size() > 0) && (! loader.Load(info.robot4_path, 3)))
     {
         std::cerr << "Failed to load " << info.robot4_path << std::endl;
     }

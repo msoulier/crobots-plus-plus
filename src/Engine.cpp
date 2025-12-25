@@ -135,35 +135,37 @@ void Engine::PlaceRobots()
     int count = 0;
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
-        // Start each robot at a random spot in the arena.
-        robot->m_currentX = IRobot::BoundedRand(m_arena.GetX());
-        robot->m_currentY = IRobot::BoundedRand(m_arena.GetY());
+        float x = 0;
+        float y = 0;
+        if (m_debug) {
+            if (count == 0) {
+                x = 70;
+                y = 50;
+            } else if (count == 1) {
+                x = 40;
+                y = 50;
+            } else {
+                x = IRobot::BoundedRand(m_arena.GetX());
+                y = IRobot::BoundedRand(m_arena.GetY());
+            }
+        } else {
+            // Start each robot at a random spot in the arena.
+            x = IRobot::BoundedRand(m_arena.GetX());
+            y = IRobot::BoundedRand(m_arena.GetY());
+        }
         CROBOTS_LOG("placing robot {} to initial location {}x{}",
-            robot->GetName(), robot->m_currentX, robot->m_currentY);
+            robot->GetName(), x, y);
+        robot->m_currentX = x;
+        robot->m_currentY = y;
+        count++;
     }
 }
 
-// Source - https://stackoverflow.com/a
-// Posted by sbabbi, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-12-25, License - CC BY-SA 3.0
-
-bool angleInside(const double phi, const double a, const double b)
-{
-    //Case 1 above
-    const double d = phi - a;
-    const double s = std::remainder(b-a - M_PI, 2 * M_PI) + M_PI;
-
-    // Or (Case 2)
-    //const double d = phi - std::min(a,b);
-    //const double s = std::fabs(b-a);
-
-
-    return std::remainder( d - M_PI, 2 * M_PI ) + M_PI <= s;
-}
-
-float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) const
+float Engine::ScanResult(uint32_t robot_id, float scandir, float resolution) const
 {
     float result = 0;
+
+    CROBOTS_LOG("robot_id is {}", robot_id);
 
     // Minimum resolution is 10.
     if (resolution < 10) {
@@ -187,43 +189,28 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
         }
         float theirX = m_robots[i]->LocX();
         float theirY = m_robots[i]->LocY();
+        CROBOTS_LOG("my robot x/y = {}/{}, theirs x/y = {}/{}", myX, myY, theirX, theirY);
 
-        // Translate so that "my" is at the origin.
-        theirX -= myX;
-        theirY -= myY;
+        // Calculate the angle between the two robots.
+        float angle_between = atan2(theirY - myY, theirX - myX);
+        angle_between = IRobot::ToDegrees(angle_between);
+        CROBOTS_LOG("angle between two robots in degrees: {}", angle_between);
+        // Calculate angle difference.
+        int anglediff = std::abs(angle_between - scandir);
+        CROBOTS_LOG("anglediff is {}", anglediff);
+        // Normalize to 0 - 180
+        if (anglediff > 180) {
+            anglediff = 360 - anglediff;
+        }
 
-        // Now convert the "to" robot to polar coordinates.
-        // https://www.mathsisfun.com/polar-cartesian-coordinates.html
-        float radius = sqrt( ( theirX*theirX ) + ( theirY*theirY ) );
-        assert( radius >= 0 );
-        // FIXME: if radius > scanner_range, return 0
-        float radians = atan2( theirY, theirX ) + std::numbers::pi;
-        float degrees = IRobot::ToDegrees(radians);
-        CROBOTS_LOG("ScanResult: They are {} away bearing {} - we're scanning at {}", radius, degrees, facing);
-        float halfres = resolution / 2.0f;
-        float lowerbound = facing - halfres;
-        float upperbound = facing + halfres;
-        // Now, to get a hit off of this contact, the scan direction plus or minus half of the resolution
-        // must pass over the bearing.
-        // Unfortunately this does not work if the scan crosses 0.
-        float orig_degrees = degrees;
-        // if ((degrees - halfres) < 0) {
-        //     degrees += halfres;
-        //     lowerbound += halfres;
-        //     upperbound += halfres;
-        // } else if ((degrees + halfres) > 360) {
-        //     degrees -= halfres;
-        //     lowerbound -= halfres;
-        //     upperbound -= halfres;
-        // }
-
-        // TODO: bug when crossing 0 and 360 boundary
-        if ((lowerbound <= degrees) && (upperbound >= degrees))
+        CROBOTS_LOG("anglediff is {}, resolution is {}", anglediff, resolution);
+        if (anglediff <= resolution / 2)
         {
-            CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, orig_degrees, radius);
+            float distance = std::sqrt(std::pow(theirX - myX, 2) + std::pow(theirY - myY, 2));
+            CROBOTS_LOG("Scanner contact: scandir = {}, distance = {}", scandir, distance);
             if (m_pause_on_scan) {
                 CROBOTS_LOG("Engine sleeping for 2s");
-                std::this_thread::sleep_for(std::chrono::seconds(2));
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             }
             m_robots[i]->Detected();
             // Need the original, unadjusted position.
@@ -233,16 +220,16 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
                                                                                        myY,
                                                                                        theirX,
                                                                                        theirY,
-                                                                                       orig_degrees,
-                                                                                       radius);
+                                                                                       scandir,
+                                                                                       distance);
             m_robots[robot_id]->AddContact(contact);
             // we have a hit we only return the closest one
             if (result == 0) {
-                result = radius;
+                result = distance;
             }
-            else if ((result > 0) && (result < radius))
+            else if ((result > 0) && (result < distance))
             {
-                result = radius;
+                result = distance;
             }
         }
     }
