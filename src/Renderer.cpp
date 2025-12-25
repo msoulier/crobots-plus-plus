@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <format>
 #include <string>
+#include <thread>
+#include <chrono>
 
 #include "Api.hpp"
 #include "Arena.hpp"
@@ -152,6 +154,16 @@ void Renderer::Present(const std::shared_ptr<Engine> engine, Camera& camera)
                 SDLx_GPURenderLine3D(m_renderer, arena.GetX() - robot->GetX(), 0.0f, robot->GetY(),
                     arena.GetX() - scanleft.GetX(), 0.0f, scanleft.GetY(),
                     0x00FFFFFF);
+                const std::vector<std::unique_ptr<ContactDetails>>& contacts = robot->GetContacts();
+                for (const std::unique_ptr<ContactDetails>& contact : contacts) {
+                    CROBOTS_LOG("contact at bearing {}, range {}", contact->m_bearing, contact->m_range);
+                    CROBOTS_LOG("from {} {} to {} {}", contact->m_fromx, contact->m_fromy,
+                                                       contact->m_tox, contact->m_toy);
+                    SDLx_GPURenderLine3D(m_renderer, arena.GetX() - contact->m_fromx, 0.0f, contact->m_fromy,
+                        arena.GetX() - contact->m_tox, 0.0f, contact->m_toy,
+                        0x00FFFFFF);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
+                }
             }
         }
     }

@@ -69,6 +69,10 @@ void IRobot::AddContact(std::unique_ptr<ContactDetails>& contact)
     m_contacts.push_back(std::move(contact));
 }
 
+const std::vector<std::unique_ptr<ContactDetails>>& IRobot::GetContacts() {
+    return m_contacts;
+}
+
 void IRobot::ClearContacts()
 {
     m_contacts.clear();

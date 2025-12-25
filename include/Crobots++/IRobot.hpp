@@ -76,7 +76,6 @@ public:
         return ss.str();
     }
 
-private:
     float m_fromx;
     float m_fromy;
     float m_tox;
@@ -124,6 +123,7 @@ public:
         return robot;
     }
     void AddContact(std::unique_ptr<ContactDetails>& contact);
+    const std::vector<std::unique_ptr<ContactDetails>>& GetContacts();
     void ClearContacts();
 
 

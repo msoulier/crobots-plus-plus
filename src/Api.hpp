@@ -18,6 +18,7 @@ struct AppInfo
     bool debug;
     bool verbose;
     bool damage;
+    bool pause_on_scan;
 };
 
 }

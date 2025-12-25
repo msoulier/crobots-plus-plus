@@ -5,6 +5,8 @@
 #include <cassert>
 #include <numbers>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "Crobots++/IRobot.hpp"
 #include "Api.hpp"
@@ -96,11 +98,12 @@ const std::vector<std::shared_ptr<Crobots::IRobot>>& Engine::GetRobots() const
     return m_robots;
 }
 
-void Engine::Init(Crobots::Arena arena, bool debug, bool damage)
+void Engine::Init(Crobots::Arena arena, bool debug, bool damage, bool pause_on_scan)
 {
     m_arena = arena;
     m_debug = debug;
     m_damage = damage;
+    m_pause_on_scan = pause_on_scan;
 }
 
 void Engine::Load(std::vector<std::shared_ptr<Crobots::IRobot>>&& robots)
@@ -138,6 +141,24 @@ void Engine::PlaceRobots()
         CROBOTS_LOG("placing robot {} to initial location {}x{}",
             robot->GetName(), robot->m_currentX, robot->m_currentY);
     }
+}
+
+// Source - https://stackoverflow.com/a
+// Posted by sbabbi, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-12-25, License - CC BY-SA 3.0
+
+bool angleInside(const double phi, const double a, const double b)
+{
+    //Case 1 above
+    const double d = phi - a;
+    const double s = std::remainder(b-a - M_PI, 2 * M_PI) + M_PI;
+
+    // Or (Case 2)
+    //const double d = phi - std::min(a,b);
+    //const double s = std::fabs(b-a);
+
+
+    return std::remainder( d - M_PI, 2 * M_PI ) + M_PI <= s;
 }
 
 float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) const
@@ -200,6 +221,10 @@ float Engine::ScanResult(uint32_t robot_id, float facing, float resolution) cons
         if ((lowerbound <= degrees) && (upperbound >= degrees))
         {
             CROBOTS_LOG("Scanner contact: facing = {}, degrees = {}, radius = {}", facing, orig_degrees, radius);
+            if (m_pause_on_scan) {
+                CROBOTS_LOG("Engine sleeping for 2s");
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+            }
             m_robots[i]->Detected();
             // Need the original, unadjusted position.
             theirX = m_robots[i]->LocX();
