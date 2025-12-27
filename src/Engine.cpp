@@ -31,6 +31,11 @@ float Position::GetY()
     return m_y;
 }
 
+const std::vector<Shot>& Engine::GetShots() const
+{
+    return m_shots;
+}
+
 void Engine::AddShot(Shot shot)
 {
     m_shots.push_back(shot);
@@ -47,6 +52,8 @@ void Engine::AddShots()
         }
         if (robot->m_cannotShotRegistered)
         {
+            CROBOTS_LOG("adding shot, initial position {}:{}",
+                robot->m_currentX, robot->m_currentY);
             Shot shot(robot->m_currentX,
                       robot->m_currentY,
                       robot->m_cannonShotDegree,
@@ -123,7 +130,20 @@ void Engine::MoveShotsInFlight()
 {
     for (auto& shot : m_shots)
     {
-
+        float currentX = shot.GetX();
+        float currentY = shot.GetY();
+        float facing = shot.GetFacing();
+        // FIXME: consolidate actual speed between IRobot and this method
+        float speed = IRobot::GetActualSpeed(shot.GetSpeed());
+        float radians = IRobot::ToRadians(facing);
+        float diffx = speed * std::cos(radians);
+        float diffy = speed * std::sin(radians);
+        CROBOTS_LOG("shot moving from {}:{} to {}:{} speed {}",
+            currentX, currentY, currentX+diffx, currentY+diffy, speed);
+        currentX += diffx;
+        currentY += diffy;
+        shot.SetX(currentX);
+        shot.SetY(currentY);
     }
 }
 
@@ -209,8 +229,8 @@ float Engine::ScanResult(uint32_t robot_id, float scandir, float resolution) con
             float distance = std::sqrt(std::pow(theirX - myX, 2) + std::pow(theirY - myY, 2));
             CROBOTS_LOG("Scanner contact: scandir = {}, distance = {}", scandir, distance);
             if (m_pause_on_scan) {
-                CROBOTS_LOG("Engine sleeping for 2s");
                 std::this_thread::sleep_for(std::chrono::seconds(1));
+                CROBOTS_LOG("Engine sleeping for 2s");
             }
             m_robots[i]->Detected();
             // Need the original, unadjusted position.
@@ -248,6 +268,7 @@ void Position::SetY(float y)
 
 void Engine::Tick()
 {
+    CROBOTS_LOG("Engine::Tick");
     for (std::shared_ptr<Crobots::IRobot>& robot : m_robots)
     {
 		CROBOTS_LOG("Engine looping on robot {}", robot->GetName());

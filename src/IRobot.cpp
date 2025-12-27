@@ -37,9 +37,10 @@ IRobot::IRobot()
     m_braking = 5;
     m_turnRate = 5;
     m_cannonType = CannonType::Standard;
-    m_cannonReloadTime = 50;
+    m_cannonShotSpeed = 200;
+    m_cannonReloadTime = 100;
     // For now everyone has the same scanner.
-    m_ticksPerScan = 10;
+    m_ticksPerScan = 2;
     m_scanCountDown = 0;
     m_scan_dir = 0;
     m_resolution =  0;
@@ -234,13 +235,6 @@ bool IRobot::RegisterShot(CannonType weapon, float degree, float range)
     return true;
 }
 
-uint32_t IRobot::BoundedRand(uint32_t range)
-{
-    assert( range > 0 );
-    std::uniform_int_distribution<int> dist(1, range);
-    return dist(gen);
-}
-
 void IRobot::TickInit()
 {
     m_cannotShotRegistered = false;
@@ -335,8 +329,9 @@ void IRobot::MoveRobot()
     assert( arenaX > 0 );
     assert( arenaY > 0 );
 
+    // FIXME: refactor this with Engine::GetPositionAhead
     float radians = ToRadians(m_facing);
-    float myspeed = GetActualSpeed();
+    float myspeed = GetActualSpeed(m_speed);
     float x = myspeed * std::cos(radians);
     float y = myspeed * std::sin(radians);
     m_nextX = m_currentX + x;
@@ -402,12 +397,6 @@ float IRobot::ToRadians(float degrees)
     return ( degrees * std::numbers::pi ) / 180;
 }
 
-float IRobot::GetActualSpeed()
-{
-    // speed is a percentage - FIXME: base this on the frame rate
-    return m_speed / 200.0;
-}
-
 float IRobot::GetArenaX()
 {
     assert(m_proxy != nullptr);
@@ -438,6 +427,20 @@ void IRobot::Detected()
 bool IRobot::IsDetected() const
 {
     return m_detected;
+}
+
+// static methods
+uint32_t IRobot::BoundedRand(uint32_t range)
+{
+    assert( range > 0 );
+    std::uniform_int_distribution<int> dist(1, range);
+    return dist(gen);
+}
+
+float IRobot::GetActualSpeed(float speed)
+{
+    // speed is a percentage - FIXME: base this on the frame rate
+    return speed / 200.0;
 }
 
 }

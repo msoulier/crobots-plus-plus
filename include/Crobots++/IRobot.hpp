@@ -192,7 +192,6 @@ private:
     void MoveRobot();
     void HitTheWall();
     bool IsDead();
-    float GetActualSpeed();
     void Detected();
 
     std::vector<std::unique_ptr<ContactDetails>> m_contacts;
@@ -202,6 +201,7 @@ private:
     static uint32_t BoundedRand(uint32_t range);
     static std::random_device rd;
     static std::mt19937 gen;
+    static float GetActualSpeed(float speed);
 
 protected:
     /*

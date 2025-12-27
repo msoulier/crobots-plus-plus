@@ -15,4 +15,34 @@ Shot::Shot(float initialX,
     , m_remainingRange{0}
 {}
 
+float Shot::GetX() const
+{
+    return m_currentX;
+}
+
+float Shot::GetY() const
+{
+    return m_currentY;
+}
+
+void Shot::SetX(float x)
+{
+    m_currentX = x;
+}
+
+void Shot::SetY(float y)
+{
+    m_currentY = y;
+}
+
+float Shot::GetFacing() const
+{
+    return m_facing;
+}
+
+float Shot::GetSpeed() const
+{
+    return m_speed;
+}
+
 }

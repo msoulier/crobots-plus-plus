@@ -48,6 +48,7 @@ public:
     void AddShot(Shot shot);
     const Arena& GetArena() const;
     const std::vector<std::shared_ptr<IRobot>>& GetRobots() const;
+    const std::vector<Shot>& GetShots() const;
     bool DebugEnabled() const;
 
     // This method is a utility method for computing a position a provided

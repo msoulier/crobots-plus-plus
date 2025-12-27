@@ -16,6 +16,7 @@
 #include "Camera.hpp"
 #include "Engine.hpp"
 #include "Renderer.hpp"
+#include "Shot.hpp"
 
 namespace
 {
@@ -164,6 +165,10 @@ void Renderer::Present(const std::shared_ptr<Engine> engine, Camera& camera)
                         0x00FFFFFF);
                 }
             }
+        }
+        auto& shots = engine->GetShots();
+        for (auto& shot : shots) {
+            Draw("default", arena.GetX() - shot.GetX(), 0.0f, shot.GetY(), IRobot::ToRadians(shot.GetFacing()), 0.1f);
         }
     }
     SDLx_GPUClear(commandBuffer, m_colorTexture, m_depthTexture);

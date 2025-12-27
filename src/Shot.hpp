@@ -17,6 +17,12 @@ public:
          float range);
     Shot(const Shot&) = default;
     const Shot& operator=(const Shot& other);
+    float GetX() const;
+    float GetY() const;
+    void SetX(float x);
+    void SetY(float y);
+    float GetFacing() const;
+    float GetSpeed() const;
 
 private:
     // Current X and Y location. To allow high resolution of movement, the coordinates that the
